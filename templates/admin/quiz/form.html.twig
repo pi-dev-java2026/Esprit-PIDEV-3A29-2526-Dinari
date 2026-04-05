@@ -1,0 +1,229 @@
+{% extends 'admin/base.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ mode == 'new' ? 'Nouveau quiz' : 'Modifier le quiz' }} — Admin{% endblock %}
+{% block page_title %}{{ mode == 'new' ? 'Nouveau quiz' : 'Modifier' }}{% endblock %}
+{% block section_title %}{{ mode == 'new' ? 'Créer un quiz' : quiz.titre }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 6px; font-size: 12px; font-weight: 600; color: #e74c3c;
+}
+.field-error i { font-size: 13px; flex-shrink: 0; }
+.field-invalid {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231,76,60,.1) !important;
+}
+.form-group-d:has(.field-error) > label { color: #e74c3c !important; }
+.label-error { color: #e74c3c !important; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div>
+        <h1>{{ mode == 'new' ? 'Nouveau quiz' : 'Modifier le quiz' }}</h1>
+        <div class="breadcrumb-d">
+            <a href="{{ path('admin_dashboard') }}">Dashboard</a> ›
+            <a href="{{ path('admin_quiz_index') }}">Quiz</a> ›
+            {{ mode == 'new' ? 'Nouveau' : quiz.titre }}
+        </div>
+    </div>
+    <a href="{{ path('admin_quiz_index') }}" class="btn-dinari btn-secondary-d">
+        <i class="ri-arrow-left-line"></i> Retour
+    </a>
+</div>
+
+<div class="card-dinari" style="max-width:700px;">
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate', id: 'quiz-form'}}) }}
+
+    {# ── Server-side error summary ── #}
+    {% if not form.vars.valid and form.vars.submitted %}
+    <div style="background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+        <i class="ri-error-warning-line" style="color:#e74c3c;font-size:18px;flex-shrink:0;margin-top:1px;"></i>
+        <div style="font-size:13px;color:#e74c3c;">
+            <strong>Veuillez corriger les erreurs suivantes :</strong>
+            <ul style="margin:6px 0 0;padding-left:16px;">
+                {% for field in ['titre','listeReponse','reponseCorrect','scoreQuiz','timeLimit'] %}
+                    {% if form[field].vars.errors|length > 0 %}
+                        <li>{{ form[field].vars.label }} : {{ form[field].vars.errors[0].message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-group-d">
+        {{ form_label(form.titre) }}
+        {{ form_widget(form.titre) }}
+        {{ form_errors(form.titre) }}
+    </div>
+
+    <div class="form-group-d">
+        {{ form_label(form.cours) }}
+        {{ form_widget(form.cours) }}
+    </div>
+
+    <div class="form-group-d">
+        {{ form_label(form.listeReponse) }}
+        {{ form_widget(form.listeReponse) }}
+        {{ form_errors(form.listeReponse) }}
+        <small style="color:var(--muted);font-size:12px;">Saisissez une réponse par ligne.</small>
+    </div>
+
+    <div class="form-group-d">
+        {{ form_label(form.reponseCorrect) }}
+        {{ form_widget(form.reponseCorrect) }}
+        {{ form_errors(form.reponseCorrect) }}
+        <small style="color:var(--muted);font-size:12px;">Doit correspondre exactement à l'une des réponses ci-dessus.</small>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group-d">
+            {{ form_label(form.scoreQuiz) }}
+            {{ form_widget(form.scoreQuiz) }}
+            {{ form_errors(form.scoreQuiz) }}
+        </div>
+        <div class="form-group-d">
+            {{ form_label(form.timeLimit) }}
+            {{ form_widget(form.timeLimit) }}
+            {{ form_errors(form.timeLimit) }}
+            <small style="color:var(--muted);font-size:12px;">En secondes. Laisser vide si pas de limite.</small>
+        </div>
+    </div>
+
+    <div class="form-group-d" style="display:flex;align-items:center;gap:10px;">
+        {{ form_widget(form.isExamMode) }}
+        {{ form_label(form.isExamMode) }}
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+        <button type="submit" class="btn-dinari btn-primary-d">
+            <i class="ri-save-line"></i> {{ mode == 'new' ? 'Créer le quiz' : 'Enregistrer' }}
+        </button>
+        <a href="{{ path('admin_quiz_index') }}" class="btn-dinari btn-secondary-d">Annuler</a>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// ── Required field definitions ──
+const REQUIRED = [
+    { id: '{{ form.titre.vars.id }}',          label: 'Titre du quiz' },
+    { id: '{{ form.listeReponse.vars.id }}',   label: 'Choix de réponses' },
+    { id: '{{ form.reponseCorrect.vars.id }}', label: 'Réponse correcte' },
+];
+
+const POSITIVE_INT = [
+    { id: '{{ form.scoreQuiz.vars.id }}',  label: 'Score' },
+    { id: '{{ form.timeLimit.vars.id }}',  label: 'Limite de temps' },
+];
+
+function setError(input, message) {
+    clearError(input);
+    input.classList.add('field-invalid');
+    input.closest('.form-group-d')?.querySelector('label')?.classList.add('label-error');
+    const err = document.createElement('div');
+    err.className = 'field-error field-error-js';
+    err.innerHTML = '<i class="ri-error-warning-line"></i> ' + message;
+    input.insertAdjacentElement('afterend', err);
+}
+
+function clearError(input) {
+    input.classList.remove('field-invalid');
+    input.closest('.form-group-d')?.querySelector('label')?.classList.remove('label-error');
+    input.parentElement?.querySelector('.field-error-js')?.remove();
+}
+
+function validateForm() {
+    let valid = true;
+    let firstInvalid = null;
+
+    // Required text/textarea fields
+    REQUIRED.forEach(({ id, label }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.value.trim() === '') {
+            setError(el, label + ' est obligatoire.');
+            valid = false;
+            firstInvalid = firstInvalid || el;
+        }
+    });
+
+    // Positive integer fields (only if filled)
+    POSITIVE_INT.forEach(({ id, label }) => {
+        const el = document.getElementById(id);
+        if (!el || el.value.trim() === '') return;
+        const val = parseInt(el.value, 10);
+        if (isNaN(val) || val < 1) {
+            setError(el, label + ' doit être un nombre positif.');
+            valid = false;
+            firstInvalid = firstInvalid || el;
+        }
+    });
+
+    // Réponse correcte must match one of the choices
+    const choicesEl = document.getElementById('{{ form.listeReponse.vars.id }}');
+    const correctEl = document.getElementById('{{ form.reponseCorrect.vars.id }}');
+    if (choicesEl && correctEl && choicesEl.value.trim() && correctEl.value.trim()) {
+        const choices = choicesEl.value.split('\n').map(l => l.trim()).filter(Boolean);
+        const correct = correctEl.value.trim();
+        if (!choices.includes(correct)) {
+            setError(correctEl, 'La réponse correcte doit correspondre exactement à l\'un des choix.');
+            valid = false;
+            firstInvalid = firstInvalid || correctEl;
+        }
+    }
+
+    return { valid, firstInvalid };
+}
+
+document.getElementById('quiz-form').addEventListener('submit', function(e) {
+    // Clear previous JS errors
+    document.querySelectorAll('.field-error-js').forEach(el => el.remove());
+    document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+    document.querySelectorAll('.label-error').forEach(el => el.classList.remove('label-error'));
+    document.getElementById('quiz-validation-banner')?.remove();
+
+    const { valid, firstInvalid } = validateForm();
+
+    if (!valid) {
+        e.preventDefault();
+
+        const banner = document.createElement('div');
+        banner.id = 'quiz-validation-banner';
+        banner.style.cssText = 'background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#e74c3c;';
+        banner.innerHTML = '<i class="ri-error-warning-line" style="font-size:18px;flex-shrink:0;"></i> Veuillez remplir les champs obligatoires avant de continuer.';
+        this.insertAdjacentElement('afterbegin', banner);
+
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus();
+        }
+    }
+});
+
+// Clear error live as user types
+document.addEventListener('input', function(e) {
+    if (e.target.matches('input, textarea, select')) {
+        clearError(e.target);
+        if (!document.querySelector('.field-invalid')) {
+            document.getElementById('quiz-validation-banner')?.remove();
+        }
+    }
+});
+
+// Highlight server-side errors on load
+document.querySelectorAll('.field-error:not(.field-error-js)').forEach(err => {
+    const input = err.closest('.form-group-d')?.querySelector('input, textarea, select');
+    if (input) input.classList.add('field-invalid');
+});
+</script>
+{% endblock %}

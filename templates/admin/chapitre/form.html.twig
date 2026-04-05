@@ -1,0 +1,438 @@
+{% extends 'admin/base.html.twig' %}
+
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ mode == 'new' ? 'Nouveau chapitre' : 'Modifier — ' ~ chapitre.titre }} — Admin{% endblock %}
+{% block page_title %}{{ mode == 'new' ? 'Nouveau chapitre' : 'Modifier le chapitre' }}{% endblock %}
+{% block section_title %}{{ cours.nomCours }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── shared tree styles ── */
+.sb { background:#fff; border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:20px; }
+
+/* ── Validation errors ── */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #e74c3c;
+}
+.field-error i { font-size: 13px; flex-shrink: 0; }
+.field-invalid {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231,76,60,.1) !important;
+}
+.form-group-d:has(.field-error) > label,
+.label-error { color: #e74c3c !important; }
+.sb-head {
+    font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    color:var(--blue); margin-bottom:20px; padding-bottom:12px;
+    border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;
+}
+.sb-head i { font-size:16px; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+@media(max-width:700px){ .grid-2,.grid-3 { grid-template-columns:1fr; } }
+
+/* Collection */
+.coll-item {
+    background:#f8f9fa; border:1px solid var(--border); border-radius:8px;
+    padding:16px 16px 10px; margin-bottom:10px; position:relative;
+}
+.coll-item .btn-rm {
+    position:absolute; top:10px; right:10px; background:none; border:none;
+    color:#e74c3c; cursor:pointer; font-size:16px; line-height:1; padding:2px 6px;
+    border-radius:4px; transition:background .15s;
+}
+.coll-item .btn-rm:hover { background:rgba(231,76,60,.1); }
+.btn-add {
+    display:inline-flex; align-items:center; gap:6px; margin-top:6px;
+    padding:8px 16px; border-radius:8px; border:1.5px dashed var(--border);
+    background:#fff; color:var(--blue); font-size:13px; font-weight:600;
+    cursor:pointer; transition:all .2s;
+}
+.btn-add:hover { border-color:var(--blue); background:rgba(26,111,196,.05); }
+
+/* Preview strip */
+.media-preview { margin-top:8px; border-radius:8px; overflow:hidden; max-height:160px; display:none; }
+.media-preview img { width:100%; height:160px; object-fit:cover; display:block; }
+.media-preview iframe { width:100%; height:160px; border:none; display:block; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div>
+        <h1>{{ mode == 'new' ? 'Nouveau chapitre' : 'Modifier — ' ~ chapitre.titre }}</h1>
+        <div class="breadcrumb-d">
+            <a href="{{ path('admin_dashboard') }}">Dashboard</a> ›
+            <a href="{{ path('admin_cours_index') }}">Cours</a> ›
+            <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}">{{ cours.nomCours }}</a> ›
+            {{ mode == 'new' ? 'Nouveau chapitre' : chapitre.titre }}
+        </div>
+    </div>
+    <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}" class="btn-dinari btn-secondary-d">
+        <i class="ri-arrow-left-line"></i> Retour
+    </a>
+</div>
+
+{{ form_start(form, {attr: {novalidate: 'novalidate', id: 'chapitre-form'}}) }}
+
+{# ── Global error summary ── #}
+{% if not form.vars.valid and form.vars.submitted %}
+<div style="background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+    <i class="ri-error-warning-line" style="color:#e74c3c;font-size:18px;flex-shrink:0;margin-top:1px;"></i>
+    <div style="font-size:13px;color:#e74c3c;">
+        <strong>Veuillez corriger les erreurs suivantes :</strong>
+        <ul style="margin:6px 0 0;padding-left:16px;">
+            {% if form.titre.vars.errors|length > 0 %}
+                <li>Titre : {{ form.titre.vars.errors[0].message }}</li>
+            {% endif %}
+            {% if form.position.vars.errors|length > 0 %}
+                <li>Ordre : {{ form.position.vars.errors[0].message }}</li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+{# ══ 1. IDENTITÉ ══ #}
+<div class="sb">
+    <div class="sb-head"><i class="ri-bookmark-line"></i> Identité du chapitre</div>
+    <div class="grid-2" style="margin-bottom:16px;">
+        <div class="form-group-d">
+            {{ form_label(form.position) }}
+            {{ form_widget(form.position) }}
+        </div>
+        <div></div>
+    </div>
+    <div class="form-group-d">
+        {{ form_label(form.titre) }}
+        {{ form_widget(form.titre, {attr: {class: 'form-control'}}) }}
+    </div>
+    </div>
+    <div class="form-group-d">
+        {{ form_label(form.sousTitre) }}
+        {{ form_widget(form.sousTitre) }}
+    </div>
+</div>
+
+{# ══ 2. CONTENU ÉDUCATIF ══ #}
+<div class="sb">
+    <div class="sb-head"><i class="ri-file-text-line"></i> Contenu éducatif</div>
+    <div class="form-group-d">
+        {{ form_label(form.intro) }}
+        {{ form_widget(form.intro) }}
+        <small style="color:var(--muted);font-size:12px;">Affiché dans le bandeau bleu en haut du chapitre.</small>
+    </div>
+    <div class="form-group-d">
+        {{ form_label(form.contenuPrincipal) }}
+        {{ form_widget(form.contenuPrincipal) }}
+        <small style="color:var(--muted);font-size:12px;">Bloc d'explication principal visible dans la section "Qu'est-ce que...".</small>
+    </div>
+    <div class="form-group-d">
+        {{ form_label(form.aRetenir) }}
+        {{ form_widget(form.aRetenir) }}
+        <small style="color:var(--muted);font-size:12px;">Affiché dans l'encadré bleu "💡 À retenir".</small>
+    </div>
+</div>
+
+{# ══ 3. VIDÉO ══ #}
+<div class="sb">
+    <div class="sb-head"><i class="ri-video-line"></i> Vidéo</div>
+    <div class="form-group-d">
+        {{ form_label(form.videoUrl) }}
+        {{ form_widget(form.videoUrl, {attr: {id: 'video_url_input', oninput: 'previewVideo(this.value)'}}) }}
+        <small style="color:var(--muted);font-size:12px;">Utiliser l'URL embed YouTube : https://www.youtube.com/embed/ID</small>
+    </div>
+    <div class="media-preview" id="video-preview">
+        <iframe id="video-frame" src="" allowfullscreen></iframe>
+    </div>
+</div>
+
+{# ══ 4. IMAGE ══ #}
+<div class="sb">
+    <div class="sb-head"><i class="ri-image-line"></i> Image / Illustration</div>
+    <div class="form-group-d">
+        {{ form_label(form.imageUrl) }}
+        {{ form_widget(form.imageUrl, {attr: {id: 'image_url_input', oninput: 'previewImage(this.value)'}}) }}
+    </div>
+    <div class="media-preview" id="image-preview">
+        <img id="image-thumb" src="" alt="Aperçu">
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+        <div class="form-group-d">
+            {{ form_label(form.imageTitre) }}
+            {{ form_widget(form.imageTitre) }}
+        </div>
+        <div class="form-group-d">
+            {{ form_label(form.imageDescription) }}
+            {{ form_widget(form.imageDescription) }}
+        </div>
+    </div>
+</div>
+
+{# ══ 5. TÂCHES ══ #}
+<div class="sb">
+    <div class="sb-head"><i class="ri-checkbox-line"></i> Tâches du chapitre</div>
+    <div id="taches-list">
+        {% for tache in form.taches %}
+            <div class="coll-item">
+                <button type="button" class="btn-rm" onclick="this.closest('.coll-item').remove()" title="Supprimer">×</button>
+                <div class="grid-2" style="margin-bottom:10px;">
+                    <div class="form-group-d" style="margin-bottom:0;">
+                        {{ form_label(tache.libelle) }}
+                        {{ form_widget(tache.libelle) }}
+                        {{ form_errors(tache.libelle) }}
+                    </div>
+                    <div class="form-group-d" style="margin-bottom:0;">
+                        {{ form_label(tache.position) }}
+                        {{ form_widget(tache.position) }}
+                    </div>
+                </div>
+                <div class="form-group-d" style="margin-bottom:0;">
+                    {{ form_label(tache.description) }}
+                    {{ form_widget(tache.description) }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn-add" onclick="addTache()">
+        <i class="ri-add-line"></i> Ajouter une tâche
+    </button>
+</div>
+
+{# ══ 6. QUESTIONS QCM ══ #}
+<div class="sb">
+    <div class="sb-head"><i class="ri-question-answer-line"></i> Questions QCM</div>
+    <div id="questions-list">
+        {% for q in form.questions %}
+            <div class="coll-item">
+                <button type="button" class="btn-rm" onclick="this.closest('.coll-item').remove()" title="Supprimer">×</button>
+                <div class="form-group-d">
+                    {{ form_label(q.question) }}
+                    {{ form_widget(q.question) }}
+                    {{ form_errors(q.question) }}
+                </div>
+                <div class="grid-2">
+                    <div class="form-group-d">
+                        {{ form_label(q.choixA) }}
+                        {{ form_widget(q.choixA) }}
+                        {{ form_errors(q.choixA) }}
+                    </div>
+                    <div class="form-group-d">
+                        {{ form_label(q.choixB) }}
+                        {{ form_widget(q.choixB) }}
+                        {{ form_errors(q.choixB) }}
+                    </div>
+                    <div class="form-group-d">
+                        {{ form_label(q.choixC) }}
+                        {{ form_widget(q.choixC) }}
+                    </div>
+                    <div class="form-group-d">
+                        {{ form_label(q.choixD) }}
+                        {{ form_widget(q.choixD) }}
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group-d">
+                        {{ form_label(q.bonneReponse) }}
+                        {{ form_widget(q.bonneReponse) }}
+                    </div>
+                    <div class="form-group-d">
+                        {{ form_label(q.position) }}
+                        {{ form_widget(q.position) }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn-add" onclick="addQuestion()">
+        <i class="ri-add-line"></i> Ajouter une question
+    </button>
+</div>
+
+{# ══ SUBMIT ══ #}
+<div style="display:flex;gap:10px;padding-bottom:40px;">
+    <button type="submit" class="btn-dinari btn-primary-d">
+        <i class="ri-save-line"></i> {{ mode == 'new' ? 'Créer le chapitre' : 'Enregistrer les modifications' }}
+    </button>
+    <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}" class="btn-dinari btn-secondary-d">
+        Annuler
+    </a>
+</div>
+
+{# Capture prototypes BEFORE form_end so they are not considered already rendered #}
+{% set tache_proto_html    = form_widget(form.taches.vars.prototype)|e('html_attr') %}
+{% set question_proto_html = form_widget(form.questions.vars.prototype)|e('html_attr') %}
+
+{{ form_end(form) }}
+
+{# Prototype containers — use the captured variables #}
+<div id="tache-proto"    data-proto="{{ tache_proto_html }}"    style="display:none"></div>
+<div id="question-proto" data-proto="{{ question_proto_html }}" style="display:none"></div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+let tIdx = {{ form.taches|length }};
+let qIdx = {{ form.questions|length }};
+
+function addTache() {
+    const proto = document.getElementById('tache-proto').dataset.proto;
+    const html  = proto.replace(/__name__/g, tIdx++);
+    const div   = document.createElement('div');
+    div.className = 'coll-item';
+    div.innerHTML = `<button type="button" class="btn-rm" onclick="this.closest('.coll-item').remove()" title="Supprimer">×</button>
+        <div class="grid-2" style="margin-bottom:10px;">
+            <div class="form-group-d" style="margin-bottom:0;">${extractField(html, 'libelle', 'Titre de la tâche')}</div>
+            <div class="form-group-d" style="margin-bottom:0;">${extractField(html, 'position', 'Ordre')}</div>
+        </div>
+        <div class="form-group-d" style="margin-bottom:0;">${extractField(html, 'description', 'Description (optionnel)')}</div>`;
+    document.getElementById('taches-list').appendChild(div);
+}
+
+function addQuestion() {
+    const proto = document.getElementById('question-proto').dataset.proto;
+    const html  = proto.replace(/__name__/g, qIdx++);
+    const div   = document.createElement('div');
+    div.className = 'coll-item';
+    div.innerHTML = `<button type="button" class="btn-rm" onclick="this.closest('.coll-item').remove()" title="Supprimer">×</button>
+        <div class="form-group-d">${extractField(html, 'question', 'Question')}</div>
+        <div class="grid-2">
+            <div class="form-group-d">${extractField(html, 'choixA', 'Choix A')}</div>
+            <div class="form-group-d">${extractField(html, 'choixB', 'Choix B')}</div>
+            <div class="form-group-d">${extractField(html, 'choixC', 'Choix C')}</div>
+            <div class="form-group-d">${extractField(html, 'choixD', 'Choix D')}</div>
+        </div>
+        <div class="grid-2">
+            <div class="form-group-d">${extractField(html, 'bonneReponse', 'Bonne réponse')}</div>
+            <div class="form-group-d">${extractField(html, 'position', 'Ordre')}</div>
+        </div>`;
+    document.getElementById('questions-list').appendChild(div);
+}
+
+function extractField(html, name, label) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const input = tmp.querySelector(`[id$="_${name}"], [name$="[${name}]"]`);
+    if (!input) return html;
+    return `<label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">${label}</label>${input.outerHTML}`;
+}
+
+// ── Validation ──
+const REQUIRED_FIELDS = [
+    { selector: '[name$="[titre]"], #{{ form.titre.vars.id }}', label: 'Titre du chapitre' },
+];
+
+function setError(input, message) {
+    clearError(input);
+    input.classList.add('field-invalid');
+    const group = input.closest('.form-group-d');
+    if (group) {
+        group.querySelector('label')?.classList.add('label-error');
+        const err = document.createElement('div');
+        err.className = 'field-error field-error-js';
+        err.innerHTML = '<i class="ri-error-warning-line"></i> ' + message;
+        input.insertAdjacentElement('afterend', err);
+    }
+}
+
+function clearError(input) {
+    input.classList.remove('field-invalid');
+    input.closest('.form-group-d')?.querySelector('label')?.classList.remove('label-error');
+    input.parentElement?.querySelector('.field-error-js')?.remove();
+}
+
+function validateForm() {
+    // Find the titre input by id
+    const titreInput = document.getElementById('{{ form.titre.vars.id }}');
+    let valid = true;
+
+    if (titreInput && titreInput.value.trim() === '') {
+        setError(titreInput, 'Le titre est obligatoire.');
+        valid = false;
+    }
+
+    return valid;
+}
+
+document.getElementById('chapitre-form').addEventListener('submit', function(e) {
+    // Clear previous JS errors
+    document.querySelectorAll('.field-error-js').forEach(el => el.remove());
+    document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+    document.querySelectorAll('.label-error').forEach(el => el.classList.remove('label-error'));
+
+    const valid = validateForm();
+
+    if (!valid) {
+        e.preventDefault();
+
+        // Show top banner
+        let banner = document.getElementById('validation-banner');
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'validation-banner';
+            banner.style.cssText = 'background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#e74c3c;';
+            banner.innerHTML = '<i class="ri-error-warning-line" style="font-size:18px;flex-shrink:0;"></i> Veuillez remplir les champs obligatoires avant de continuer.';
+            this.insertAdjacentElement('afterbegin', banner);
+        }
+
+        // Scroll to first invalid field
+        const first = document.querySelector('.field-invalid');
+        if (first) {
+            first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            first.focus();
+        }
+    }
+});
+
+// Clear error as user types
+document.addEventListener('input', function(e) {
+    if (e.target.matches('input, textarea, select')) {
+        clearError(e.target);
+        // Hide banner if no more errors
+        if (!document.querySelector('.field-invalid')) {
+            document.getElementById('validation-banner')?.remove();
+        }
+    }
+});
+
+// Mark server-side errors on load
+document.querySelectorAll('.field-error:not(.field-error-js)').forEach(err => {
+    const input = err.closest('.form-group-d')?.querySelector('input, textarea, select');
+    if (input) input.classList.add('field-invalid');
+});
+
+// Media previews
+function previewVideo(url) {
+    const preview = document.getElementById('video-preview');
+    const frame   = document.getElementById('video-frame');
+    if (url && url.includes('youtube.com/embed')) {
+        frame.src = url;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+        frame.src = '';
+    }
+}
+
+function previewImage(url) {
+    const preview = document.getElementById('image-preview');
+    const img     = document.getElementById('image-thumb');
+    if (url) { img.src = url; preview.style.display = 'block'; }
+    else     { preview.style.display = 'none'; }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const vUrl = document.getElementById('video_url_input');
+    const iUrl = document.getElementById('image_url_input');
+    if (vUrl?.value) previewVideo(vUrl.value);
+    if (iUrl?.value) previewImage(iUrl.value);
+});
+</script>
+{% endblock %}

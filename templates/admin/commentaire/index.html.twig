@@ -1,0 +1,74 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Commentaires — Admin{% endblock %}
+{% block page_title %}Commentaires{% endblock %}
+{% block section_title %}Modération{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div>
+        <h1>Commentaires</h1>
+        <div class="breadcrumb-d"><a href="{{ path('admin_dashboard') }}">Dashboard</a> › Commentaires</div>
+    </div>
+</div>
+
+<div class="card-dinari">
+    <div class="card-header-dinari">
+        <span class="card-title">{{ commentaires|length }} commentaire{{ commentaires|length != 1 ? 's' : '' }}</span>
+    </div>
+    {% if commentaires is empty %}
+        <p style="color:var(--muted);text-align:center;padding:32px;">Aucun commentaire.</p>
+    {% else %}
+        <table class="table-dinari">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Auteur</th>
+                    <th>Contenu</th>
+                    <th>Cours / Chapitre</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in commentaires %}
+                <tr>
+                    <td>{{ c.id }}</td>
+                    <td><strong>{{ c.auteur }}</strong></td>
+                    <td style="max-width:280px;font-size:13px;color:var(--muted);">
+                        {{ c.contenu|slice(0,100) }}{% if c.contenu|length > 100 %}…{% endif %}
+                    </td>
+                    <td style="font-size:12px;">
+                        {% if c.coursSlug %}
+                            {% set slug = c.coursSlug %}
+                            {# Strip full URLs — keep only the last meaningful path segment #}
+                            {% if '://' in slug %}
+                                {% set slug = slug|split('/')|last %}
+                                {% if slug == '' %}
+                                    {% set parts = c.coursSlug|split('/') %}
+                                    {% set slug = parts[parts|length - 2] ?? slug %}
+                                {% endif %}
+                            {% endif %}
+                            <span class="badge-dinari badge-info" title="{{ c.coursSlug }}">{{ slug }}</span>
+                        {% endif %}
+                        {% if c.chapitre %}
+                            <span class="badge-dinari badge-warning" style="margin-top:3px;">{{ c.chapitre }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size:12px;color:var(--muted);">{{ c.dateCreation|date('d/m/Y H:i') }}</td>
+                    <td>
+                        <form method="POST" action="{{ path('admin_commentaire_delete', {id: c.id}) }}"
+                              onsubmit="return confirm('Supprimer ce commentaire ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_com_' ~ c.id) }}">
+                            <button type="submit" class="btn-dinari btn-danger-d btn-sm-d">
+                                <i class="ri-delete-bin-line"></i> Supprimer
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}
