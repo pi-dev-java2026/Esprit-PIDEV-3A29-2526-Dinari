@@ -1,0 +1,459 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Liste des Experts{% endblock %}
+{% block page_title %}Experts & Offres{% endblock %}
+{% block section_title %}Liste des Experts{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .experts-page {
+        padding-top: 10px;
+    }
+
+    .experts-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .experts-title {
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #24364b;
+    }
+
+    .experts-subtitle {
+        margin-top: 6px;
+        color: #7a8a9a;
+        font-size: 14px;
+    }
+
+    .filters-bar {
+        background: #ffffff;
+        border: 1px solid #e8eef6;
+        border-radius: 22px;
+        padding: 20px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 24px rgba(17, 38, 63, 0.05);
+    }
+
+    .filters-form {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr auto auto;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .filter-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-icon {
+        position: absolute;
+        left: 14px;
+        font-size: 15px;
+        color: #7a8ea5;
+        pointer-events: none;
+    }
+
+    .filters-input,
+    .filters-select {
+        width: 100%;
+        height: 50px;
+        border: 1px solid #d9e5f1;
+        border-radius: 14px;
+        background: #fbfdff;
+        font-size: 14px;
+        color: #22374d;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .filter-group .filters-input {
+        padding: 0 14px 0 42px;
+    }
+
+    .filters-select {
+        padding: 0 14px;
+    }
+
+    .filters-input:focus,
+    .filters-select:focus {
+        border-color: #1a6fc4;
+        box-shadow: 0 0 0 4px rgba(26, 111, 196, 0.08);
+        background: #fff;
+    }
+
+    .btn-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .btn-add {
+        background: #1a6fc4;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(26, 111, 196, 0.12);
+    }
+
+    .btn-add:hover {
+        background: #155ca5;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .btn-reset {
+        background: #eef3f8;
+        color: #415466;
+    }
+
+    .btn-reset:hover {
+        background: #dde7f0;
+        color: #22374d;
+    }
+
+    .experts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .expert-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+        border: 1px solid #e7edf5;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(22, 34, 51, 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+    }
+
+    .expert-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #1f6fbe, #6aa9e9);
+    }
+
+    .expert-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(22, 34, 51, 0.10);
+    }
+
+    .expert-top {
+        padding: 24px 24px 14px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .expert-avatar {
+        width: 68px;
+        height: 68px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #eaf3ff, #d8e8fb);
+        color: #1f6fbe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 800;
+        flex-shrink: 0;
+        border: 1px solid #d4e3f4;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .expert-name {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #23384d;
+    }
+
+    .expert-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(26, 111, 196, 0.10);
+        color: #1a6fc4;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid rgba(26, 111, 196, 0.12);
+    }
+
+    .expert-body {
+        padding: 0 24px 20px;
+    }
+
+    .expert-info {
+        display: grid;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .expert-info-item {
+        display: flex;
+        gap: 8px;
+        font-size: 14px;
+        color: #526274;
+        line-height: 1.5;
+    }
+
+    .expert-info-item strong {
+        color: #24364b;
+        min-width: 95px;
+    }
+
+    .exp-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #eef6ff;
+        color: #1f6fbe;
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid #d6e7fb;
+    }
+
+    .expert-description {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f7f9fc;
+        border: 1px solid #edf2f7;
+        font-size: 14px;
+        color: #5d6d7e;
+        line-height: 1.6;
+    }
+
+    .expert-actions {
+        padding: 18px 24px 24px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .btn-edit {
+        background: #f5b041;
+        color: #fff;
+    }
+
+    .btn-edit:hover {
+        background: #e29a21;
+        color: #fff;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+        color: #fff;
+    }
+
+    .btn-delete:hover {
+        background: #cb3d2e;
+        color: #fff;
+    }
+
+    .btn-offres {
+        background: #4db6d6;
+        color: #fff;
+    }
+
+    .btn-offres:hover {
+        background: #33a4c7;
+        color: #fff;
+    }
+
+    .empty-state {
+        background: #fff;
+        border: 1px dashed #cfd9e6;
+        border-radius: 18px;
+        padding: 50px 24px;
+        text-align: center;
+        color: #718096;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 10px;
+        color: #2d4055;
+        font-size: 1.5rem;
+    }
+
+    .delete-form {
+        display: inline;
+        margin: 0;
+    }
+
+    @media (max-width: 900px) {
+        .filters-form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="experts-page">
+
+    <div class="experts-header">
+        <div>
+            <h1 class="experts-title">Liste des Experts</h1>
+            <div class="experts-subtitle">
+                Gérez les experts comptables et consultez les offres liées à chaque expert.
+            </div>
+        </div>
+
+        <a href="{{ path('app_expert_comptable_new') }}" class="btn-custom btn-add">
+            + Ajouter un Expert
+        </a>
+    </div>
+
+    <div class="filters-bar">
+        <form method="get" action="{{ path('app_expert_comptable_index') }}" class="filters-form">
+
+            <div class="filter-group">
+                <span class="filter-icon">🔍</span>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Rechercher par nom, prénom ou email..."
+                    value="{{ search ?? '' }}"
+                    class="filters-input"
+                >
+            </div>
+
+            <select name="specialite" class="filters-select">
+                <option value="">Toutes les spécialités</option>
+                <option value="comptabilite_generale" {{ specialite == 'comptabilite_generale' ? 'selected' : '' }}>
+                    Comptabilité générale
+                </option>
+                <option value="gestion_financiere" {{ specialite == 'gestion_financiere' ? 'selected' : '' }}>
+                    Gestion financière
+                </option>
+                <option value="fiscalite" {{ specialite == 'fiscalite' ? 'selected' : '' }}>
+                    Fiscalité
+                </option>
+                <option value="audit" {{ specialite == 'audit' ? 'selected' : '' }}>
+                    Audit
+                </option>
+                <option value="conseil_juridique" {{ specialite == 'conseil_juridique' ? 'selected' : '' }}>
+                    Conseil juridique
+                </option>
+                <option value="paie_rh" {{ specialite == 'paie_rh' ? 'selected' : '' }}>
+                    Paie et RH
+                </option>
+                <option value="creation_entreprise" {{ specialite == 'creation_entreprise' ? 'selected' : '' }}>
+                    Création d’entreprise
+                </option>
+            </select>
+
+            <button type="submit" class="btn-custom btn-add">
+                Rechercher
+            </button>
+
+            <a href="{{ path('app_expert_comptable_index') }}" class="btn-custom btn-reset">
+                Reset
+            </a>
+
+        </form>
+    </div>
+
+    {% if expert_comptables|length > 0 %}
+        <div class="experts-grid">
+            {% for expert_comptable in expert_comptables %}
+                <div class="expert-card">
+                    <div class="expert-top">
+                        <div class="expert-avatar">
+                            {{ expert_comptable.nom|first|upper }}{{ expert_comptable.prenom|first|upper }}
+                        </div>
+
+                        <div>
+                            <h2 class="expert-name">
+                                {{ expert_comptable.nom }} {{ expert_comptable.prenom }}
+                            </h2>
+                            <span class="expert-badge">
+                                {{ expert_comptable.specialite|replace({
+                                    'comptabilite_generale': 'Comptabilité générale',
+                                    'fiscalite': 'Fiscalité',
+                                    'audit': 'Audit',
+                                    'gestion_financiere': 'Gestion financière',
+                                    'conseil_juridique': 'Conseil juridique',
+                                    'paie_rh': 'Paie et RH',
+                                    'creation_entreprise': 'Création d’entreprise'
+                                }) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="expert-body">
+                        <div class="expert-info">
+                            <div class="expert-info-item">
+                                <strong>Email :</strong>
+                                <span>{{ expert_comptable.email }}</span>
+                            </div>
+
+                            <div class="expert-info-item">
+                                <strong>Téléphone :</strong>
+                                <span>{{ expert_comptable.telephone }}</span>
+                            </div>
+
+                            <div class="expert-info-item">
+                                <strong>Expérience :</strong>
+                                <span class="exp-badge">{{ expert_comptable.experience }} ans</span>
+                            </div>
+                        </div>
+
+                        <div class="expert-description">
+                            <strong>Description :</strong><br>
+                            {{ expert_comptable.description ?: 'Aucune description disponible.' }}
+                        </div>
+                    </div>
+
+                    <div class="expert-actions">
+                        <a href="{{ path('app_expert_comptable_edit', {'id': expert_comptable.id}) }}" class="btn-custom btn-edit">
+                            Modifier
+                        </a>
+
+                        <form method="post"
+                              action="{{ path('app_expert_comptable_delete', {'id': expert_comptable.id}) }}"
+                              class="delete-form"
+                              onsubmit="return confirm('Voulez-vous vraiment supprimer cet expert ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ expert_comptable.id) }}">
+                            <button class="btn-custom btn-delete">Supprimer</button>
+                        </form>
+
+                        <a href="{{ path('app_offre_index', {'expert_id': expert_comptable.id}) }}" class="btn-custom btn-offres">
+                            Consulter Offres
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Aucun expert trouvé</h3>
+            <p>Commencez par ajouter un expert comptable pour gérer ensuite ses offres.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

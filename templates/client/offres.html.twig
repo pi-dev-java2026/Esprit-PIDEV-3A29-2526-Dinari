@@ -1,0 +1,450 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offres de l'expert{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .client-page {
+        max-width: 1250px;
+        margin: 40px auto 70px;
+        padding: 0 20px;
+    }
+
+    .hero-offres {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f7fbff, #eef6ff);
+        border: 1px solid #dce9f7;
+        border-radius: 26px;
+        padding: 36px 32px;
+        margin-bottom: 30px;
+        box-shadow: 0 18px 40px rgba(18, 35, 52, 0.06);
+    }
+
+    .hero-offres::before {
+        content: "";
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(26, 111, 196, 0.06);
+        top: -70px;
+        right: -40px;
+    }
+
+    .hero-offres h1 {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 8px;
+        font-size: 2.3rem;
+        font-weight: 800;
+        color: #1f3147;
+    }
+
+    .hero-offres p {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #67798c;
+        font-size: 1rem;
+        line-height: 1.7;
+        max-width: 760px;
+    }
+
+    .expert-summary {
+        position: relative;
+        z-index: 1;
+        margin-top: 16px;
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(26, 111, 196, 0.10);
+        color: #1a6fc4;
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid rgba(26, 111, 196, 0.12);
+    }
+
+    .filters-bar {
+        background: #ffffff;
+        border: 1px solid #e8eef6;
+        border-radius: 22px;
+        padding: 20px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 24px rgba(17, 38, 63, 0.05);
+    }
+
+    .filters-form {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr auto auto;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .filter-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-icon {
+        position: absolute;
+        left: 14px;
+        font-size: 15px;
+        color: #7a8ea5;
+        pointer-events: none;
+    }
+
+    .filters-input,
+    .filters-select {
+        width: 100%;
+        height: 52px;
+        border: 1px solid #d9e5f1;
+        border-radius: 14px;
+        background: #fbfdff;
+        font-size: 14px;
+        color: #22374d;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .filter-group .filters-input {
+        padding: 0 14px 0 42px;
+    }
+
+    .filters-form > .filters-input {
+        padding: 0 14px;
+    }
+
+    .filters-select {
+        padding: 0 14px;
+    }
+
+    .filters-input:focus,
+    .filters-select:focus {
+        border-color: #1a6fc4;
+        box-shadow: 0 0 0 4px rgba(26, 111, 196, 0.08);
+        background: #fff;
+    }
+
+    .btn-filter {
+        height: 52px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .btn-filter-primary {
+        background: #1f6fbe;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(26, 111, 196, 0.14);
+    }
+
+    .btn-filter-primary:hover {
+        background: #175fa5;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .btn-filter-light {
+        background: #eef3f8;
+        color: #415466;
+    }
+
+    .btn-filter-light:hover {
+        background: #dfe8f1;
+        color: #22374d;
+    }
+
+    .offres-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .offre-card-client {
+        background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+        border: 1px solid #e7edf5;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 12px 30px rgba(18, 35, 52, 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .offre-card-client::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #1f6fbe, #6aa9e9);
+    }
+
+    .offre-card-client:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 42px rgba(18, 35, 52, 0.12);
+    }
+
+    .offre-title-client {
+        margin: 0 0 16px;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #20354a;
+        line-height: 1.3;
+    }
+
+    .offre-info-client {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .prix-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #eef6ff;
+        color: #1f6fbe;
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid #d6e7fb;
+    }
+
+    .meta-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f7f9fc;
+        color: #4c6f94;
+        border: 1px solid #e3ebf5;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .offre-description-client {
+        background: #f8fbfd;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 16px;
+        color: #607286;
+        line-height: 1.6;
+        margin-bottom: 18px;
+        min-height: 100px;
+    }
+
+    .offre-actions-client {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-client-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a6fc4;
+        color: #fff;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.2s ease;
+        box-shadow: 0 8px 18px rgba(26, 111, 196, 0.12);
+    }
+
+    .btn-client-primary:hover {
+        background: #145a9d;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .btn-client-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef3f8;
+        color: #415466;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .btn-client-secondary:hover {
+        background: #dde7f0;
+        color: #22374d;
+    }
+
+    .empty-client {
+        background: #fff;
+        border: 1px dashed #ccd8e6;
+        border-radius: 20px;
+        padding: 55px 20px;
+        text-align: center;
+        color: #708090;
+    }
+
+    .empty-client h3 {
+        margin-bottom: 8px;
+        color: #22364c;
+    }
+
+    .back-zone {
+        margin-top: 28px;
+    }
+
+    @media (max-width: 980px) {
+        .filters-form {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-offres {
+            padding: 28px 22px;
+        }
+
+        .hero-offres h1 {
+            font-size: 1.9rem;
+        }
+
+        .offres-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="client-page">
+
+    <div class="hero-offres">
+        <h1>Offres disponibles</h1>
+        <p>Consultez les services proposés par cet expert comptable et choisissez l’offre qui correspond à votre besoin.</p>
+
+        <div class="expert-summary">
+            {{ expert.nom }} {{ expert.prenom }} —
+            {{ expert.specialite|replace({
+                'comptabilite_generale': 'Comptabilité générale',
+                'fiscalite': 'Fiscalité',
+                'audit': 'Audit',
+                'gestion_financiere': 'Gestion financière',
+                'conseil_juridique': 'Conseil juridique',
+                'paie_rh': 'Paie et RH',
+                'creation_entreprise': 'Création d’entreprise'
+            }) }}
+        </div>
+    </div>
+
+    <div class="filters-bar">
+        <form method="get" action="{{ path('app_client_offres_expert', {'id': expert.id}) }}" class="filters-form">
+
+            <div class="filter-group">
+                <span class="filter-icon">🔍</span>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Rechercher une offre..."
+                    value="{{ search ?? '' }}"
+                    class="filters-input"
+                >
+            </div>
+
+            <input
+                type="number"
+                name="prixMax"
+                placeholder="Prix max"
+                value="{{ prixMax ?? '' }}"
+                class="filters-input"
+            >
+
+            <input
+                type="number"
+                name="dureeMax"
+                placeholder="Durée max"
+                value="{{ dureeMax ?? '' }}"
+                class="filters-input"
+            >
+
+            <select name="tri" class="filters-select">
+                <option value="">Trier par</option>
+                <option value="prix_asc" {{ tri == 'prix_asc' ? 'selected' : '' }}>Prix croissant</option>
+                <option value="prix_desc" {{ tri == 'prix_desc' ? 'selected' : '' }}>Prix décroissant</option>
+                <option value="duree_asc" {{ tri == 'duree_asc' ? 'selected' : '' }}>Durée croissante</option>
+                <option value="duree_desc" {{ tri == 'duree_desc' ? 'selected' : '' }}>Durée décroissante</option>
+            </select>
+
+            <button type="submit" class="btn-filter btn-filter-primary">
+                Rechercher
+            </button>
+
+            <a href="{{ path('app_client_offres_expert', {'id': expert.id}) }}" class="btn-filter btn-filter-light">
+                Reset
+            </a>
+
+        </form>
+    </div>
+
+    {% if offres|length > 0 %}
+        <div class="offres-grid">
+            {% for offre in offres %}
+                <div class="offre-card-client">
+                    <h2 class="offre-title-client">
+                        {{ offre.titre|replace({
+                            'budget_personnel': 'Gestion de budget personnel',
+                            'planification_financiere': 'Planification financière',
+                            'suivi_depenses': 'Suivi des dépenses',
+                            'audit_depenses': 'Audit des dépenses',
+                            'optimisation_fiscale': 'Optimisation fiscale',
+                            'conseil_investissement': 'Conseil en investissement',
+                            'analyse_financiere': 'Analyse financière',
+                            'plan_financier': 'Création de plan financier'
+                        }) }}
+                    </h2>
+
+                    <div class="offre-info-client">
+                        <div class="prix-badge">{{ offre.prix }} TND</div>
+                        <div class="meta-badge">Durée : {{ offre.duree }} min</div>
+                    </div>
+
+                    <div class="offre-description-client">
+                        {{ offre.description ?: 'Aucune description disponible pour cette offre.' }}
+                    </div>
+
+                    <div class="offre-actions-client">
+                        <a href="#" class="btn-client-primary">Réserver</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-client">
+            <h3>Aucune offre trouvée</h3>
+            <p>Essayez de modifier les filtres ou cet expert n’a pas encore publié d’offres.</p>
+        </div>
+    {% endif %}
+
+    <div class="back-zone">
+        <a href="{{ path('app_client_experts') }}" class="btn-client-secondary">← Retour aux experts</a>
+    </div>
+
+</div>
+{% endblock %}

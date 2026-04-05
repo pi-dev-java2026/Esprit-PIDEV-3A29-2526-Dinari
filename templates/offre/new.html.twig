@@ -1,0 +1,198 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Ajouter une Offre{% endblock %}
+{% block page_title %}Experts & Offres{% endblock %}
+{% block section_title %}Ajouter une Offre{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .form-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: #fff;
+        border: 1px solid #e7edf5;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(22, 34, 51, 0.06);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        padding: 24px 28px;
+        border-bottom: 1px solid #eef3f8;
+        background: linear-gradient(135deg, #f8fbff, #eef5fc);
+    }
+
+    .form-card-title {
+        margin: 0;
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: #24364b;
+    }
+
+    .form-card-subtitle {
+        margin-top: 8px;
+        color: #7a8a9a;
+        font-size: 14px;
+    }
+
+    .form-card-body {
+        padding: 28px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .form-group-custom {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group-custom.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group-custom label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #304256;
+        margin-bottom: 8px;
+    }
+
+    .form-group-custom input,
+    .form-group-custom textarea,
+    .form-group-custom select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dbe5f0;
+        border-radius: 12px;
+        background: #fff;
+        font-size: 14px;
+        color: #304256;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .form-group-custom input:focus,
+    .form-group-custom textarea:focus,
+    .form-group-custom select:focus {
+        border-color: #1a6fc4;
+        box-shadow: 0 0 0 4px rgba(26, 111, 196, 0.10);
+    }
+
+    .form-group-custom textarea {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 26px;
+    }
+
+    .btn-form {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .btn-save {
+        background: #1a6fc4;
+        color: #fff;
+    }
+
+    .btn-save:hover {
+        background: #155ca5;
+        color: #fff;
+    }
+
+    .btn-back {
+        background: #eef3f8;
+        color: #425466;
+    }
+
+    .btn-back:hover {
+        background: #dfe8f1;
+        color: #24364b;
+    }
+
+    .form-errors {
+        color: #d63031;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="form-page">
+    <div class="form-card">
+        <div class="form-card-header">
+            <h1 class="form-card-title">Ajouter une Offre</h1>
+            <div class="form-card-subtitle">
+                Remplissez les informations de l’offre liée à l’expert sélectionné.
+            </div>
+        </div>
+
+        <div class="form-card-body">
+            {{ form_start(form) }}
+
+            <div class="form-grid">
+                <div class="form-group-custom">
+                    {{ form_label(form.titre) }}
+                    {{ form_widget(form.titre) }}
+                    <div class="form-errors">{{ form_errors(form.titre) }}</div>
+                </div>
+
+                <div class="form-group-custom">
+                    {{ form_label(form.prix) }}
+                    {{ form_widget(form.prix) }}
+                    <div class="form-errors">{{ form_errors(form.prix) }}</div>
+                </div>
+
+                <div class="form-group-custom">
+                    {{ form_label(form.duree) }}
+                    {{ form_widget(form.duree) }}
+                    <div class="form-errors">{{ form_errors(form.duree) }}</div>
+                </div>
+
+                <div class="form-group-custom full">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    <div class="form-errors">{{ form_errors(form.description) }}</div>
+                </div>
+
+
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-form btn-save">Enregistrer</button>
+                <a href="{{ path('app_offre_index', {'expert_id': expert_id}) }}" class="btn-form btn-back">Retour aux offres</a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modifier une Offre{% endblock %}
+{% block page_title %}Experts & Offres{% endblock %}
+{% block section_title %}Modifier une Offre{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .form-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: #fff;
+        border: 1px solid #e7edf5;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(22, 34, 51, 0.06);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        padding: 24px 28px;
+        border-bottom: 1px solid #eef3f8;
+        background: linear-gradient(135deg, #f8fbff, #eef5fc);
+    }
+
+    .form-card-title {
+        margin: 0;
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: #24364b;
+    }
+
+    .form-card-subtitle {
+        margin-top: 8px;
+        color: #7a8a9a;
+        font-size: 14px;
+    }
+
+    .form-card-body {
+        padding: 28px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .form-group-custom {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group-custom.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group-custom label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #304256;
+        margin-bottom: 8px;
+    }
+
+    .form-group-custom input,
+    .form-group-custom textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dbe5f0;
+        border-radius: 12px;
+        font-size: 14px;
+    }
+
+    .form-group-custom textarea {
+        min-height: 120px;
+    }
+
+    .form-actions {
+        margin-top: 25px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-form {
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: #1a6fc4;
+        color: #fff;
+    }
+
+    .btn-back {
+        background: #eef3f8;
+        color: #425466;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="form-page">
+    <div class="form-card">
+
+        <div class="form-card-header">
+            <h1 class="form-card-title">Modifier une Offre</h1>
+            <div class="form-card-subtitle">
+                Modifier les informations de cette offre.
+            </div>
+        </div>
+
+        <div class="form-card-body">
+            {{ form_start(form) }}
+
+            <div class="form-grid">
+
+                <div class="form-group-custom">
+                    {{ form_label(form.titre) }}
+                    {{ form_widget(form.titre) }}
+                </div>
+
+                <div class="form-group-custom">
+                    {{ form_label(form.prix) }}
+                    {{ form_widget(form.prix) }}
+                </div>
+
+                <div class="form-group-custom">
+                    {{ form_label(form.duree) }}
+                    {{ form_widget(form.duree) }}
+                </div>
+
+                <div class="form-group-custom full">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-form btn-save">Enregistrer</button>
+
+                <a href="{{ path('app_offre_index', {'expert_id': offre.expertComptable.id}) }}" class="btn-form btn-back">
+                    Retour
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
