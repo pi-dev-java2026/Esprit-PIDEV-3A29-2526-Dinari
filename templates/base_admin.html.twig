@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DINARI — Gestion Financière{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('css/dinari.css') }}?v=1.2">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+{% if app.user %}
+<!-- TOP NAVBAR -->
+<header class="admin-navbar">
+    <div class="admin-navbar-container">
+        <a href="{{ path('app_home') }}" class="admin-logo">
+            <div class="admin-logo-icon"><span>D</span></div>
+            <span class="admin-logo-text">dinari</span>
+        </a>
+
+        <nav class="admin-nav-links">
+            <a href="#" {% if app.request.attributes.get('_route') starts with 'app_abonnement' %}class="active"{% endif %}>Abonnements</a>
+            <a href="#" {% if app.request.attributes.get('_route') starts with 'app_educative' %}class="active"{% endif %}>Éducative</a>
+            <a href="#" {% if app.request.attributes.get('_route') starts with 'app_depense' %}class="active"{% endif %}>Dépenses</a>
+            <a href="#" {% if app.request.attributes.get('_route') starts with 'app_budget' %}class="active"{% endif %}>Budget</a>
+            <a href="{{ path('app_user_index') }}" {% if app.request.attributes.get('_route') starts with 'app_user' %}class="active"{% endif %}>Utilisateurs</a>
+            <a href="{{ path('app_reclamation_index') }}" {% if app.request.attributes.get('_route') starts with 'app_reclamation' %}class="active"{% endif %}>Réclamation</a>
+        </nav>
+
+        <div class="admin-navbar-user" style="display: flex; align-items: center; gap: 15px;">
+            <span style="font-size: 14px; font-weight: 500; color: #4b5563;">{{ app.user.name }}</span>
+            <a href="{{ path('app_logout') }}" style="background-color: #ef4444; color: white; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer;" onmouseover="this.style.backgroundColor='#dc2626'" onmouseout="this.style.backgroundColor='#ef4444'">
+                Déconnexion
+            </a>
+        </div>
+    </div>
+</header>
+{% endif %}
+
+<!-- MAIN -->
+<main class="main-content admin-main">
+    {% for type, messages in app.flashes %}
+        <div class="flash-messages">
+        {% for message in messages %}
+            <div class="flash flash-{{ type }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+</main>
+
+{% block javascripts %}{% endblock %}
+</body>
+</html>

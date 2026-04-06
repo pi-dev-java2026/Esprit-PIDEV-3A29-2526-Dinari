@@ -1,0 +1,60 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Modifier la Réclamation — DINARI{% endblock %}
+
+{% block body %}
+<a href="{{ path('app_reclamation_index') }}" class="page-back">← Retour aux réclamations</a>
+
+<div class="form-card">
+    <div class="card">
+        <div class="card-header">
+            <h2>Modifier la réclamation</h2>
+            <div>
+                {% if reclamation.statut == 'Traitée' %}
+                    <span class="badge badge-traitee">Traitée</span>
+                {% elseif reclamation.statut == 'En attente' %}
+                    <span class="badge badge-en_attente">En attente</span>
+                {% elseif reclamation.statut == 'En cours' %}
+                    <span class="badge badge-en_cours">En cours</span>
+                {% else %}
+                    <span class="badge badge-rejetee">Rejetée</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body" style="padding: 28px;">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="form-group">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email) }}
+                {{ form_errors(form.email) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.subject) }}
+                {{ form_widget(form.subject) }}
+                {{ form_errors(form.subject) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.statut) }}
+                {{ form_widget(form.statut) }}
+                {{ form_errors(form.statut) }}
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ path('app_reclamation_index') }}" class="btn btn-outline">Annuler</a>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

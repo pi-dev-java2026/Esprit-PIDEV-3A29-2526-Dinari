@@ -1,0 +1,92 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Gestion des Utilisateurs — DINARI{% endblock %}
+
+{% block body %}
+<div class="topbar">
+    <div class="topbar-left">
+        <h1>Gestion des Utilisateurs</h1>
+        <p>Visualisez et gérez l'ensemble des accès à la plateforme.</p>
+    </div>
+    <div class="topbar-right">
+        <form method="get" action="{{ path('app_user_index') }}" style="display:flex; align-items:center; gap:8px; margin:0;">
+            <div class="search-box" style="margin:0; width:auto; border-radius:8px; height:40px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" name="search" placeholder="Rechercher..." value="{{ search }}" style="width:130px;">
+            </div>
+            
+            <select name="sort" style="padding:0 14px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; color:#4b5563; font-size:14px; outline:none; height:40px; cursor:pointer; min-width:140px;">
+                <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Trier par (Récent)</option>
+                <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Nom (A-Z)</option>
+                <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Nom (Z-A)</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Plus ancien</option>
+            </select>
+
+            <button type="submit" style="padding:0 20px; height:40px; background-color:#2563eb; color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
+                Rechercher
+            </button>
+            <a href="{{ path('app_user_index') }}" style="display:inline-flex; align-items:center; justify-content:center; padding:0 20px; height:40px; background-color:#f8fafc; color:#475569; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer;">
+                Reset
+            </a>
+        </form>
+        {% if app.user %}
+        <div class="admin-badge">
+            <div class="admin-info">
+                <div class="admin-name">{{ app.user.getUserIdentifier() }}</div>
+                <div class="admin-role">ADMIN</div>
+            </div>
+            <div class="avatar-circle">{{ app.user.getInitials() }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Annuaire des Utilisateurs <span class="count">{{ users|length }} Total</span></h2>
+        <div class="card-actions">
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-outline">+ Créer une réclamation</a>
+            <a href="{{ path('app_user_new') }}" class="btn btn-primary">+ Ajouter un utilisateur</a>
+        </div>
+    </div>
+
+    <div class="user-list">
+        {% if users is empty %}
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <p>Aucun utilisateur trouvé.</p>
+            </div>
+        {% else %}
+            {% set avatarColors = ['avatar-blue','avatar-green','avatar-purple','avatar-orange','avatar-teal','avatar-red'] %}
+            {% for user in users %}
+            {% set colorClass = avatarColors[loop.index0 % avatarColors|length] %}
+            <div class="user-row">
+                <div class="user-avatar {{ colorClass }}">{{ user.getInitials() }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.name }}</div>
+                    <div class="user-meta">
+                        <span>{{ user.email }}</span>
+                        {% if user.role == 'Admin' %}
+                            <span class="badge badge-admin">Admin</span>
+                        {% elseif user.role == 'Manager' %}
+                            <span class="badge badge-manager">Manager</span>
+                        {% else %}
+                            <span class="badge badge-user">User</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="user-date">
+                    Inscrit le<br>
+                    {% if user.created_at is not null %}
+                        {{ user.created_at|date('d/m/Y') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+                <a href="{{ path('app_user_show', {id: user.id}) }}" class="user-arrow">→</a>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

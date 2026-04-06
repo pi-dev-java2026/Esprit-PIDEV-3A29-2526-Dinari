@@ -1,0 +1,66 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}{{ user.name }} — DINARI{% endblock %}
+
+{% block body %}
+{% if app.user and app.user.role != 'User' %}
+    <a href="{{ path('app_user_index') }}" class="page-back">← Retour à la liste</a>
+{% endif %}
+
+<div class="form-card">
+    <div class="card">
+        <div class="card-header">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div class="user-avatar" style="width:52px;height:52px;font-size:18px;">{{ user.getInitials() }}</div>
+                <div>
+                    <h2>{{ user.name }}</h2>
+                    <div style="margin-top:4px;display:flex;gap:8px;align-items:center;">
+                        <span style="font-size:13px;color:#6b7280;">{{ user.email }}</span>
+                        {% if user.role == 'Admin' %}
+                            <span class="badge badge-admin">Admin</span>
+                        {% elseif user.role == 'Manager' %}
+                            <span class="badge badge-manager">Manager</span>
+                        {% else %}
+                            <span class="badge badge-user">User</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="{{ path('app_user_edit', {id: user.id}) }}" class="btn btn-primary btn-sm">✏ Modifier</a>
+                <form method="post" action="{{ path('app_user_delete', {id: user.id}) }}" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button type="submit" class="btn btn-danger btn-sm">🗑 Supprimer</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="user-detail-grid">
+            <div class="detail-item">
+                <label>Nom complet</label>
+                <span>{{ user.name }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Email</label>
+                <span>{{ user.email }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Téléphone</label>
+                <span>{{ user.phone ?? '—' }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Rôle</label>
+                <span>{{ user.role }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Date d'inscription</label>
+                <span>{{ user.created_at|date('d/m/Y à H:i') }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Dernière connexion</label>
+                <span>{{ user.last_login ? user.last_login|date('d/m/Y à H:i') : '—' }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
