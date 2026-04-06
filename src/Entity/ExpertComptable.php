@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ExpertComptableRepository::class)]
 class ExpertComptable
@@ -17,24 +18,41 @@ class ExpertComptable
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'L’email est obligatoire.')]
+    #[Assert\Email(message: 'Veuillez saisir une adresse email valide.')]
     private ?string $email = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Le téléphone est obligatoire.')]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{8,15}$/',
+        message: 'Le numéro de téléphone doit contenir entre 8 et 15 chiffres.'
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'La spécialité est obligatoire.')]
     private ?string $specialite = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'L’expérience est obligatoire.')]
+    #[Assert\PositiveOrZero(message: 'L’expérience doit être positive ou nulle.')]
     private ?int $experience = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description est obligatoire.')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'La description doit contenir au moins {{ limit }} caractères.'
+    )]
     private ?string $description = null;
 
     /**
@@ -158,7 +176,6 @@ class ExpertComptable
     public function removeOffre(Offre $offre): static
     {
         if ($this->offres->removeElement($offre)) {
-            // set the owning side to null (unless already changed)
             if ($offre->getExpertComptable() === $this) {
                 $offre->setExpertComptable(null);
             }
