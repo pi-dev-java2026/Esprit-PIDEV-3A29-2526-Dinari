@@ -383,7 +383,15 @@
                 <div class="expert-card">
                     <div class="expert-top">
                         <div class="expert-avatar">
-                            {{ expert_comptable.nom|first|upper }}{{ expert_comptable.prenom|first|upper }}
+                            {% if expert_comptable.imageName %}
+                                <img 
+                                    src="{{ vich_uploader_asset(expert_comptable, 'imageFile') }}" 
+                                    alt="image"
+                                    style="width:70px; height:70px; border-radius:50%; object-fit:cover;"
+                                >
+                            {% else %}
+                                {{ expert_comptable.nom|first|upper }}{{ expert_comptable.prenom|first|upper }}
+                            {% endif %}
                         </div>
 
                         <div>

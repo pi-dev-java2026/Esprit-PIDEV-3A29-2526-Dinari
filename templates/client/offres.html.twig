@@ -430,7 +430,9 @@
                     </div>
 
                     <div class="offre-actions-client">
-                        <a href="#" class="btn-client-primary">Réserver</a>
+                    <a href="{{ path('app_reservation_calendar', {'id': offre.id}) }}" class="btn-client-primary">
+                        Réserver
+                    </a>
                     </div>
                 </div>
             {% endfor %}

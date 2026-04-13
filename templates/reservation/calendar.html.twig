@@ -1,0 +1,335 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir une date et une heure{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .calendar-page {
+        max-width: 1100px;
+        margin: 40px auto 70px;
+        padding: 0 20px;
+    }
+
+    .calendar-card {
+        background: #fff;
+        border: 1px solid #e7edf5;
+        border-radius: 24px;
+        box-shadow: 0 12px 30px rgba(22, 34, 51, 0.06);
+        overflow: hidden;
+    }
+
+    .calendar-header {
+        padding: 28px 30px;
+        border-bottom: 1px solid #eef3f8;
+        background: linear-gradient(135deg, #f8fbff, #eef5fc);
+    }
+
+    .calendar-title {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #24364b;
+    }
+
+    .calendar-subtitle {
+        margin-top: 8px;
+        color: #7a8a9a;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .expert-summary {
+        margin-top: 14px;
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(26, 111, 196, 0.10);
+        color: #1a6fc4;
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid rgba(26, 111, 196, 0.12);
+    }
+
+    .offre-summary {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .offre-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: #eef6ff;
+        color: #1f6fbe;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid #d6e7fb;
+    }
+
+    .calendar-body {
+        padding: 28px 30px 32px;
+    }
+
+    .calendar-layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .section-box {
+        background: #fbfdff;
+        border: 1px solid #e8eef6;
+        border-radius: 20px;
+        padding: 22px;
+    }
+
+    .section-box h3 {
+        margin: 0 0 16px;
+        font-size: 1.1rem;
+        color: #24364b;
+        font-weight: 800;
+    }
+
+    #calendar {
+        min-height: 420px;
+    }
+
+    .slot-date {
+        margin-bottom: 16px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #f4f8fd;
+        border: 1px solid #e3edf7;
+        color: #35506b;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .slot-empty {
+        color: #8192a3;
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .time-slots {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .time-slot-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        padding: 14px 12px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #dbe6f2;
+        color: #24415d;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        box-shadow: 0 6px 16px rgba(17, 38, 63, 0.04);
+    }
+
+    .time-slot-btn:hover {
+        background: #1a6fc4;
+        color: #fff;
+        border-color: #1a6fc4;
+        transform: translateY(-1px);
+    }
+
+    .back-actions {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+        background: #eef3f8;
+        color: #425466;
+    }
+
+    .btn-back:hover {
+        background: #dfe8f1;
+        color: #24364b;
+    }
+
+    .calendar-note {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #7c8d9e;
+        line-height: 1.6;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #24364b;
+    }
+
+    .fc .fc-button {
+        background: #1a6fc4 !important;
+        border: none !important;
+        box-shadow: none !important;
+        font-weight: 700;
+    }
+
+    .fc .fc-button:hover {
+        background: #155ca5 !important;
+    }
+
+    .fc .fc-daygrid-day-number {
+        color: #35506b;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+        .calendar-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .time-slots {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="calendar-page">
+    <div class="calendar-card">
+
+        <div class="calendar-header">
+            <h1 class="calendar-title">Choisir une date et une heure</h1>
+            <div class="calendar-subtitle">
+                Sélectionnez d’abord une date dans le calendrier, puis choisissez un créneau horaire disponible pour continuer la réservation.
+            </div>
+
+            <div class="expert-summary">
+                {{ expert.nom }} {{ expert.prenom }} —
+                {{ expert.specialite|replace({
+                    'comptabilite_generale': 'Comptabilité générale',
+                    'fiscalite': 'Fiscalité',
+                    'audit': 'Audit',
+                    'gestion_financiere': 'Gestion financière',
+                    'conseil_juridique': 'Conseil juridique',
+                    'paie_rh': 'Paie et RH',
+                    'creation_entreprise': 'Création d’entreprise'
+                }) }}
+            </div>
+
+            <div class="offre-summary">
+                <span class="offre-badge">
+                    {{ offre.titre|replace({
+                        'budget_personnel': 'Gestion de budget personnel',
+                        'planification_financiere': 'Planification financière',
+                        'suivi_depenses': 'Suivi des dépenses',
+                        'audit_depenses': 'Audit des dépenses',
+                        'optimisation_fiscale': 'Optimisation fiscale',
+                        'conseil_investissement': 'Conseil en investissement',
+                        'analyse_financiere': 'Analyse financière',
+                        'plan_financier': 'Création de plan financier'
+                    }) }}
+                </span>
+                <span class="offre-badge">Prix : {{ offre.prix }} TND</span>
+                <span class="offre-badge">Durée : {{ offre.duree }}</span>
+            </div>
+        </div>
+
+        <div class="calendar-body">
+            <div class="calendar-layout">
+
+                <div class="section-box">
+                    <h3>Calendrier</h3>
+                    <div id="calendar"></div>
+                    <div class="calendar-note">
+                        Cliquez sur une date pour afficher les horaires disponibles.
+                    </div>
+                </div>
+
+                <div class="section-box">
+                    <h3>Créneaux horaires</h3>
+
+                    {% if selectedDate %}
+                        <div class="slot-date">
+                            Date sélectionnée : {{ selectedDate }}
+                        </div>
+
+                        <div class="time-slots">
+                            {% for slot in timeSlots %}
+                                <a
+                                    href="{{ path('app_reservation_new', {
+                                        id: offre.id,
+                                        date: selectedDate,
+                                        time: slot
+                                    }) }}"
+                                    class="time-slot-btn"
+                                >
+                                    {{ slot }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="slot-empty">
+                            Aucune date sélectionnée pour le moment. Cliquez sur une date dans le calendrier pour voir les créneaux disponibles.
+                        </p>
+                    {% endif %}
+
+                    <div class="back-actions">
+                        <a href="{{ path('app_client_offres_expert', {'id': expert.id}) }}" class="btn-back">
+                            ← Retour aux offres
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            selectable: false,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            dateClick: function(info) {
+                const selectedDate = info.dateStr;
+                window.location.href = '{{ path('app_reservation_calendar', {'id': offre.id}) }}?date=' + selectedDate;
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+{% endblock %}

@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: ExpertComptableRepository::class)]
+#[Vich\Uploadable]
 class ExpertComptable
 {
     #[ORM\Id]
@@ -55,6 +58,20 @@ class ExpertComptable
     )]
     private ?string $description = null;
 
+    #[Vich\UploadableField(mapping: 'expert_images', fileNameProperty: 'imageName')]
+    #[Assert\File(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        mimeTypesMessage: 'Veuillez choisir une image valide (JPG, PNG ou WEBP).'
+    )]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     /**
      * @var Collection<int, Offre>
      */
@@ -79,7 +96,6 @@ class ExpertComptable
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -91,7 +107,6 @@ class ExpertComptable
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -103,7 +118,6 @@ class ExpertComptable
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -115,7 +129,6 @@ class ExpertComptable
     public function setTelephone(string $telephone): static
     {
         $this->telephone = $telephone;
-
         return $this;
     }
 
@@ -127,7 +140,6 @@ class ExpertComptable
     public function setSpecialite(string $specialite): static
     {
         $this->specialite = $specialite;
-
         return $this;
     }
 
@@ -139,7 +151,6 @@ class ExpertComptable
     public function setExperience(int $experience): static
     {
         $this->experience = $experience;
-
         return $this;
     }
 
@@ -151,7 +162,41 @@ class ExpertComptable
     public function setDescription(string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
 
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if ($imageFile !== null) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 

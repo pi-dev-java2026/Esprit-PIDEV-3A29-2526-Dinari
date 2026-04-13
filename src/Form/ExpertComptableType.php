@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class ExpertComptableType extends AbstractType
 {
@@ -33,7 +34,14 @@ class ExpertComptableType extends AbstractType
                 'placeholder' => 'Choisir une spécialité',
             ])
             ->add('experience')
-            ->add('description');
+            ->add('description')
+            ->add('imageFile', VichImageType::class, [
+                'label' => 'Image de l’expert',
+                'required' => false,
+                'allow_delete' => true,
+                'download_uri' => false,
+                'image_uri' => true,
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -42,5 +50,4 @@ class ExpertComptableType extends AbstractType
             'data_class' => ExpertComptable::class,
         ]);
     }
-    
 }

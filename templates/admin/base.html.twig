@@ -5,391 +5,453 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Admin — Dinari{% endblock %}</title>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/fontAwesome.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Remix Icons — icônes professionnelles gratuites -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
         :root {
-            --blue:   #1a6fc4;
-            --blue2:  #1558a0;
-            --text:   #2c3e50;
-            --muted:  #7f8c8d;
-            --border: #e9ecef;
-            --light:  #f8f9fa;
+            --sidebar-w: 248px;
+            --topbar-h: 62px;
+            --navy:    #0B1D35;
+            --navy2:   #0F2544;
+            --blue:    #2563EB;
+            --blue2:   #1D4ED8;
+            --accent:  #3B82F6;
+            --indigo:  #4F46E5;
+            --surface: #F8FAFC;
+            --white:   #FFFFFF;
+            --border:  #E2E8F0;
+            --text:    #0F172A;
+            --muted:   #64748B;
+            --muted2:  #94A3B8;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Raleway', sans-serif; background: #f5f7fa; color: var(--text); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
 
-        /* ===== NAVBAR ===== */
-        .admin-navbar {
+    
+        .sidebar {
             position: fixed;
-            top: 0; width: 100%;
-            z-index: 1000;
-            background: #fff;
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 12px rgba(0,0,0,0.07);
-        }
-        .admin-navbar .nav-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 32px;
-            height: 68px;
+            top: 0; left: 0; bottom: 0;
+            width: var(--sidebar-w);
+            background: var(--navy);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            z-index: 200;
+            overflow: hidden;
         }
 
-        /* Logo */
-        .nav-logo {
-            display: inline-flex;
-            align-items: center;
-            text-decoration: none;
-            gap: 0;
-        }
-        .nav-logo-icon {
-            width: 46px; height: 46px;
-            background: var(--blue);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: 900;
-            color: #fff; font-style: italic;
-            font-family: 'Raleway', sans-serif;
-        }
-        .nav-logo-text {
-            font-size: 20px; font-weight: 400;
-            color: var(--text); padding-left: 12px;
-            font-family: 'Raleway', sans-serif;
-        }
-        .nav-logo-badge {
-            font-size: 10px; font-weight: 700;
-            background: var(--blue);
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-left: 10px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
 
-        /* Nav links */
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            list-style: none;
-        }
-        .nav-links li a {
-            color: var(--muted);
-            font-size: 13px; font-weight: 600;
-            padding: 8px 13px;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
-            position: relative;
-            display: flex; align-items: center; gap: 7px;
-        }
-        .nav-links li a:hover {
-            color: var(--blue);
-            background: rgba(26,111,196,0.07);
-        }
-        .nav-links li a.active {
-            color: var(--blue);
-            font-weight: 700;
-            background: rgba(26,111,196,0.07);
-        }
-        .nav-links li a.active::after {
+        .sidebar::before {
             content: '';
-            position: absolute; bottom: -1px; left: 13px;
-            width: calc(100% - 26px); height: 2px;
-            background: var(--blue);
-            border-radius: 2px;
+            position: absolute;
+            top: -60px; left: -60px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+            pointer-events: none;
         }
-        .nav-links li a i {
-            font-size: 16px;
+
+
+        .sidebar-logo {
+            padding: 22px 20px 18px;
+            display: flex; align-items: center; gap: 11px;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .logo-mark {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--blue), var(--indigo));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 800; color: #fff;
+            font-style: italic; letter-spacing: -1px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+        }
+        .logo-text { line-height: 1; }
+        .logo-text .name {
+            color: #fff; font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+        }
+        .logo-text .sub {
+            color: rgba(148,163,184,0.8);
+            font-size: 9px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            margin-top: 2px; display: block;
+        }
+
+   
+        .sidebar-nav {
+            flex: 1;
+            padding: 14px 12px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .sidebar-nav::-webkit-scrollbar { display: none; }
+
+        .nav-section-label {
+            font-size: 9px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.8px;
+            color: rgba(100,116,139,0.7);
+            padding: 10px 10px 6px;
+            margin-top: 4px;
+        }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px;
+            color: rgba(148,163,184,0.85);
+            font-size: 13px; font-weight: 500;
+            text-decoration: none;
+            border-radius: 9px;
+            transition: all 0.18s ease;
+            margin-bottom: 1px;
+            position: relative;
+            white-space: nowrap;
+        }
+        .nav-item i {
+            font-size: 17px;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            transition: all 0.18s;
+        }
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.06);
+        }
+        .nav-item.active {
+            color: #fff;
+            background: rgba(37,99,235,0.2);
+            font-weight: 600;
+        }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 6px; bottom: 6px;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-item.active i { color: var(--accent); }
+
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(37,99,235,0.25);
+            color: #93C5FD;
+            font-size: 10px; font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 20px;
         }
 
         .nav-divider {
-            width: 1px; height: 24px;
-            background: var(--border);
-            margin: 0 6px;
+            height: 1px;
+            background: rgba(255,255,255,0.05);
+            margin: 8px 10px;
+        }
+
+        
+        .sidebar-footer {
+            padding: 14px 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
             flex-shrink: 0;
         }
-
-        .nav-btn {
-            background: var(--blue) !important;
-            color: #fff !important;
-            border-radius: 8px !important;
-            padding: 9px 18px !important;
-            font-weight: 700 !important;
-            transition: all 0.2s !important;
-            gap: 7px !important;
+        .status-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 10px 13px;
         }
-        .nav-btn:hover {
-            background: var(--blue2) !important;
-            color: #fff !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 14px rgba(26,111,196,0.3) !important;
+        .status-label {
+            font-size: 8.5px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.4px;
+            color: rgba(100,116,139,0.7);
+            margin-bottom: 7px;
         }
-
-        /* ===== BREADCRUMB BAR ===== */
-        .breadcrumb-bar {
-            background: #fff;
-            border-bottom: 1px solid var(--border);
-            padding: 10px 0;
-            margin-top: 68px;
-        }
-        .breadcrumb-bar .bc-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .breadcrumb-bar .bc-title {
-            font-size: 13px; color: var(--muted);
-            display: flex; align-items: center; gap: 6px;
-        }
-        .breadcrumb-bar .bc-title a {
-            color: var(--blue); text-decoration: none;
-            transition: color 0.2s;
-        }
-        .breadcrumb-bar .bc-title a:hover { color: var(--blue2); }
-        .breadcrumb-bar .bc-title .sep { color: #ccc; }
-        .breadcrumb-bar .bc-title span { color: var(--text); font-weight: 600; }
-        .bc-section-title {
-            font-size: 18px; font-weight: 800; color: var(--text);
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 32px 32px 60px;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-        }
-        .page-header h1 {
-            font-size: 24px; font-weight: 800; color: var(--text);
-            margin-bottom: 4px;
-        }
-        .page-header .breadcrumb-d {
-            font-size: 13px; color: var(--muted);
-        }
-        .page-header .breadcrumb-d a { color: var(--blue); text-decoration: none; }
-
-        /* ===== CARDS ===== */
-        .card-dinari {
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            padding: 24px;
-            margin-bottom: 24px;
-            transition: box-shadow 0.2s;
-        }
-        .card-dinari:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-        .card-dinari .card-header-dinari {
+        .status-row {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
         }
-        .card-dinari .card-title {
-            font-size: 16px; font-weight: 700; color: var(--text);
+        .status-dot-row {
+            display: flex; align-items: center; gap: 7px;
+        }
+        .status-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #34D399;
+            box-shadow: 0 0 0 3px rgba(52,211,153,0.2);
+            animation: dotpulse 2s ease-in-out infinite;
+        }
+        @keyframes dotpulse {
+            0%,100%{ box-shadow: 0 0 0 3px rgba(52,211,153,0.2); }
+            50%{ box-shadow: 0 0 0 5px rgba(52,211,153,0.1); }
+        }
+        .status-text { font-size: 11px; color: #94A3B8; font-weight: 500; }
+        .status-version {
+            font-size: 9px; color: rgba(100,116,139,0.6);
+            font-weight: 600; letter-spacing: 0.5px;
         }
 
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            margin-bottom: 28px;
+
+  
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-w);
+            right: 0;
+            height: var(--topbar-h);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 16px;
+            z-index: 100;
         }
-        @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
-        .stat-card {
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            padding: 20px 22px;
-            display: flex; align-items: center; gap: 16px;
-            transition: all 0.25s;
+
+ 
+        .topbar-right {
+            display: flex; align-items: center; gap: 6px;
+            margin-left: auto;
         }
-        .stat-card:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-            transform: translateY(-3px);
-        }
-        .stat-icon {
-            width: 52px; height: 52px;
-            border-radius: 12px;
+        .topbar-icon-btn {
+            width: 36px; height: 36px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; flex-shrink: 0;
-        }
-        .stat-value { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; }
-        .stat-label { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 500; }
-
-        /* ===== TABLE ===== */
-        .table-dinari {
-            width: 100%; border-collapse: collapse; font-size: 14px;
-        }
-        .table-dinari thead th {
-            background: #f8f9fa;
-            padding: 13px 16px;
-            font-size: 11px; font-weight: 700;
-            letter-spacing: 1px; text-transform: uppercase;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: #fff;
             color: var(--muted);
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
+            cursor: pointer;
+            font-size: 17px;
+            transition: all 0.15s;
+            position: relative;
+            text-decoration: none;
         }
-        .table-dinari tbody td {
-            padding: 15px 16px;
-            border-bottom: 1px solid #f0f4f8;
-            color: var(--text); vertical-align: middle;
+        .topbar-icon-btn:hover { background: #F8FAFC; color: var(--text); border-color: #CBD5E1; }
+        .notif-pip {
+            position: absolute; top: 6px; right: 6px;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #EF4444;
+            border: 1.5px solid #fff;
         }
-        .table-dinari tbody tr:hover { background: #fafbfc; }
-        .table-dinari tbody tr:last-child td { border-bottom: none; }
+        .topbar-sep { width: 1px; height: 28px; background: var(--border); margin: 0 6px; }
 
-        /* ===== BADGES ===== */
-        .badge-dinari {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 4px 10px;
-            border-radius: 20px; font-size: 11px;
-            font-weight: 700; letter-spacing: 0.5px;
+        .topbar-user {
+            display: flex; align-items: center; gap: 9px;
+            padding: 5px 10px 5px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
         }
-        .badge-success { background: rgba(39,174,96,0.12);  color: #27ae60; }
-        .badge-danger  { background: rgba(231,76,60,0.12);  color: #e74c3c; }
-        .badge-info    { background: rgba(26,111,196,0.12); color: var(--blue); }
-        .badge-warning { background: rgba(243,156,18,0.12); color: #f39c12; }
+        .topbar-user:hover { background: #F1F5F9; }
+        .user-avatar {
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--blue), var(--indigo));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 12px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .user-info .user-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2; }
+        .user-info .user-role { font-size: 10px; color: var(--muted2); font-weight: 500; }
+        .topbar-caret { color: var(--muted2); font-size: 16px; }
 
-        /* ===== BUTTONS ===== */
-        .btn-dinari {
+
+  
+        .admin-wrapper {
+            margin-left: var(--sidebar-w);
+            padding-top: var(--topbar-h);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - var(--sidebar-w));
+        }
+        .admin-content {
+            flex: 1;
+            padding: 28px 32px 60px;
+        }
+
+
+        .alert-dinari {
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 16px;
+            font-size: 13px; display: flex; align-items: center; gap: 9px; font-weight: 500;
+        }
+        .alert-dinari i { font-size: 17px; }
+        .alert-success-d { background: rgba(16,185,129,0.08); color: #065F46; border: 1px solid rgba(16,185,129,0.2); }
+        .alert-danger-d  { background: rgba(239,68,68,0.08);  color: #991B1B; border: 1px solid rgba(239,68,68,0.2); }
+
+
+        .btn-d {
             display: inline-flex; align-items: center; gap: 7px;
-            padding: 9px 18px; border-radius: 8px;
+            padding: 9px 18px; border-radius: 9px;
             font-size: 13px; font-weight: 600;
             text-decoration: none; cursor: pointer;
-            transition: all 0.2s; border: none;
-            font-family: 'Raleway', sans-serif;
+            transition: all 0.18s; border: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            white-space: nowrap;
         }
-        .btn-dinari i { font-size: 16px; }
-        .btn-primary-d   { background: var(--blue); color: #fff; }
-        .btn-primary-d:hover   { background: var(--blue2); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,111,196,0.3); }
-        .btn-danger-d    { background: #e74c3c; color: #fff; }
-        .btn-danger-d:hover    { background: #c0392b; color: #fff; }
-        .btn-warning-d   { background: #f39c12; color: #fff; }
-        .btn-warning-d:hover   { background: #e67e22; color: #fff; }
-        .btn-secondary-d { background: #f0f4f8; color: #5a6e84; border: 1px solid var(--border); }
-        .btn-secondary-d:hover { background: #e2e8f0; color: var(--text); }
-        .btn-sm-d { padding: 6px 12px; font-size: 12px; }
-        .btn-sm-d i { font-size: 14px; }
+        .btn-d i { font-size: 16px; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-1px); color: #fff; box-shadow: 0 6px 18px rgba(37,99,235,0.38); }
+        .btn-secondary { background: #fff; color: var(--muted); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: #F8FAFC; color: var(--text); }
+        .btn-outline { background: #fff; color: var(--blue); border: 1.5px solid var(--blue); }
+        .btn-outline:hover { background: var(--blue); color: #fff; }
+        .btn-ghost { background: rgba(79,70,229,0.08); color: var(--indigo); border: 1.5px solid rgba(79,70,229,0.2); }
+        .btn-ghost:hover { background: var(--indigo); color: #fff; border-color: var(--indigo); }
 
-        /* ===== FORM ===== */
-        .form-group-d { margin-bottom: 18px; }
-        .form-group-d label {
-            display: block; font-size: 13px; font-weight: 600;
-            color: var(--text); margin-bottom: 6px;
+        .badge-d {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 9px; border-radius: 20px;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
         }
-        .form-group-d .form-control {
-            width: 100%; padding: 10px 14px;
-            border: 1.5px solid var(--border); border-radius: 8px;
-            font-size: 14px; font-family: 'Raleway', sans-serif;
-            color: var(--text); transition: border-color 0.2s; background: #fff;
-        }
-        .form-group-d .form-control:focus {
-            outline: none; border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(26,111,196,0.1);
-        }
+        .b-success { background: rgba(16,185,129,0.1); color: #065F46; }
+        .b-danger  { background: rgba(239,68,68,0.1);  color: #991B1B; }
+        .b-info    { background: rgba(37,99,235,0.1);  color: #1E40AF; }
+        .b-warning { background: rgba(245,158,11,0.1); color: #92400E; }
+        .b-gray    { background: #F1F5F9; color: #475569; }
 
-        /* ===== ALERTS ===== */
-        .alert-dinari {
-            padding: 13px 18px; border-radius: 10px;
-            margin-bottom: 20px; font-size: 14px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .alert-dinari i { font-size: 18px; }
-        .alert-success-d { background: rgba(39,174,96,0.1);  color: #27ae60; border: 1px solid rgba(39,174,96,0.2); }
-        .alert-danger-d  { background: rgba(231,76,60,0.1);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
 
-        /* ===== FOOTER ===== */
         .admin-footer {
             background: #fff;
             border-top: 1px solid var(--border);
-            padding: 18px 32px;
-            text-align: center;
-            font-size: 12px;
-            color: var(--muted);
+            padding: 14px 32px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .admin-footer a { color: var(--blue); text-decoration: none; }
+        .footer-copy {
+            font-size: 12px; color: var(--muted2);
+        }
+        .footer-copy strong { color: var(--blue); }
+        .footer-link {
+            font-size: 12px; color: var(--blue);
+            text-decoration: none; display: flex; align-items: center; gap: 5px;
+        }
+        .footer-link:hover { text-decoration: underline; }
+
+
     </style>
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
 
-    {# ===== NAVBAR ===== #}
-    <nav class="admin-navbar">
-        <div class="nav-inner">
 
-            <a href="{{ path('app_home') }}" class="nav-logo">
-                <div class="nav-logo-icon">D</div>
-                <span class="nav-logo-text">inari</span>
-                <span class="nav-logo-badge">Admin</span>
-            </a>
+<aside class="sidebar">
 
-            <ul class="nav-links">
+    <a href="{{ path('app_home') }}" class="sidebar-logo">
+        <div class="logo-mark">D</div>
+        <div class="logo-text">
+            <span class="name">Dinari</span>
+            <span class="sub">Panneau Admin</span>
+        </div>
+    </a>
 
-                {# Liens désactivés #}
-                <li><a href="#"><i class="ri-vip-crown-line"></i> Abonnements</a></li>
-                <li><a href="#"><i class="ri-secure-payment-line"></i> Paiements</a></li>
-                <li><a href="#"><i class="ri-bar-chart-box-line"></i> Dépenses</a></li>
-                <li><a href="#"><i class="ri-team-line"></i> Utilisateurs</a></li>
+    <nav class="sidebar-nav">
 
+        <div class="nav-section-label">Tableau de bord</div>
 
-                <div class="nav-divider"></div>
+        <a href="{{ path('app_home') }}"
+           class="nav-item {{ app.request.get('_route') == 'app_home' ? 'active' : '' }}">
+            <i class="ri-home-4-line"></i>
+            Accueil
+        </a>
 
-                {# 🔥 TA GESTION #}
-                <li>
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">Gestion</div>
+
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_abonnement' ? 'active' : '' }}">
+            <i class="ri-vip-crown-2-line"></i>
+            Abonnements
+        </a>
+
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_cours' ? 'active' : '' }}">
+            <i class="ri-book-open-line"></i>
+            Cours&Quiz
+        </a>
+
                     <a href="{{ path('app_expert_comptable_index') }}"
                     class="{{ app.request.get('_route') starts with 'app_expert_comptable' ? 'active' : '' }}">
-                        <i class="ri-user-star-line"></i> Experts & Offres
+                        <i class="ri-user-star-line"></i> Expert
                     </a>
-                </li>
 
-                <div class="nav-divider"></div>
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_depense' ? 'active' : '' }}">
+            <i class="ri-money-dollar-circle-line"></i>
+            Dépenses
+        </a>
 
-                {# Retour site #}
-                <li>
-                    <a href="{{ path('app_home') }}" class="nav-btn">
-                        <i class="ri-global-line"></i> Voir le site
-                    </a>
-                </li>
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_utilisateur' ? 'active' : '' }}">
+            <i class="ri-team-line"></i>
+            Utilisateurs
+        </a>
 
-            </ul>
-        </div>
     </nav>
 
-    {# ===== BREADCRUMB BAR ===== #}
-    <div class="breadcrumb-bar">
-        <div class="bc-inner">
-            <div class="bc-title">
-                <i class="ri-home-4-line" style="color:var(--blue);font-size:15px;"></i>
-                <a href="{{ path('app_home') }}">Accueil</a>
-                <span class="sep">›</span>
-                <a href="#">Admin</a>
-                <span class="sep">›</span>
-                <span>{% block page_title %}Dashboard{% endblock %}</span>
-            </div>
-            <div class="bc-section-title">
-                {% block section_title %}{% endblock %}
+    <div class="sidebar-footer">
+        <div class="status-card">
+            <div class="status-label">État du système</div>
+            <div class="status-row">
+                <div class="status-dot-row">
+                    <div class="status-dot"></div>
+                    <span class="status-text">Opérationnel</span>
+                </div>
+                <span class="status-version">v2.4</span>
             </div>
         </div>
     </div>
 
-    {# ===== CONTENU ===== #}
-    <div class="main-content">
+</aside>
+
+
+
+<header class="topbar">
+
+
+    <div style="font-size:15px;font-weight:700;color:#0F172A;">
+        {% block page_title %}{% endblock %}
+    </div>
+
+
+    <div class="topbar-right">
+
+        <div class="topbar-icon-btn" title="Notifications">
+            <i class="ri-notification-3-line"></i>
+            <span class="notif-pip"></span>
+        </div>
+
+        <div class="topbar-sep"></div>
+
+        <div class="topbar-user">
+            <div class="user-avatar">AD</div>
+            <div class="user-info">
+                <div class="user-name">Admin</div>
+                <div class="user-role">Administrateur</div>
+            </div>
+            <i class="ri-arrow-down-s-line topbar-caret"></i>
+        </div>
+    </div>
+
+</header>
+
+
+
+{% block search %}{% endblock %}
+
+
+
+<div class="admin-wrapper">
+    <div class="admin-content">
+
 
         {% for type, messages in app.flashes %}
             {% for message in messages %}
@@ -401,16 +463,22 @@
         {% endfor %}
 
         {% block body %}{% endblock %}
+
     </div>
 
     <footer class="admin-footer">
-        &copy; {{ "now"|date("Y") }} <strong style="color:var(--blue);">Dinari</strong> Admin
-        &nbsp;·&nbsp;
-        <a href="{{ path('app_home') }}">← Retour au site public</a>
+        <span class="footer-copy">
+            &copy; {{ "now"|date("Y") }} <strong>Dinari</strong> — Panneau d'administration
+        </span>
+        <a href="{{ path('app_home') }}" class="footer-link">
+            <i class="ri-arrow-left-line"></i> Retour au site public
+        </a>
     </footer>
+</div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="{{ asset('js/vendor/bootstrap.min.js') }}"></script>
-    {% block javascripts %}{% endblock %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="{{ asset('js/vendor/bootstrap.min.js') }}"></script>
+{% block javascripts %}{% endblock %}
 </body>
 </html>

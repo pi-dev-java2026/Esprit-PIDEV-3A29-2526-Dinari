@@ -457,9 +457,17 @@
             {% for expert in experts %}
                 <div class="expert-card-client">
                     <div class="expert-top-client">
-                        <div class="expert-avatar-client">
-                            {{ expert.nom|first|upper }}{{ expert.prenom|first|upper }}
-                        </div>
+                <div class="expert-avatar-client">
+                    {% if expert.imageName %}
+                        <img
+                            src="{{ vich_uploader_asset(expert, 'imageFile') }}"
+                            alt="{{ expert.nom }} {{ expert.prenom }}"
+                            style="width: 72px; height: 72px; object-fit: cover; border-radius: 22px;"
+                        >
+                    {% else %}
+                        {{ expert.nom|first|upper }}{{ expert.prenom|first|upper }}
+                    {% endif %}
+                </div>
 
                         <div>
                             <h3 class="expert-name-client">{{ expert.nom }} {{ expert.prenom }}</h3>
