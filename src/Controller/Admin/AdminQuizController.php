@@ -19,6 +19,61 @@ class AdminQuizController extends AbstractController
     {
         $quizzes = $repo->findAllWithCours();
 
+        // Static fallback so the page is never empty
+        $staticQuizzes = [];
+        if (empty($quizzes)) {
+            $staticQuizzes = [
+                [
+                    'id'            => null,
+                    'titre'         => 'Quiz — Finance Personnelle (Introduction)',
+                    'cours'         => 'Finance Personnelle',
+                    'reponseCorrect'=> 'Planifier ses revenus et dépenses',
+                    'scoreQuiz'     => 10,
+                    'isExamMode'    => false,
+                ],
+                [
+                    'id'            => null,
+                    'titre'         => 'Quiz — Budget Personnel',
+                    'cours'         => 'Finance Personnelle',
+                    'reponseCorrect'=> 'La méthode 50/30/20',
+                    'scoreQuiz'     => 10,
+                    'isExamMode'    => false,
+                ],
+                [
+                    'id'            => null,
+                    'titre'         => 'Quiz — Les bases du budget',
+                    'cours'         => 'Les bases du budget',
+                    'reponseCorrect'=> 'Un plan de dépenses',
+                    'scoreQuiz'     => 10,
+                    'isExamMode'    => false,
+                ],
+                [
+                    'id'            => null,
+                    'titre'         => 'Quiz — Épargne & investissement',
+                    'cours'         => 'Épargne & investissement',
+                    'reponseCorrect'=> 'Livret d\'épargne',
+                    'scoreQuiz'     => 10,
+                    'isExamMode'    => false,
+                ],
+                [
+                    'id'            => null,
+                    'titre'         => 'Quiz — Comprendre la banque',
+                    'cours'         => 'Comprendre la banque',
+                    'reponseCorrect'=> 'Le coût de l\'argent emprunté',
+                    'scoreQuiz'     => 10,
+                    'isExamMode'    => false,
+                ],
+                [
+                    'id'            => null,
+                    'titre'         => 'Quiz Final — Examen de certification',
+                    'cours'         => 'Finance Personnelle',
+                    'reponseCorrect'=> null,
+                    'scoreQuiz'     => 50,
+                    'isExamMode'    => true,
+                ],
+            ];
+        }
+
         // Group by cours — done in PHP to avoid Twig nested-key issues
         $groups    = [];
         $ungrouped = [];
@@ -35,9 +90,10 @@ class AdminQuizController extends AbstractController
         }
 
         return $this->render('admin/quiz/index.html.twig', [
-            'quizzes'    => $quizzes,
-            'groups'     => $groups,
-            'ungrouped'  => $ungrouped,
+            'quizzes'       => $quizzes,
+            'groups'        => $groups,
+            'ungrouped'     => $ungrouped,
+            'static_quizzes'=> $staticQuizzes,
         ]);
     }
 

@@ -63,6 +63,14 @@ class AdminQuizType extends AbstractType
                 'required' => false,
                 'attr'     => ['class' => 'form-check-input'],
             ])
+            ->add('theme', TextType::class, [
+                'label'    => 'Thèmes (mots-clés)',
+                'required' => false,
+                'attr'     => [
+                    'class'       => 'form-control',
+                    'placeholder' => 'Ex : budget,depenses',
+                ],
+            ])
         ;
     }
 

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: "chapitre_question")]
@@ -14,24 +15,34 @@ class ChapitreQuestion
     private ?int $id = null;
 
     #[ORM\Column(type: "text")]
+    #[Assert\NotBlank(message: "La question est obligatoire.")]
     private string $question = '';
 
     #[ORM\Column(name: "choix_a", type: "string", length: 300)]
+    #[Assert\NotBlank(message: "Le choix A est obligatoire.")]
+    #[Assert\Length(max: 300, maxMessage: "Le choix A ne peut pas dépasser {{ limit }} caractères.")]
     private string $choixA = '';
 
     #[ORM\Column(name: "choix_b", type: "string", length: 300)]
+    #[Assert\NotBlank(message: "Le choix B est obligatoire.")]
+    #[Assert\Length(max: 300, maxMessage: "Le choix B ne peut pas dépasser {{ limit }} caractères.")]
     private string $choixB = '';
 
     #[ORM\Column(name: "choix_c", type: "string", length: 300, nullable: true)]
+    #[Assert\Length(max: 300, maxMessage: "Le choix C ne peut pas dépasser {{ limit }} caractères.")]
     private ?string $choixC = null;
 
     #[ORM\Column(name: "choix_d", type: "string", length: 300, nullable: true)]
+    #[Assert\Length(max: 300, maxMessage: "Le choix D ne peut pas dépasser {{ limit }} caractères.")]
     private ?string $choixD = null;
 
     #[ORM\Column(name: "bonne_reponse", type: "string", length: 1)]
+    #[Assert\NotBlank(message: "La bonne réponse est obligatoire.")]
+    #[Assert\Choice(choices: ['a', 'b', 'c', 'd'], message: "La bonne réponse doit être a, b, c ou d.")]
     private string $bonneReponse = 'a';
 
     #[ORM\Column(type: "integer")]
+    #[Assert\PositiveOrZero(message: "L'ordre doit être un nombre positif ou zéro.")]
     private int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Chapitre::class, inversedBy: "questions")]

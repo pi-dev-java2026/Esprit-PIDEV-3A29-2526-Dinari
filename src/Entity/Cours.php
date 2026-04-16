@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ORM\Table(name: "cours")]
+#[ORM\Table(name: "cours_symfony")]
 class Cours
 {
     #[ORM\Id]
@@ -16,9 +17,16 @@ class Cours
     private ?int $id = null;
 
     #[ORM\Column(name: "nom_cours", type: "string", length: 150, nullable: true)]
+    #[Assert\NotBlank(message: "Le titre du cours est obligatoire.")]
+    #[Assert\Length(max: 150, maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères.")]
     private ?string $nomCours = null;
 
     #[ORM\Column(name: "contenu", type: "string", length: 255, nullable: true)]
+    #[Assert\Length(max: 255, maxMessage: "L'identifiant ne peut pas dépasser {{ limit }} caractères.")]
+    #[Assert\Regex(
+        pattern: '/^(?!https?:\/\/).*/i',
+        message: "L'identifiant ne doit pas être une URL."
+    )]
     private ?string $contenu = null;
 
     #[ORM\Column(name: "description", type: "text", nullable: true)]
@@ -26,6 +34,19 @@ class Cours
 
     #[ORM\Column(name: "date_creation", type: "date", nullable: true)]
     private ?\DateTimeInterface $dateCreation = null;
+
+    /**
+     * Difficulty level: debutant | intermediaire | avance
+     */
+    #[ORM\Column(name: "niveau", type: "string", length: 20, nullable: true)]
+    private ?string $niveau = null;
+
+    /**
+     * Topic/theme keywords (comma-separated) used for recommendation matching.
+     * Example: "budget,epargne,investissement"
+     */
+    #[ORM\Column(name: "theme", type: "string", length: 255, nullable: true)]
+    private ?string $theme = null;
 
     #[ORM\OneToMany(targetEntity: Chapitre::class, mappedBy: "cours", cascade: ["remove"], orphanRemoval: true)]
     #[ORM\OrderBy(["position" => "ASC"])]
@@ -92,6 +113,19 @@ class Cours
     {
         $this->dateCreation = $dateCreation;
         return $this;
+    }
+
+    public function getNiveau(): ?string { return $this->niveau; }
+    public function setNiveau(?string $niveau): static { $this->niveau = $niveau; return $this; }
+
+    public function getTheme(): ?string { return $this->theme; }
+    public function setTheme(?string $theme): static { $this->theme = $theme; return $this; }
+
+    /** Returns theme as an array of trimmed keywords */
+    public function getThemeKeywords(): array
+    {
+        if (!$this->theme) return [];
+        return array_filter(array_map('trim', explode(',', strtolower($this->theme))));
     }
 
     /** @return Collection<int, Chapitre> */

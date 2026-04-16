@@ -2,7 +2,6 @@
 
 {% block title %}Tableau de bord — Admin Dinari{% endblock %}
 {% block page_title %}Tableau de bord{% endblock %}
-{% block section_title %}Vue d'ensemble{% endblock %}
 
 {% block stylesheets %}
 <style>
@@ -21,10 +20,10 @@
 .search-input {
     width:100%; padding:9px 12px 9px 36px;
     border:1.5px solid var(--border); border-radius:8px;
-    font-size:13px; font-family:'Raleway',sans-serif; color:var(--text);
+    font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--text);
     transition:border-color .2s; background:#fff;
 }
-.search-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,111,196,.08); }
+.search-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
 .search-input::placeholder { color:#b0bec5; }
 
 /* Tree nodes */
@@ -120,7 +119,7 @@
 {# ── Stats ── #}
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(26,111,196,0.1);color:#1a6fc4;">
+        <div class="stat-icon" style="background:rgba(37,99,235,0.1);color:#2563EB;">
             <i class="ri-book-open-line"></i>
         </div>
         <div>
@@ -129,7 +128,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:#059669;">
             <i class="ri-question-line"></i>
         </div>
         <div>
@@ -138,7 +137,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(243,156,18,0.1);color:#f39c12;">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:#D97706;">
             <i class="ri-chat-3-line"></i>
         </div>
         <div>
@@ -147,7 +146,7 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(231,76,60,0.1);color:#e74c3c;">
+        <div class="stat-icon" style="background:rgba(239,68,68,0.1);color:#DC2626;">
             <i class="ri-team-line"></i>
         </div>
         <div>
@@ -197,83 +196,124 @@
     </div>
 
     <div class="tree-body" id="tree-body">
-        {% if tree is empty %}
+        {# ── DB courses (with edit/chapter actions) ── #}
+        {% for cours in tree %}
+            <div class="cours-node" data-cours-name="{{ cours.nomCours|lower }}">
+                <div class="cours-row" onclick="toggleNode(this.parentElement)">
+                    <span class="cours-toggle"><i class="ri-arrow-right-s-line"></i></span>
+                    <i class="ri-book-open-line cours-icon"></i>
+                    <span class="cours-name">{{ cours.nomCours }}</span>
+                    <span class="cours-meta">
+                        {{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}
+                    </span>
+                    <div class="cours-actions">
+                        <a href="{{ path('admin_cours_edit', {id: cours.id}) }}"
+                           class="tree-btn tree-btn-edit" onclick="event.stopPropagation()">
+                            <i class="ri-edit-line"></i> Modifier
+                        </a>
+                        <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}"
+                           class="tree-btn tree-btn-chap" onclick="event.stopPropagation()">
+                            <i class="ri-list-ordered"></i> Chapitres
+                        </a>
+                    </div>
+                </div>
+                <div class="chapitres-list">
+                    {% if cours.chapitres is empty %}
+                        <div style="padding:10px 48px;font-size:12px;color:var(--muted);font-style:italic;">
+                            Aucun chapitre — <a href="{{ path('admin_chapitre_new', {coursId: cours.id}) }}" style="color:var(--blue);">Ajouter</a>
+                        </div>
+                    {% else %}
+                        {% for ch in cours.chapitres %}
+                            <div class="ch-node">
+                                <div class="ch-row" onclick="toggleNode(this.parentElement)">
+                                    <span class="ch-toggle">
+                                        {% if ch.taches|length > 0 %}
+                                            <i class="ri-arrow-right-s-line"></i>
+                                        {% else %}
+                                            <i class="ri-subtract-line" style="opacity:.3;"></i>
+                                        {% endif %}
+                                    </span>
+                                    <i class="ri-file-list-3-line ch-icon"></i>
+                                    <span class="ch-name">{{ ch.titre }}</span>
+                                    {% if ch.sousTitre %}
+                                        <span style="font-size:11px;color:var(--muted);">— {{ ch.sousTitre }}</span>
+                                    {% endif %}
+                                    <span class="ch-pos">{{ ch.position }}</span>
+                                    <span class="cours-meta" style="margin-left:4px;">
+                                        {{ ch.taches|length }} tâche{{ ch.taches|length != 1 ? 's' : '' }}
+                                    </span>
+                                    <div class="ch-actions">
+                                        <a href="{{ path('admin_chapitre_edit', {coursId: cours.id, id: ch.id}) }}"
+                                           class="tree-btn tree-btn-edit" onclick="event.stopPropagation()">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% if ch.taches|length > 0 %}
+                                    <div class="taches-list">
+                                        {% for t in ch.taches %}
+                                            <div class="task-row">
+                                                <i class="ri-checkbox-blank-circle-line"></i>
+                                                {{ t.libelle }}
+                                                {% if t.description %}
+                                                    <span style="color:#b0bec5;font-size:11px;">— {{ t.description }}</span>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        {# ── Static/client-side courses (always shown, read-only) ── #}
+        {% for cours in static_cours %}
+            <div class="cours-node" data-cours-name="{{ cours.nomCours|lower }}">
+                <div class="cours-row" onclick="toggleNode(this.parentElement)">
+                    <span class="cours-toggle"><i class="ri-arrow-right-s-line"></i></span>
+                    <i class="ri-book-open-line cours-icon"></i>
+                    <span class="cours-name">{{ cours.nomCours }}</span>
+                    <span class="cours-meta">
+                        {{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}
+                    </span>
+                    <div class="cours-actions">
+                        <span class="tree-btn tree-btn-edit" style="opacity:.45;cursor:default;">
+                            <i class="ri-edit-line"></i> Modifier
+                        </span>
+                    </div>
+                </div>
+                <div class="chapitres-list">
+                    {% if cours.chapitres is empty %}
+                        <div style="padding:10px 48px;font-size:12px;color:var(--muted);font-style:italic;">
+                            Aucun chapitre enregistré.
+                        </div>
+                    {% else %}
+                        {% for ch in cours.chapitres %}
+                            <div class="ch-node">
+                                <div class="ch-row" onclick="toggleNode(this.parentElement)">
+                                    <span class="ch-toggle"><i class="ri-subtract-line" style="opacity:.3;"></i></span>
+                                    <i class="ri-file-list-3-line ch-icon"></i>
+                                    <span class="ch-name">{{ ch.titre }}</span>
+                                    {% if ch.sousTitre %}
+                                        <span style="font-size:11px;color:var(--muted);">— {{ ch.sousTitre }}</span>
+                                    {% endif %}
+                                    <span class="ch-pos">{{ ch.position }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        {% if tree is empty and static_cours is empty %}
             <div class="tree-empty">
                 <i class="ri-inbox-line" style="font-size:32px;display:block;margin-bottom:8px;"></i>
                 Aucun cours trouvé.
             </div>
-        {% else %}
-            {% for cours in tree %}
-                <div class="cours-node" data-cours-name="{{ cours.nomCours|lower }}">
-                    <div class="cours-row" onclick="toggleNode(this.parentElement)">
-                        <span class="cours-toggle"><i class="ri-arrow-right-s-line"></i></span>
-                        <i class="ri-book-open-line cours-icon"></i>
-                        <span class="cours-name">{{ cours.nomCours }}</span>
-                        <span class="cours-meta">
-                            {{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}
-                        </span>
-                        <div class="cours-actions">
-                            <a href="{{ path('admin_cours_edit', {id: cours.id}) }}"
-                               class="tree-btn tree-btn-edit" onclick="event.stopPropagation()">
-                                <i class="ri-edit-line"></i> Modifier
-                            </a>
-                            <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}"
-                               class="tree-btn tree-btn-chap" onclick="event.stopPropagation()">
-                                <i class="ri-list-ordered"></i> Chapitres
-                            </a>
-                        </div>
-                    </div>
-                    <div class="chapitres-list">
-                        {% if cours.chapitres is empty %}
-                            <div style="padding:10px 48px;font-size:12px;color:var(--muted);font-style:italic;">
-                                Aucun chapitre — <a href="{{ path('admin_chapitre_new', {coursId: cours.id}) }}" style="color:var(--blue);">Ajouter</a>
-                            </div>
-                        {% else %}
-                            {% for ch in cours.chapitres %}
-                                <div class="ch-node">
-                                    <div class="ch-row" onclick="toggleNode(this.parentElement)">
-                                        <span class="ch-toggle">
-                                            {% if ch.taches|length > 0 %}
-                                                <i class="ri-arrow-right-s-line"></i>
-                                            {% else %}
-                                                <i class="ri-subtract-line" style="opacity:.3;"></i>
-                                            {% endif %}
-                                        </span>
-                                        <i class="ri-file-list-3-line ch-icon"></i>
-                                        <span class="ch-name">{{ ch.titre }}</span>
-                                        {% if ch.sousTitre %}
-                                            <span style="font-size:11px;color:var(--muted);">— {{ ch.sousTitre }}</span>
-                                        {% endif %}
-                                        <span class="ch-pos">{{ ch.position }}</span>
-                                        <span class="cours-meta" style="margin-left:4px;">
-                                            {{ ch.taches|length }} tâche{{ ch.taches|length != 1 ? 's' : '' }}
-                                        </span>
-                                        <div class="ch-actions">
-                                            <a href="{{ path('admin_chapitre_edit', {coursId: cours.id, id: ch.id}) }}"
-                                               class="tree-btn tree-btn-edit" onclick="event.stopPropagation()">
-                                                <i class="ri-edit-line"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    {% if ch.taches|length > 0 %}
-                                        <div class="taches-list">
-                                            {% for t in ch.taches %}
-                                                <div class="task-row">
-                                                    <i class="ri-checkbox-blank-circle-line"></i>
-                                                    {{ t.libelle }}
-                                                    {% if t.description %}
-                                                        <span style="color:#b0bec5;font-size:11px;">— {{ t.description }}</span>
-                                                    {% endif %}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
         {% endif %}
     </div>
 </div>

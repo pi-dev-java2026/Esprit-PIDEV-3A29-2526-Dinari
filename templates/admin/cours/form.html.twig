@@ -1,8 +1,20 @@
 {% extends 'admin/base.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
 
 {% block title %}{{ mode == 'new' ? 'Nouveau cours' : 'Modifier le cours' }} — Admin{% endblock %}
 {% block page_title %}{{ mode == 'new' ? 'Nouveau cours' : 'Modifier' }}{% endblock %}
 {% block section_title %}{{ mode == 'new' ? 'Créer un cours' : cours.nomCours }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 6px; font-size: 12px; font-weight: 600; color: #e74c3c;
+}
+.field-error i { font-size: 13px; flex-shrink: 0; }
+.form-group-d:has(.field-error) > label { color: #e74c3c !important; }
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="page-header">

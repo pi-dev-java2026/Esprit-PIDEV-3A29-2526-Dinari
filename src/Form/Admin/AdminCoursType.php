@@ -4,12 +4,12 @@ namespace App\Form\Admin;
 
 use App\Entity\Cours;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AdminCoursType extends AbstractType
 {
@@ -18,7 +18,6 @@ class AdminCoursType extends AbstractType
         $builder
             ->add('nomCours', TextType::class, [
                 'label' => 'Titre du cours',
-                'constraints' => [new NotBlank()],
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Ex : Finance personnelle'],
             ])
             ->add('description', TextareaType::class, [
@@ -36,8 +35,6 @@ class AdminCoursType extends AbstractType
                 'attr'     => [
                     'class'       => 'form-control',
                     'placeholder' => 'Ex : finance-personnelle',
-                    'pattern'     => '^(?!https?://).*',
-                    'title'       => 'Entrez un identifiant court (ex: finance-personnelle), pas une URL',
                 ],
             ])
             ->add('dateCreation', DateType::class, [
@@ -45,6 +42,26 @@ class AdminCoursType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
+            ])
+            ->add('niveau', ChoiceType::class, [
+                'label'    => 'Niveau',
+                'required' => false,
+                'choices'  => [
+                    'Débutant'      => 'debutant',
+                    'Intermédiaire' => 'intermediaire',
+                    'Avancé'        => 'avance',
+                ],
+                'placeholder' => '— Choisir un niveau —',
+                'attr'        => ['class' => 'form-control'],
+            ])
+            ->add('theme', TextType::class, [
+                'label'    => 'Thèmes (mots-clés)',
+                'required' => false,
+                'attr'     => [
+                    'class'       => 'form-control',
+                    'placeholder' => 'Ex : budget,epargne,investissement',
+                ],
+                'help' => 'Séparez les mots-clés par des virgules. Utilisés pour les recommandations.',
             ])
         ;
     }

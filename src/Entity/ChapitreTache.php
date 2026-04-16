@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: "chapitre_tache")]
@@ -14,12 +15,15 @@ class ChapitreTache
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 300)]
+    #[Assert\NotBlank(message: "Le titre de la tâche est obligatoire.")]
+    #[Assert\Length(max: 300, maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères.")]
     private string $libelle = '';
 
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\PositiveOrZero(message: "L'ordre doit être un nombre positif ou zéro.")]
     private int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Chapitre::class, inversedBy: "taches")]

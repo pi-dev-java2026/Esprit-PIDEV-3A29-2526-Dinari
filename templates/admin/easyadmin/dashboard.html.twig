@@ -1,0 +1,116 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Tableau de bord — Dinari{% endblock %}
+
+{% block main %}
+<style>
+.ea-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:32px; }
+@media(max-width:900px){ .ea-kpi-grid { grid-template-columns:repeat(2,1fr); } }
+.ea-kpi {
+    background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+    padding:22px 20px; display:flex; align-items:center; gap:16px;
+    transition:box-shadow .2s, transform .2s;
+}
+.ea-kpi:hover { box-shadow:0 6px 24px rgba(37,99,235,.1); transform:translateY(-2px); }
+.ea-kpi-icon {
+    width:52px; height:52px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;
+}
+.ea-kpi-value { font-size:28px; font-weight:800; color:#0f172a; line-height:1; }
+.ea-kpi-label { font-size:12px; color:#64748b; margin-top:4px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+.ea-section { font-size:13px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1.5px; margin:28px 0 14px; }
+.ea-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px; margin-bottom:20px; }
+.ea-card h3 { font-size:15px; font-weight:700; color:#0f172a; margin:0 0 16px; }
+.ea-topic-row { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:13px; }
+.ea-topic-row:last-child { border-bottom:none; }
+.ea-topic-name { flex:1; font-weight:600; color:#0f172a; }
+.ea-topic-count { background:#eff6ff; color:#2563eb; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; }
+.ea-bar { flex:2; background:#f1f5f9; border-radius:20px; height:7px; overflow:hidden; }
+.ea-bar-fill { height:100%; border-radius:20px; background:linear-gradient(90deg,#2563eb,#4f46e5); }
+.ea-link-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.ea-link-btn {
+    display:flex; align-items:center; gap:10px; padding:14px 16px;
+    background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;
+    text-decoration:none; color:#0f172a; font-size:13px; font-weight:600;
+    transition:all .18s;
+}
+.ea-link-btn:hover { background:#eff6ff; border-color:#2563eb; color:#2563eb; }
+.ea-link-btn i { font-size:18px; }
+</style>
+
+{# KPI Cards #}
+<div class="ea-kpi-grid">
+    <div class="ea-kpi">
+        <div class="ea-kpi-icon" style="background:rgba(37,99,235,.1);">📚</div>
+        <div>
+            <div class="ea-kpi-value">{{ nb_cours }}</div>
+            <div class="ea-kpi-label">Cours</div>
+        </div>
+    </div>
+    <div class="ea-kpi">
+        <div class="ea-kpi-icon" style="background:rgba(79,70,229,.1);">❓</div>
+        <div>
+            <div class="ea-kpi-value">{{ nb_quizzes }}</div>
+            <div class="ea-kpi-label">Quiz</div>
+        </div>
+    </div>
+    <div class="ea-kpi">
+        <div class="ea-kpi-icon" style="background:rgba(16,185,129,.1);">📝</div>
+        <div>
+            <div class="ea-kpi-value">{{ nb_attempts }}</div>
+            <div class="ea-kpi-label">Tentatives</div>
+        </div>
+    </div>
+    <div class="ea-kpi">
+        <div class="ea-kpi-icon" style="background:rgba(245,158,11,.1);">🎯</div>
+        <div>
+            <div class="ea-kpi-value">{{ avg_score }}%</div>
+            <div class="ea-kpi-label">Score moyen</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    {# Weak topics #}
+    <div class="ea-card">
+        <h3>⚠️ Top sujets faibles</h3>
+        {% if weak_topics is empty %}
+            <p style="color:#94a3b8;font-size:13px;">Aucune donnée disponible.</p>
+        {% else %}
+            {% set max = weak_topics[0].count %}
+            {% for item in weak_topics %}
+            <div class="ea-topic-row">
+                <span class="ea-topic-name">{{ item.topic|capitalize }}</span>
+                <div class="ea-bar"><div class="ea-bar-fill" style="width:{{ max > 0 ? (item.count/max*100)|round : 0 }}%"></div></div>
+                <span class="ea-topic-count">{{ item.count }}</span>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {# Quick links #}
+    <div class="ea-card">
+        <h3>🔗 Accès rapide</h3>
+        <div class="ea-link-grid">
+            <a href="{{ ea_url().setController('App\\Controller\\Admin\\EasyAdmin\\CoursCrudController') }}" class="ea-link-btn">
+                <i>📚</i> Cours
+            </a>
+            <a href="{{ ea_url().setController('App\\Controller\\Admin\\EasyAdmin\\QuizCrudController') }}" class="ea-link-btn">
+                <i>❓</i> Quiz
+            </a>
+            <a href="{{ ea_url().setController('App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController') }}" class="ea-link-btn">
+                <i>📊</i> Résultats
+            </a>
+            <a href="{{ ea_url().setController('App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController') }}" class="ea-link-btn">
+                <i>💬</i> Commentaires
+            </a>
+            <a href="{{ ea_url().setController('App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController') }}" class="ea-link-btn">
+                <i>🔔</i> Notifications
+            </a>
+            <a href="{{ path('admin_statistiques') }}" class="ea-link-btn">
+                <i>📈</i> Statistiques
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

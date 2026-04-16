@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: \App\Repository\CommentaireRepository::class)]
 #[ORM\Table(name: "commentaire")]
@@ -16,9 +17,12 @@ class Commentaire
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 100)]
+    #[Assert\NotBlank(message: "L'auteur est obligatoire.")]
+    #[Assert\Length(max: 100, maxMessage: "Le nom de l'auteur ne peut pas dépasser {{ limit }} caractères.")]
     private string $auteur = '';
 
     #[ORM\Column(type: "text")]
+    #[Assert\NotBlank(message: "Le contenu du commentaire est obligatoire.")]
     private string $contenu = '';
 
     #[ORM\Column(name: "date_creation", type: "datetime")]

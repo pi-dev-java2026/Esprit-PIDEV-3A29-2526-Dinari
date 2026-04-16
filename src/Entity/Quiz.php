@@ -3,9 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ORM\Table(name: "quiz")]
+#[ORM\Table(name: "quiz_symfony")]
 class Quiz
 {
     #[ORM\Id]
@@ -14,15 +15,21 @@ class Quiz
     private ?int $id = null;
 
     #[ORM\Column(name: "titre", type: "string", length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le titre du quiz est obligatoire.")]
+    #[Assert\Length(max: 255, maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères.")]
     private ?string $titre = null;
 
     #[ORM\Column(name: "liste_reponse", type: "text", nullable: true)]
+    #[Assert\NotBlank(message: "Les choix de réponses sont obligatoires.")]
     private ?string $listeReponse = null;
 
     #[ORM\Column(name: "reponse_correct", type: "string", length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "La réponse correcte est obligatoire.")]
+    #[Assert\Length(max: 255, maxMessage: "La réponse correcte ne peut pas dépasser {{ limit }} caractères.")]
     private ?string $reponseCorrect = null;
 
     #[ORM\Column(name: "score_quiz", type: "integer", nullable: true)]
+    #[Assert\Positive(message: "Le score doit être un nombre positif.")]
     private ?int $scoreQuiz = null;
 
     #[ORM\Column(name: "date_creation", type: "date", nullable: true)]
@@ -32,11 +39,20 @@ class Quiz
     private ?bool $isExamMode = null;
 
     #[ORM\Column(name: "time_limit", type: "integer", nullable: true)]
+    #[Assert\Positive(message: "La limite de temps doit être un nombre positif.")]
     private ?int $timeLimit = null;
 
     #[ORM\ManyToOne(targetEntity: Cours::class, inversedBy: "quizzes")]
     #[ORM\JoinColumn(name: "id_cours", referencedColumnName: "id_cours", nullable: true)]
     private ?Cours $cours = null;
+
+    /**
+     * Topic/theme of this quiz (comma-separated keywords).
+     * Used to identify weak topics when the user scores poorly.
+     * Example: "budget,depenses"
+     */
+    #[ORM\Column(name: "theme", type: "string", length: 255, nullable: true)]
+    private ?string $theme = null;
 
     public function getId(): ?int
     {
@@ -129,5 +145,15 @@ class Quiz
     {
         $this->cours = $cours;
         return $this;
+    }
+
+    public function getTheme(): ?string { return $this->theme; }
+    public function setTheme(?string $theme): static { $this->theme = $theme; return $this; }
+
+    /** Returns theme as an array of trimmed keywords */
+    public function getThemeKeywords(): array
+    {
+        if (!$this->theme) return [];
+        return array_filter(array_map('trim', explode(',', strtolower($this->theme))));
     }
 }

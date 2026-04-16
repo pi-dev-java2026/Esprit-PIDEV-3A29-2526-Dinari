@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="html-root">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -100,8 +100,22 @@
         .ripple-btn { position: relative; overflow: hidden; }
         /* ===== HERO OFFSET: undo body padding-top inside hero so it fills full viewport ===== */
         .hero { margin-top: -70px; padding-top: 70px; }
+        /* ===== LANG SWITCHER ===== */
+        .lang-switcher { display:flex; align-items:center; gap:4px; margin-left:10px; }
+        .lang-btn { padding:5px 10px; border:1.5px solid var(--dinari-border); border-radius:4px;
+          font-size:12px; font-weight:700; cursor:pointer; background:#fff; color:var(--dinari-text);
+          font-family:'Raleway',sans-serif; transition:all .2s; line-height:1; }
+        .lang-btn:hover { border-color:var(--dinari-blue); color:var(--dinari-blue); }
+        .lang-btn.active { background:var(--dinari-blue); color:#fff; border-color:var(--dinari-blue); }
+        /* RTL support */
+        [dir="rtl"] .dinari-nav { flex-direction:row-reverse; }
+        [dir="rtl"] .gestions-menu { left:auto; right:0; }
+        [dir="rtl"] .logo-text-part { padding-left:0; padding-right:14px; }
+        [dir="rtl"] footer ul li a:hover { padding-left:0; padding-right:4px; }
+        [dir="rtl"] footer ul li i { margin-right:0; margin-left:8px; }
     </style>
     {% block stylesheets %}{% endblock %}
+    {{ importmap('app') }}
     <script src="{{ asset('js/vendor/modernizr-2.8.3-respond-1.4.2.min.js') }}"></script>
 </head>
 <body>
@@ -115,23 +129,31 @@
                             <span class="logo-text-part">inari</span>
                         </a>
                         <ul class="dinari-nav">
-                            <li><a href="{{ path('app_home') }}">Accueil</a></li>
-                            <li><a href="#fonctionnalites">Fonctionnalités</a></li>
-                            <li><a href="#cours">Cours Fintech</a></li>
+                            <li><a href="{{ path('app_home') }}" data-i18n="nav_home">Accueil</a></li>
+                            <li><a href="#fonctionnalites" data-i18n="nav_features">Fonctionnalités</a></li>
+                            <li><a href="{{ path('app_cours_index') }}" data-i18n="nav_courses">Cours Fintech</a></li>
                             <li>
                                 <div class="gestions-wrapper">
-                                    <a href="#" class="gestions-btn">Gestions <span class="gestions-arrow">▼</span></a>
+                                    <a href="#" class="gestions-btn">
+                                        <span data-i18n="nav_manage">Gestions</span>
+                                        <span class="gestions-arrow">▼</span>
+                                    </a>
                                     <ul class="gestions-menu">
-                                        <li><a href="#">Abonnements</a></li>
-                                        <li><a href="#">Budget</a></li>
-                                        <li><a href="#">Dépenses</a></li>
-                                        <li><a href="#">Cours et Quiz</a></li>
-                                        <li><a href="#">Réclamations</a></li>
+                                        <li><a href="#" data-i18n="nav_subscriptions">Abonnements</a></li>
+                                        <li><a href="#" data-i18n="nav_budget">Budget</a></li>
+                                        <li><a href="#" data-i18n="nav_expenses">Dépenses</a></li>
+                                        <li><a href="#" data-i18n="nav_courses_quiz">Cours et Quiz</a></li>
+                                        <li><a href="#" data-i18n="nav_claims">Réclamations</a></li>
                                     </ul>
                                 </div>
                             </li>
                             <li>
-                                <a href="#" onclick="if(typeof openAuth==='function'){openAuth('login');}return false;" class="nav-btn-dinari ripple-btn">Se connecter</a>
+                                <a href="#" onclick="if(typeof openAuth==='function'){openAuth('login');}return false;" class="nav-btn-dinari ripple-btn" data-i18n="nav_login">Se connecter</a>
+                            </li>
+                            <li class="lang-switcher">
+                                <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+                                <button class="lang-btn" onclick="setLang('en')">EN</button>
+                                <button class="lang-btn" onclick="setLang('ar')">AR</button>
                             </li>
                         </ul>
                     </div>
@@ -149,7 +171,7 @@
                             <div class="footer-logo-icon"><span>D</span></div>
                             <span class="footer-logo-text">inari</span>
                         </div>
-                        <p style="color:rgba(255,255,255,0.38);font-size:13px;line-height:1.85;max-width:250px;margin:0;">Votre plateforme de gestion financière personnelle.</p>
+                        <p style="color:rgba(255,255,255,0.38);font-size:13px;line-height:1.85;max-width:250px;margin:0;" data-i18n="footer_tagline">Votre plateforme de gestion financière personnelle.</p>
                         <div class="social-icons">
                             <a href="#"><i class="fa fa-facebook"></i></a>
                             <a href="#"><i class="fa fa-twitter"></i></a>
@@ -158,24 +180,24 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <h4>Produit</h4>
+                        <h4 data-i18n="footer_product">Produit</h4>
                         <ul>
-                            <li><a href="{{ path('app_home') }}">Accueil</a></li>
-                            <li><a href="#fonctionnalites">Fonctionnalités</a></li>
-                            <li><a href="#cours">Cours Fintech</a></li>
-                            <li><a href="#" onclick="if(typeof openAuth==='function'){openAuth('register');}return false;">S'inscrire</a></li>
+                            <li><a href="{{ path('app_home') }}" data-i18n="nav_home">Accueil</a></li>
+                            <li><a href="#fonctionnalites" data-i18n="nav_features">Fonctionnalités</a></li>
+                            <li><a href="#cours" data-i18n="nav_courses">Cours Fintech</a></li>
+                            <li><a href="#" onclick="if(typeof openAuth==='function'){openAuth('register');}return false;" data-i18n="footer_register">S'inscrire</a></li>
                         </ul>
                     </div>
                     <div class="col-md-3">
-                        <h4>Ressources</h4>
+                        <h4 data-i18n="footer_resources">Ressources</h4>
                         <ul>
-                            <li><a href="#">Documentation</a></li>
-                            <li><a href="#">Centre d'aide</a></li>
-                            <li><a href="#">Blog</a></li>
+                            <li><a href="#" data-i18n="footer_docs">Documentation</a></li>
+                            <li><a href="#" data-i18n="footer_help">Centre d'aide</a></li>
+                            <li><a href="#" data-i18n="footer_blog">Blog</a></li>
                         </ul>
                     </div>
                     <div class="col-md-3">
-                        <h4>Contact</h4>
+                        <h4 data-i18n="footer_contact">Contact</h4>
                         <ul>
                             <li><i class="fa fa-envelope"></i> contact@dinari.tn</li>
                             <li><i class="fa fa-phone"></i> +216 XX XXX XXX</li>
@@ -190,7 +212,7 @@
     <div class="sub-footer-wrap">
         <div class="container">
             <p>&copy; {{ "now"|date("Y") }} <strong>Dinari</strong> — Tous droits réservés.</p>
-            <p style="font-size:12px;color:rgba(255,255,255,0.18);">Plateforme fintech tunisienne</p>
+            <p style="font-size:12px;color:rgba(255,255,255,0.18);" data-i18n="footer_sub">Plateforme fintech tunisienne</p>
         </div>
     </div>
 
@@ -217,6 +239,79 @@
             });
         });
     </script>
+    <script>
+    /* ===== DINARI i18n ===== */
+    const DINARI_TRANSLATIONS = {
+      fr: {
+        nav_home:'Accueil', nav_features:'Fonctionnalités', nav_courses:'Cours Fintech',
+        nav_manage:'Gestions', nav_subscriptions:'Abonnements', nav_budget:'Budget',
+        nav_expenses:'Dépenses', nav_courses_quiz:'Cours et Quiz', nav_claims:'Réclamations',
+        nav_login:'Se connecter',
+        footer_tagline:'Votre plateforme de gestion financière personnelle.',
+        footer_product:'Produit', footer_register:"S'inscrire",
+        footer_resources:'Ressources', footer_docs:'Documentation',
+        footer_help:"Centre d'aide", footer_blog:'Blog',
+        footer_contact:'Contact', footer_sub:'Plateforme fintech tunisienne',
+      },
+      en: {
+        nav_home:'Home', nav_features:'Features', nav_courses:'Fintech Courses',
+        nav_manage:'Management', nav_subscriptions:'Subscriptions', nav_budget:'Budget',
+        nav_expenses:'Expenses', nav_courses_quiz:'Courses & Quizzes', nav_claims:'Claims',
+        nav_login:'Sign In',
+        footer_tagline:'Your personal financial management platform.',
+        footer_product:'Product', footer_register:'Sign Up',
+        footer_resources:'Resources', footer_docs:'Documentation',
+        footer_help:'Help Center', footer_blog:'Blog',
+        footer_contact:'Contact', footer_sub:'Tunisian fintech platform',
+      },
+      ar: {
+        nav_home:'الرئيسية', nav_features:'المميزات', nav_courses:'دورات فينتك',
+        nav_manage:'الإدارة', nav_subscriptions:'الاشتراكات', nav_budget:'الميزانية',
+        nav_expenses:'المصاريف', nav_courses_quiz:'الدورات والاختبارات', nav_claims:'الشكاوى',
+        nav_login:'تسجيل الدخول',
+        footer_tagline:'منصتك لإدارة الشؤون المالية الشخصية.',
+        footer_product:'المنتج', footer_register:'إنشاء حساب',
+        footer_resources:'الموارد', footer_docs:'التوثيق',
+        footer_help:'مركز المساعدة', footer_blog:'المدونة',
+        footer_contact:'التواصل', footer_sub:'منصة فينتك تونسية',
+      }
+    };
+
+    function setLang(lang) {
+      localStorage.setItem('dinari_lang', lang);
+      const t = DINARI_TRANSLATIONS[lang] || DINARI_TRANSLATIONS['fr'];
+      // Apply base translations
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) el.textContent = t[key];
+      });
+      // Apply page-specific translations if defined
+      if (typeof applyPageTranslations === 'function') applyPageTranslations(lang);
+      // RTL
+      const html = document.getElementById('html-root');
+      if (lang === 'ar') {
+        html.setAttribute('dir','rtl');
+        html.setAttribute('lang','ar');
+      } else {
+        html.setAttribute('dir','ltr');
+        html.setAttribute('lang', lang);
+      }
+      // Update active button
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+      });
+    }
+
+    // Exposed so child pages can call it after registering applyPageTranslations
+    window._dinariInitLang = function() {
+      const saved = localStorage.getItem('dinari_lang') || 'fr';
+      setLang(saved);
+    };
+    </script>
     {% block javascripts %}{% endblock %}
+    {# Run AFTER block javascripts so applyPageTranslations is always defined first #}
+    <script>window._dinariInitLang();</script>
+    {# ── Dinari Chatbot Widget (new feature, does not affect existing pages) ── #}
+    {% include 'chatbot/_widget.html.twig' %}
 </body>
 </html>

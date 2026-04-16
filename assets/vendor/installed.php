@@ -19,4 +19,15 @@
     array (
     ),
   ),
+  'chart.js' => 
+  array (
+    'version' => '4.4.0',
+    'dependencies' => 
+    array (
+      0 => '@kurkle/color',
+    ),
+    'extraFiles' => 
+    array (
+    ),
+  ),
 );

@@ -1,0 +1,249 @@
+<?php //easyadmin.routes.route_to_fqcn
+
+return [PHP_INT_MAX, [
+    'easyadmin' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => null,
+        'crudAction' => null,
+    ],
+    'easyadmin_chapitre_index' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'index',
+    ],
+    'easyadmin_chapitre_new' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'new',
+    ],
+    'easyadmin_chapitre_batch_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'batchDelete',
+    ],
+    'easyadmin_chapitre_autocomplete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'autocomplete',
+    ],
+    'easyadmin_chapitre_render_filters' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'renderFilters',
+    ],
+    'easyadmin_chapitre_edit' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'edit',
+    ],
+    'easyadmin_chapitre_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'delete',
+    ],
+    'easyadmin_chapitre_detail' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\ChapitreCrudController',
+        'crudAction' => 'detail',
+    ],
+    'easyadmin_commentaire_index' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'index',
+    ],
+    'easyadmin_commentaire_new' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'new',
+    ],
+    'easyadmin_commentaire_batch_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'batchDelete',
+    ],
+    'easyadmin_commentaire_autocomplete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'autocomplete',
+    ],
+    'easyadmin_commentaire_render_filters' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'renderFilters',
+    ],
+    'easyadmin_commentaire_edit' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'edit',
+    ],
+    'easyadmin_commentaire_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'delete',
+    ],
+    'easyadmin_commentaire_detail' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CommentaireCrudController',
+        'crudAction' => 'detail',
+    ],
+    'easyadmin_cours_index' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'index',
+    ],
+    'easyadmin_cours_new' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'new',
+    ],
+    'easyadmin_cours_batch_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'batchDelete',
+    ],
+    'easyadmin_cours_autocomplete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'autocomplete',
+    ],
+    'easyadmin_cours_render_filters' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'renderFilters',
+    ],
+    'easyadmin_cours_edit' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'edit',
+    ],
+    'easyadmin_cours_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'delete',
+    ],
+    'easyadmin_cours_detail' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\CoursCrudController',
+        'crudAction' => 'detail',
+    ],
+    'easyadmin_notification_index' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'index',
+    ],
+    'easyadmin_notification_new' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'new',
+    ],
+    'easyadmin_notification_batch_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'batchDelete',
+    ],
+    'easyadmin_notification_autocomplete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'autocomplete',
+    ],
+    'easyadmin_notification_render_filters' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'renderFilters',
+    ],
+    'easyadmin_notification_edit' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'edit',
+    ],
+    'easyadmin_notification_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'delete',
+    ],
+    'easyadmin_notification_detail' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\NotificationCrudController',
+        'crudAction' => 'detail',
+    ],
+    'easyadmin_quiz_index' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'index',
+    ],
+    'easyadmin_quiz_new' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'new',
+    ],
+    'easyadmin_quiz_batch_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'batchDelete',
+    ],
+    'easyadmin_quiz_autocomplete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'autocomplete',
+    ],
+    'easyadmin_quiz_render_filters' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'renderFilters',
+    ],
+    'easyadmin_quiz_edit' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'edit',
+    ],
+    'easyadmin_quiz_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'delete',
+    ],
+    'easyadmin_quiz_detail' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizCrudController',
+        'crudAction' => 'detail',
+    ],
+    'easyadmin_quiz_resultat_index' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'index',
+    ],
+    'easyadmin_quiz_resultat_new' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'new',
+    ],
+    'easyadmin_quiz_resultat_batch_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'batchDelete',
+    ],
+    'easyadmin_quiz_resultat_autocomplete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'autocomplete',
+    ],
+    'easyadmin_quiz_resultat_render_filters' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'renderFilters',
+    ],
+    'easyadmin_quiz_resultat_edit' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'edit',
+    ],
+    'easyadmin_quiz_resultat_delete' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'delete',
+    ],
+    'easyadmin_quiz_resultat_detail' => [
+        'dashboardControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\DinariDashboardController',
+        'crudControllerFqcn' => 'App\\Controller\\Admin\\EasyAdmin\\QuizResultatCrudController',
+        'crudAction' => 'detail',
+    ],
+]];

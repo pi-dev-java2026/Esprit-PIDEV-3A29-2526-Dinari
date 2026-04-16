@@ -73,9 +73,7 @@
         </div>
     </div>
     <div class="tree-body" id="quiz-tree">
-        {% if quizzes is empty %}
-            <div class="tree-empty"><i class="ri-inbox-line" style="font-size:28px;display:block;margin-bottom:8px;"></i>Aucun quiz.</div>
-        {% else %}
+        {% if quizzes is not empty %}
             {% for key, group in groups %}
                 <div class="g-node" data-group="{{ group.cours.nomCours|lower }}">
                     <div class="g-row" onclick="toggle(this.parentElement)">
@@ -125,6 +123,43 @@
                     </div>
                 </div>
             {% endif %}
+        {% elseif static_quizzes is not empty %}
+            {# Group static quizzes by cours name #}
+            {% set static_groups = {} %}
+            {% for q in static_quizzes %}
+                {% set key = q.cours %}
+                {% if static_groups[key] is not defined %}
+                    {% set static_groups = static_groups|merge({(key): []}) %}
+                {% endif %}
+                {% set static_groups = static_groups|merge({(key): static_groups[key]|merge([q])}) %}
+            {% endfor %}
+            {% for coursName, qlist in static_groups %}
+                <div class="g-node open" data-group="{{ coursName|lower }}">
+                    <div class="g-row" onclick="toggle(this.parentElement)">
+                        <span class="g-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        <i class="ri-book-open-line g-icon" style="color:var(--blue);"></i>
+                        <span class="g-name">{{ coursName }}</span>
+                        <span class="g-badge">{{ qlist|length }} quiz</span>
+                    </div>
+                    <div class="q-list">
+                        {% for quiz in qlist %}
+                            <div class="q-row" data-name="{{ quiz.titre|lower }}">
+                                <i class="ri-question-answer-line q-icon"></i>
+                                <span class="q-name">{{ quiz.titre }}</span>
+                                <span class="q-meta">
+                                    {% if quiz.isExamMode %}<span class="badge-dinari badge-warning" style="font-size:10px;">Examen</span>{% else %}<span class="badge-dinari badge-success" style="font-size:10px;">Normal</span>{% endif %}
+                                    {% if quiz.scoreQuiz %}&nbsp;· Score {{ quiz.scoreQuiz }}{% endif %}
+                                </span>
+                                <div class="q-actions">
+                                    <span class="tb" style="opacity:.45;cursor:default;font-size:11px;">Aperçu statique</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="tree-empty"><i class="ri-inbox-line" style="font-size:28px;display:block;margin-bottom:8px;"></i>Aucun quiz.</div>
         {% endif %}
     </div>
 </div>
@@ -132,9 +167,9 @@
 {# ── TABLE ── #}
 <div class="card-dinari">
     <div class="card-header-dinari">
-        <span class="card-title">{{ quizzes|length }} quiz au total</span>
+        <span class="card-title">{{ quizzes is not empty ? quizzes|length : static_quizzes|length }} quiz au total{% if static_quizzes is not empty and quizzes is empty %} <span style="font-size:11px;font-weight:500;color:var(--muted);">(aperçu statique)</span>{% endif %}</span>
     </div>
-    {% if quizzes is empty %}
+    {% if quizzes is empty and static_quizzes is empty %}
         <p style="color:var(--muted);text-align:center;padding:32px;">Aucun quiz pour l'instant.</p>
     {% else %}
         <table class="table-dinari" id="quiz-table">
@@ -150,7 +185,8 @@
                 </tr>
             </thead>
             <tbody>
-            {% for quiz in quizzes %}
+            {% if quizzes is not empty %}
+                {% for quiz in quizzes %}
                 <tr data-name="{{ quiz.titre|lower }}">
                     <td>{{ quiz.id }}</td>
                     <td><strong>{{ quiz.titre }}</strong></td>
@@ -174,7 +210,23 @@
                         </div>
                     </td>
                 </tr>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                {% for i, quiz in static_quizzes %}
+                <tr data-name="{{ quiz.titre|lower }}">
+                    <td style="color:var(--muted);">—</td>
+                    <td><strong>{{ quiz.titre }}</strong></td>
+                    <td><span class="badge-dinari badge-info">{{ quiz.cours }}</span></td>
+                    <td style="font-size:13px;color:var(--muted);">{{ quiz.reponseCorrect ?? '—' }}</td>
+                    <td>{{ quiz.scoreQuiz ?? '—' }}</td>
+                    <td>
+                        {% if quiz.isExamMode %}<span class="badge-dinari badge-warning">Examen</span>
+                        {% else %}<span class="badge-dinari badge-success">Normal</span>{% endif %}
+                    </td>
+                    <td><span style="font-size:12px;color:var(--muted);font-style:italic;">Aperçu statique</span></td>
+                </tr>
+                {% endfor %}
+            {% endif %}
             </tbody>
         </table>
     {% endif %}

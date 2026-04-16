@@ -99,8 +99,9 @@ jQuery(document).ready(function($) {
       })
 
       
-      $('#form-submit .date').datepicker({
-      });
+      if ($.fn.datepicker) {
+        $('#form-submit .date').datepicker({});
+      }
 
       /**
      * jquery.responsive-menu.js

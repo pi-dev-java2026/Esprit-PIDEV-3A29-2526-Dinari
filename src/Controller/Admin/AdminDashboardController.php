@@ -24,11 +24,54 @@ class AdminDashboardController extends AbstractController
         $q    = trim($request->query->get('q', ''));
         $tree = $q !== '' ? $coursRepo->search($q) : $coursRepo->findAllWithTree();
 
+        $staticCours = [
+            [
+                'id'          => null,
+                'nomCours'    => 'Finance Personnelle',
+                'description' => 'Comprendre les bases de la finance personnelle : budget, épargne, investissement et gestion financière au quotidien.',
+                'dateCreation'=> new \DateTime('2026-01-01'),
+                'chapitres'   => [
+                    ['titre' => 'Introduction',        'sousTitre' => 'Pourquoi gérer ses finances ?', 'position' => 1],
+                    ['titre' => 'Budget Personnel',    'sousTitre' => 'Créer et suivre son budget',    'position' => 2],
+                    ['titre' => 'Épargne',             'sousTitre' => 'Stratégies d\'épargne efficaces','position' => 3],
+                    ['titre' => 'Gestion Financière',  'sousTitre' => 'Contrôler ses dépenses',        'position' => 4],
+                    ['titre' => 'Investissement',      'sousTitre' => 'Faire fructifier son argent',   'position' => 5],
+                ],
+            ],
+            [
+                'id'          => null,
+                'nomCours'    => 'Les bases du budget',
+                'description' => 'Créez et gérez un budget personnel efficace dès le premier mois.',
+                'dateCreation'=> new \DateTime('2026-01-01'),
+                'chapitres'   => [],
+            ],
+            [
+                'id'          => null,
+                'nomCours'    => 'Épargne & investissement',
+                'description' => 'Stratégies pour épargner intelligemment et faire fructifier votre argent.',
+                'dateCreation'=> new \DateTime('2026-01-15'),
+                'chapitres'   => [],
+            ],
+            [
+                'id'          => null,
+                'nomCours'    => 'Comprendre la banque',
+                'description' => 'Taux d\'intérêt, crédits, cartes bancaires — tout ce que vous devez savoir.',
+                'dateCreation'=> new \DateTime('2026-02-01'),
+                'chapitres'   => [],
+            ],
+        ];
+
+        $nbCoursDb = $coursRepo->count([]);
+        $nbQuizDb  = $quizRepo->count([]);
+
+        $staticQuizCount = 6; // mirrors the static fallback in AdminQuizController
+
         return $this->render('admin/dashboard/index.html.twig', [
-            'nbCours'        => $coursRepo->count([]),
-            'nbQuiz'         => $quizRepo->count([]),
+            'nbCours'        => $nbCoursDb + count($staticCours),
+            'nbQuiz'         => $nbQuizDb  > 0 ? $nbQuizDb  : $staticQuizCount,
             'nbCommentaires' => $commentRepo->count([]),
             'tree'           => $tree,
+            'static_cours'   => $staticCours,
             'searchQuery'    => $q,
         ]);
     }
