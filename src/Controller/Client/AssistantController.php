@@ -2,17 +2,17 @@
 
 namespace App\Controller\Client;
 
-use App\Service\ChatbotService;
+use App\Service\AssistantService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/chatbot', name: 'app_chatbot_')]
-class ChatbotController extends AbstractController
+class AssistantController extends AbstractController
 {
     #[Route('/message', name: 'message', methods: ['POST'])]
-    public function message(Request $request, ChatbotService $chatbot): JsonResponse
+    public function message(Request $request, AssistantService $chatbot): JsonResponse
     {
         $data    = json_decode($request->getContent(), true);
         $message = trim($data['message'] ?? '');

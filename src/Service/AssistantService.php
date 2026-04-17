@@ -11,7 +11,7 @@ use App\Repository\QuizRepository;
  * Answers questions about courses, chapters, quizzes, and basic financial concepts.
  * Does NOT use any external AI API — all answers come from the platform knowledge base.
  */
-class ChatbotService
+class AssistantService
 {
     public function __construct(
         private readonly CoursRepository    $coursRepo,
