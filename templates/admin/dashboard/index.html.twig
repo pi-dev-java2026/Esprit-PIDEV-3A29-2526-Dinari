@@ -156,25 +156,45 @@
     </div>
 </div>
 
-{# ── Quick access ── #}
-<div class="card-dinari">
-    <div class="card-header-dinari">
-        <span class="card-title">Accès rapides</span>
-    </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <a href="{{ path('admin_cours_index') }}" class="btn-dinari btn-primary-d">
-            <i class="ri-book-open-line"></i> Gérer les cours
-        </a>
-        <a href="{{ path('admin_quiz_index') }}" class="btn-dinari btn-primary-d">
-            <i class="ri-question-line"></i> Gérer les quiz
-        </a>
-        <a href="{{ path('admin_commentaire_index') }}" class="btn-dinari btn-warning-d">
-            <i class="ri-chat-3-line"></i> Modérer les commentaires
-        </a>
-        <a href="{{ path('app_home') }}" class="btn-dinari btn-secondary-d">
-            <i class="ri-global-line"></i> Voir le site client
-        </a>
-    </div>
+{# ── Quick access cards ── #}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px;">
+
+    <a href="{{ path('admin_commentaire_index') }}" style="text-decoration:none;">
+        <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:14px;cursor:pointer;">
+            <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:#D97706;">
+                <i class="ri-chat-3-line"></i>
+            </div>
+            <div>
+                <div style="font-size:14px;font-weight:700;color:var(--text);">Commentaires</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:3px;">Modérer les commentaires</div>
+            </div>
+        </div>
+    </a>
+
+    <a href="{{ path('admin_statistiques') }}" style="text-decoration:none;">
+        <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:14px;cursor:pointer;">
+            <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:#059669;">
+                <i class="ri-bar-chart-2-line"></i>
+            </div>
+            <div>
+                <div style="font-size:14px;font-weight:700;color:var(--text);">Statistiques</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:3px;">Voir les statistiques</div>
+            </div>
+        </div>
+    </a>
+
+    <a href="{{ path('easyadmin') }}" style="text-decoration:none;">
+        <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:14px;cursor:pointer;">
+            <div class="stat-icon" style="background:rgba(79,70,229,0.1);color:#4F46E5;">
+                <i class="ri-layout-grid-line"></i>
+            </div>
+            <div>
+                <div style="font-size:14px;font-weight:700;color:var(--text);">EasyAdmin</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:3px;">Panneau EasyAdmin</div>
+            </div>
+        </div>
+    </a>
+
 </div>
 
 {# ── Tree + Search ── #}

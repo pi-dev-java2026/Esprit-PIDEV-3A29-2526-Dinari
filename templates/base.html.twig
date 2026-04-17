@@ -150,11 +150,6 @@
                             <li>
                                 <a href="#" onclick="if(typeof openAuth==='function'){openAuth('login');}return false;" class="nav-btn-dinari ripple-btn" data-i18n="nav_login">Se connecter</a>
                             </li>
-                            <li class="lang-switcher">
-                                <button class="lang-btn active" onclick="setLang('fr')">FR</button>
-                                <button class="lang-btn" onclick="setLang('en')">EN</button>
-                                <button class="lang-btn" onclick="setLang('ar')">AR</button>
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -311,7 +306,6 @@
     {% block javascripts %}{% endblock %}
     {# Run AFTER block javascripts so applyPageTranslations is always defined first #}
     <script>window._dinariInitLang();</script>
-    {# ── Dinari Chatbot Widget (new feature, does not affect existing pages) ── #}
-    {% include 'chatbot/_widget.html.twig' %}
+    {# ── Dinari Chatbot Widget — only on Cours Fintech page ── #}
 </body>
 </html>

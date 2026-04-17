@@ -378,49 +378,37 @@
 
         <a href="{{ path('admin_dashboard') }}"
            class="nav-item {{ app.request.get('_route') starts with 'admin_dashboard' ? 'active' : '' }}">
-            <i class="ri-dashboard-line"></i> Dashboard
+            <i class="ri-home-4-line"></i> Accueil
         </a>
 
         <div class="nav-divider"></div>
         <div class="nav-section-label">Gestion</div>
 
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_abonnement' ? 'active' : '' }}">
+            <i class="ri-vip-crown-2-line"></i> Abonnements
+        </a>
+
         <a href="{{ path('admin_cours_index') }}"
-           class="nav-item {{ app.request.get('_route') starts with 'admin_cours' or app.request.get('_route') starts with 'admin_chapitre' ? 'active' : '' }}">
-            <i class="ri-book-open-line"></i> Cours &amp; Chapitres
+           class="nav-item {{ app.request.get('_route') starts with 'admin_cours' or app.request.get('_route') starts with 'admin_chapitre' or app.request.get('_route') starts with 'admin_quiz' ? 'active' : '' }}">
+            <i class="ri-book-open-line"></i> Cours &amp; Quiz
         </a>
 
-        <a href="{{ path('admin_quiz_index') }}"
-           class="nav-item {{ app.request.get('_route') starts with 'admin_quiz' ? 'active' : '' }}">
-            <i class="ri-question-answer-line"></i> Quiz
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'app_expert_comptable' ? 'active' : '' }}">
+            <i class="ri-user-star-line"></i> Expert
         </a>
 
-        <a href="{{ path('admin_commentaire_index') }}"
-           class="nav-item {{ app.request.get('_route') starts with 'admin_commentaire' ? 'active' : '' }}">
-            <i class="ri-chat-3-line"></i> Commentaires
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_depense' ? 'active' : '' }}">
+            <i class="ri-money-dollar-circle-line"></i> Dépenses
         </a>
 
-        <a href="{{ path('admin_statistiques') }}"
-           class="nav-item {{ app.request.get('_route') == 'admin_statistiques' ? 'active' : '' }}">
-            <i class="ri-bar-chart-2-line"></i> Statistiques
+        <a href="#"
+           class="nav-item {{ app.request.get('_route') starts with 'admin_utilisateur' ? 'active' : '' }}">
+            <i class="ri-team-line"></i> Utilisateurs
         </a>
 
-        <a href="{{ path('easyadmin') }}"
-           class="nav-item {{ app.request.get('_route') starts with 'easyadmin' ? 'active' : '' }}">
-            <i class="ri-layout-grid-line"></i> EasyAdmin
-        </a>
-
-        <div class="nav-divider"></div>
-        <div class="nav-section-label">Autres modules</div>
-
-        <a href="#" class="nav-item"><i class="ri-vip-crown-2-line"></i> Abonnements</a>
-        <a href="#" class="nav-item"><i class="ri-money-dollar-circle-line"></i> Dépenses</a>
-        <a href="#" class="nav-item"><i class="ri-team-line"></i> Utilisateurs</a>
-
-        <div class="nav-divider"></div>
-
-        <a href="{{ path('app_home') }}" class="nav-item">
-            <i class="ri-global-line"></i> Voir le site
-        </a>
     </nav>
 
     <div class="sidebar-footer">

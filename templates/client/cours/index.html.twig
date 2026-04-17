@@ -452,6 +452,11 @@ body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--d-text);}
                        display:none;align-items:center;justify-content:center;padding:0 3px;">
           </span>
         </a>
+        <div style="display:flex;align-items:center;gap:4px;margin-left:4px;">
+          <button class="lang-btn" onclick="setLang('fr')">FR</button>
+          <button class="lang-btn" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" onclick="setLang('ar')">AR</button>
+        </div>
       </div>
 
       {# ══ CHAPITRE 0 — INTRODUCTION ══ #}
@@ -1822,4 +1827,5 @@ fetch('/notifications/unread-count')
     })
     .catch(() => {});
 </script>
+{% include 'chatbot/_widget.html.twig' %}
 {% endblock %}
