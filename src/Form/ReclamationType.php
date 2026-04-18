@@ -46,6 +46,19 @@ class ReclamationType extends AbstractType
                 'attr' => ['class' => 'form-select'],
                 'disabled' => !$options['is_admin'],
             ]);
+
+        // Seul l'administrateur peut voir et modifier le champ réponse
+        if ($options['is_admin']) {
+            $builder->add('reponse', TextareaType::class, [
+                'label' => 'Réponse Admin',
+                'required' => false,
+                'attr' => [
+                    'placeholder' => 'Saisissez votre réponse ici...',
+                    'class' => 'form-input',
+                    'rows' => 4,
+                ],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

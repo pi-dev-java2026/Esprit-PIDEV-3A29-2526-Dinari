@@ -60,6 +60,21 @@ class ReclamationController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/show', name: 'show', methods: ['GET'])]
+    public function show(Reclamation $reclamation): Response
+    {
+        $currentUser = $this->getUser();
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            if (!$currentUser || $reclamation->getEmail() !== $currentUser->getUserIdentifier()) {
+                throw $this->createAccessDeniedException("Vous ne pouvez voir que vos propres réclamations.");
+            }
+        }
+
+        return $this->render('reclamation/show.html.twig', [
+            'reclamation' => $reclamation,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Reclamation $reclamation, EntityManagerInterface $em): Response
     {

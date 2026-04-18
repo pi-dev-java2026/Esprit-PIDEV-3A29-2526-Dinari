@@ -57,6 +57,16 @@ class UserController extends AbstractController
             if ($plainPassword) {
                 $user->setPassword($hasher->hashPassword($user, $plainPassword));
             }
+
+            // Save face image path captured via the camera widget
+            $facePath = trim((string) $request->request->get('face_image_path', ''));
+            if ($facePath && str_starts_with($facePath, 'faces/') && !str_contains($facePath, '..')) {
+                $fullFacePath = $this->getParameter('kernel.project_dir') . '/public/' . $facePath;
+                if (file_exists($fullFacePath)) {
+                    $user->setFace_image($facePath);
+                }
+            }
+
             $em->persist($user);
             $em->flush();
             $this->addFlash('success', 'Utilisateur créé avec succès.');
@@ -102,6 +112,24 @@ class UserController extends AbstractController
             if ($plainPassword) {
                 $user->setPassword($hasher->hashPassword($user, $plainPassword));
             }
+
+            // Save / update face image path captured via the camera widget
+            $facePath = trim((string) $request->request->get('face_image_path', ''));
+            if ($facePath && str_starts_with($facePath, 'faces/') && !str_contains($facePath, '..')) {
+                $fullFacePath = $this->getParameter('kernel.project_dir') . '/public/' . $facePath;
+                if (file_exists($fullFacePath)) {
+                    // Remove old face file if it was replaced
+                    $oldPath = $user->getFace_image();
+                    if ($oldPath && $oldPath !== $facePath) {
+                        $oldFile = $this->getParameter('kernel.project_dir') . '/public/' . $oldPath;
+                        if (file_exists($oldFile)) {
+                            @unlink($oldFile);
+                        }
+                    }
+                    $user->setFace_image($facePath);
+                }
+            }
+
             $em->flush();
             $this->addFlash('success', 'Utilisateur modifié avec succès.');
             return $this->redirectToRoute('app_user_index');
@@ -134,6 +162,35 @@ class UserController extends AbstractController
                 return $this->redirectToRoute('app_login');
             }
         }
+        return $this->redirectToRoute('app_user_index');
+    }
+
+    #[Route('/{id}/toggle-block', name: 'toggle_block', methods: ['POST'])]
+    public function toggleBlock(Request $request, User $user, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        if ($currentUser && $currentUser->getId() === $user->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas bloquer votre propre compte.');
+            return $this->redirectToRoute('app_user_index');
+        }
+
+        if ($this->isCsrfTokenValid('toggle_block' . $user->getId(), $request->request->get('_token'))) {
+            $reason = trim((string) $request->request->get('block_reason'));
+            $user->setIsBlockedByAdmin(!$user->isBlockedByAdmin());
+            
+            if ($user->isBlockedByAdmin()) {
+                $user->setBlockReason($reason ?: 'Action administrateur');
+                $this->addFlash('success', 'Utilisateur bloqué avec succès.');
+            } else {
+                $user->setBlockReason(null);
+                $this->addFlash('success', 'Utilisateur débloqué avec succès.');
+            }
+            $em->flush();
+        }
+
         return $this->redirectToRoute('app_user_index');
     }
 }

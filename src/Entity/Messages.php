@@ -3,16 +3,18 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
 use App\Entity\Conversations;
+use App\Repository\MessagesRepository;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MessagesRepository::class)]
+#[ORM\Table(name: 'messages')]
 class Messages
 {
 
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    private int $id;
+    private ?int $id = null;
 
         #[ORM\ManyToOne(targetEntity: Conversations::class, inversedBy: "messagess")]
     #[ORM\JoinColumn(name: 'conversation_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
@@ -27,14 +29,9 @@ class Messages
     #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $date_message;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId($value)
-    {
-        $this->id = $value;
     }
 
     public function getConversation_id()

@@ -1,0 +1,317 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Finaliser l'inscription — DINARI{% endblock %}
+
+{% block stylesheets %}
+<style>
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding: 20px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+.login-box {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 16px;
+    padding: 40px 48px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 24px 48px -12px rgba(0, 0, 0, 0.05);
+}
+.login-logo { text-align: center; margin-bottom: 24px; }
+.logo-text { font-size: 28px; font-weight: 600; color: #1e293b; letter-spacing: 0.5px; }
+.logo-text span { color: #1d4ed8; font-weight: 700; }
+.login-title { text-align: center; margin-bottom: 32px; }
+.login-title h1 { font-size: 25px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; }
+.login-title p { font-size: 14px; color: #64748b; margin: 0; line-height: 1.5; }
+.login-field { margin-bottom: 20px; }
+.login-field label { font-size: 14px; font-weight: 500; color: #64748b; margin-bottom: 8px; display: block; }
+.input-wrapper {
+    position: relative; display: flex; align-items: center;
+    background-color: #f3f4f6; border-radius: 10px; padding: 0 16px;
+    transition: all 0.2s ease; border: 1px solid transparent;
+}
+.input-wrapper:focus-within { background-color: #ffffff; box-shadow: 0 0 0 3px #bfdbfe; border-color: #93c5fd; }
+.input-icon { display: flex; align-items: center; color: #94a3b8; margin-right: 12px; }
+.input-wrapper input {
+    flex: 1; border: none; background: transparent;
+    padding: 14px 0; font-size: 15px; color: #334155; outline: none; width: 100%;
+}
+.input-wrapper input::placeholder { color: #94a3b8; }
+.input-toggle { background: none; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; padding: 0; }
+.input-toggle:hover { color: #64748b; }
+.btn-login {
+    width: 100%; background-color: #10b981; color: white; font-weight: 600;
+    font-size: 15px; padding: 14px; border: none; border-radius: 10px;
+    cursor: pointer; transition: background-color 0.2s; margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+.btn-login:hover { background-color: #059669; }
+.form-error { color: #dc2626; font-size: 13px; margin-top: 6px; display: block; }
+
+/* ── Camera modal animations ── */
+@keyframes slideUpReg {
+    from { transform: translateY(40px) scale(.97); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes guidePulse2 {
+    0%,100% { border-color: rgba(99,102,241,.6); }
+    50%      { border-color: rgba(167,139,250,.9); }
+}
+.reg-cam-spinner {
+    width: 14px; height: 14px; border: 2px solid currentColor;
+    border-top-color: transparent; border-radius: 50%;
+    animation: regSpin .7s linear infinite; display: inline-block; flex-shrink: 0;
+}
+@keyframes regSpin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <div class="logo-text"><span>ID</span>INARI</div>
+        </div>
+
+        <div class="login-title">
+            <h1>Dernière étape !</h1>
+            <p>Veuillez compléter ces informations essentielles pour finaliser la création de votre compte avec Google.</p>
+        </div>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="login-field">
+                {{ form_label(form.phone) }}
+                <div class="input-wrapper">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </span>
+                    {{ form_widget(form.phone) }}
+                </div>
+                <div class="form-error">{{ form_errors(form.phone) }}</div>
+            </div>
+
+            <div class="login-field">
+                {{ form_label(form.plainPassword) }}
+                <div class="input-wrapper">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </span>
+                    {{ form_widget(form.plainPassword) }}
+                    <button type="button" class="input-toggle" onclick="togglePassword()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                <div class="form-error">{{ form_errors(form.plainPassword) }}</div>
+            </div>
+
+            {# ── Face Capture Widget ─────────────────────── #}
+            <div class="login-field">
+                <label style="font-size:14px;font-weight:500;color:#64748b;margin-bottom:8px;display:block;">
+                    📸 Photo du visage
+                </label>
+                <div id="faceRegWidget" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#f8faff;border:1.5px dashed #c7d2fe;border-radius:12px;transition:all .2s;">
+                    <div id="faceRegPreview" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:2px solid #fff;box-shadow:0 3px 10px rgba(99,102,241,.16);">
+                        <span style="font-size:22px;">👤</span>
+                    </div>
+                    <div style="flex:1;">
+                        <div id="faceRegStatus" style="font-size:13px;font-weight:600;color:#6b7280;margin-bottom:6px;">Aucune photo</div>
+                        <button type="button" onclick="openRegCameraModal()" id="btnRegPhoto" style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#fff;color:#4f46e5;border:1.5px solid #c7d2fe;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 2px 6px rgba(99,102,241,.08);">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            Prendre une photo
+                        </button>
+                    </div>
+                </div>
+                <input type="hidden" name="face_image_path" id="faceRegImagePath" value="">
+                <p style="font-size:11.5px;color:#9ca3af;margin:5px 0 0;">Recommandé — permet la connexion par reconnaissance faciale</p>
+            </div>
+
+            <button type="submit" class="btn-login">Finaliser mon compte</button>
+
+            <div style="text-align:center;margin-top:20px;">
+                <a href="{{ path('app_logout') }}" style="color:#64748b;font-size:13px;text-decoration:none;font-weight:500;">Changer de compte</a>
+            </div>
+
+        {{ form_end(form) }}
+
+    </div>
+</div>
+
+{# ═══════════════════ Camera Modal ═══════════════════ #}
+<div id="regCameraBackdrop" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div style="background:#fff;border-radius:24px;width:500px;max-width:96vw;box-shadow:0 32px 80px rgba(0,0,0,.28);overflow:hidden;animation:slideUpReg .25s cubic-bezier(.34,1.56,.64,1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+            <h3 style="font-size:16px;font-weight:800;color:#1e1b4b;display:flex;align-items:center;gap:10px;margin:0;">
+                <span style="width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </span>
+                Capture du visage
+            </h3>
+            <button type="button" onclick="closeRegCameraModal()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:18px;line-height:1;">×</button>
+        </div>
+        <div style="padding:18px 24px 24px;">
+            <div id="regCamStatus" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;font-size:12.5px;font-weight:500;margin-bottom:12px;background:#eff6ff;color:#1d4ed8;">
+                Placez votre visage dans le cadre, puis cliquez sur "Capturer"
+            </div>
+            <div id="regVideoWrap" style="position:relative;border-radius:16px;overflow:hidden;background:#0f172a;margin-bottom:14px;aspect-ratio:4/3;">
+                <video id="regCamVideo" autoplay playsinline style="width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1);"></video>
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                    <div style="width:52%;aspect-ratio:3/4;border:2.5px dashed rgba(99,102,241,.6);border-radius:50%;box-shadow:0 0 0 2000px rgba(15,23,42,.25);animation:guidePulse2 2.5s ease-in-out infinite;"></div>
+                </div>
+            </div>
+            <canvas id="regCaptureCanvas" style="display:none;"></canvas>
+            <img id="regCapturedPreview" style="display:none;width:100%;border-radius:16px;margin-bottom:14px;" alt="Photo capturée">
+            <p id="regCamHint" style="text-align:center;font-size:12px;color:#6b7280;margin-bottom:12px;">🔴 Assurez-vous d'être seul face à la caméra dans un bon éclairage</p>
+            <div id="regCamActions" style="display:flex;gap:10px;">
+                <button type="button" onclick="regCapturePhoto()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 0;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.35);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="10" stroke-dasharray="4 2"/></svg>
+                    Capturer
+                </button>
+            </div>
+            <div id="regCamConfirmActions" style="display:none;gap:10px;">
+                <button type="button" onclick="regRetakePhoto()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 0;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:#f3f4f6;color:#374151;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                    Reprendre
+                </button>
+                <button type="button" id="regBtnConfirm" onclick="regConfirmPhoto()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 0;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.3);">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function togglePassword() {
+    const input = document.getElementById('complete_profile_plainPassword');
+    if (input) { input.type = input.type === 'password' ? 'text' : 'password'; }
+}
+
+/* ── Register Camera Logic (Re-used for completion) ── */
+let regStream      = null;
+let regCapturedB64 = null;
+const REG_CAPTURE_URL = '{{ path('app_face_capture') }}';
+
+async function openRegCameraModal() {
+    const backdrop = document.getElementById('regCameraBackdrop');
+    backdrop.style.display = 'flex';
+    regResetUI();
+    try {
+        setRegStatus('info', 'Démarrage de la caméra…');
+        regStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 1280 } }, audio: false
+        });
+        const vid = document.getElementById('regCamVideo');
+        vid.srcObject = regStream;
+        await vid.play();
+        document.getElementById('regVideoWrap').style.display = 'block';
+        document.getElementById('regCapturedPreview').style.display = 'none';
+        setRegStatus('info', 'Placez votre visage dans le cadre, puis cliquez sur "Capturer"');
+        document.getElementById('regCamActions').style.display = 'flex';
+        document.getElementById('regCamConfirmActions').style.display = 'none';
+    } catch (err) {
+        setRegStatus('error', 'Caméra inaccessible : ' + err.message);
+    }
+}
+
+function closeRegCameraModal() {
+    if (regStream) { regStream.getTracks().forEach(t => t.stop()); regStream = null; }
+    document.getElementById('regCameraBackdrop').style.display = 'none';
+}
+
+function regCapturePhoto() {
+    const vid = document.getElementById('regCamVideo');
+    const can = document.getElementById('regCaptureCanvas');
+    can.width  = vid.videoWidth  || 640;
+    can.height = vid.videoHeight || 480;
+    const ctx = can.getContext('2d');
+    ctx.translate(can.width, 0); ctx.scale(-1, 1);
+    ctx.drawImage(vid, 0, 0);
+    ctx.setTransform(1,0,0,1,0,0);
+    regCapturedB64 = can.toDataURL('image/png', 0.92);
+
+    const prev = document.getElementById('regCapturedPreview');
+    prev.src = regCapturedB64; prev.style.display = 'block';
+    document.getElementById('regVideoWrap').style.display = 'none';
+    document.getElementById('regCamActions').style.display = 'none';
+    document.getElementById('regCamConfirmActions').style.display = 'flex';
+    document.getElementById('regCamHint').textContent = '✅ Vérifiez que votre visage est bien visible avant de confirmer.';
+    setRegStatus('info', 'Photo prise — cliquez sur Confirmer pour valider.');
+    if (regStream) { regStream.getTracks().forEach(t => t.stop()); regStream = null; }
+}
+
+function regRetakePhoto() { regCapturedB64 = null; openRegCameraModal(); }
+
+async function regConfirmPhoto() {
+    if (!regCapturedB64) return;
+    setRegStatus('loading', 'Validation du visage en cours…');
+    document.getElementById('regBtnConfirm').disabled = true;
+    try {
+        const res = await fetch(REG_CAPTURE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: regCapturedB64 })
+        });
+        const result = await res.json();
+        if (result.ok) {
+            document.getElementById('faceRegImagePath').value = result.path;
+            setRegStatus('success', '✅ ' + (result.message || 'Visage validé !'));
+            // Update widget preview
+            document.getElementById('faceRegPreview').innerHTML =
+                '<img src="' + regCapturedB64 + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Visage">';
+            document.getElementById('faceRegStatus').textContent = '✅ Photo enregistrée';
+            document.getElementById('faceRegStatus').style.color = '#059669';
+            const w = document.getElementById('faceRegWidget');
+            w.style.borderColor = '#6366f1'; w.style.borderStyle = 'solid'; w.style.background = '#f5f3ff';
+            setTimeout(() => closeRegCameraModal(), 1100);
+        } else {
+            setRegStatus('error', '❌ ' + (result.error || 'Validation échouée.'));
+            document.getElementById('regBtnConfirm').disabled = false;
+        }
+    } catch (err) {
+        setRegStatus('error', '❌ Erreur réseau : ' + err.message);
+        document.getElementById('regBtnConfirm').disabled = false;
+    }
+}
+
+function setRegStatus(type, msg) {
+    const bar = document.getElementById('regCamStatus');
+    const cfg = {
+        info:    ['#eff6ff', '#1d4ed8'],
+        success: ['#ecfdf5', '#065f46'],
+        error:   ['#fef2f2', '#dc2626'],
+        loading: ['#f5f3ff', '#5b21b6']
+    }[type] || ['#eff6ff', '#1d4ed8'];
+    bar.style.background = cfg[0]; bar.style.color = cfg[1];
+    bar.innerHTML = type === 'loading'
+        ? '<span class="reg-cam-spinner"></span> ' + msg
+        : msg;
+}
+
+function regResetUI() {
+    regCapturedB64 = null;
+    document.getElementById('regBtnConfirm').disabled = false;
+    document.getElementById('regCamActions').style.display = 'flex';
+    document.getElementById('regCamConfirmActions').style.display = 'none';
+    document.getElementById('regCapturedPreview').style.display = 'none';
+    document.getElementById('regVideoWrap').style.display = 'block';
+    document.getElementById('regCamHint').textContent = '🔴 Assurez-vous d\'être seul face à la caméra dans un bon éclairage';
+}
+
+document.getElementById('regCameraBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeRegCameraModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeRegCameraModal();
+});
+</script>
+{% endblock %}

@@ -36,4 +36,38 @@ class ReclamationRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findByUser(string $email): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.email = :email')
+            ->setParameter('email', $email)
+            ->orderBy('r.id_reclamation', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByType(string $type): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.subject LIKE :type') // le type/mot-clé dans le sujet
+            ->setParameter('type', '%' . $type . '%')
+            ->orderBy('r.id_reclamation', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function updateReclamationsByType(string $type, string $reponse): int
+    {
+        return $this->createQueryBuilder('r')
+            ->update()
+            ->set('r.reponse', ':reponse')
+            ->set('r.statut', ':statut')
+            ->andWhere('r.subject LIKE :type')
+            ->setParameter('reponse', $reponse)
+            ->setParameter('statut', 'Traitée')
+            ->setParameter('type', '%' . $type . '%')
+            ->getQuery()
+            ->execute();
+    }
 }

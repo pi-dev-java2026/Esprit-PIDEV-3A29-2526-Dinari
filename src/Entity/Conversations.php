@@ -3,17 +3,20 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use App\Entity\Messages;
+use App\Repository\ConversationsRepository;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ConversationsRepository::class)]
+#[ORM\Table(name: 'conversations')]
 class Conversations
 {
 
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    private int $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 100)]
     private string $user_email;
@@ -21,14 +24,15 @@ class Conversations
     #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $date_creation;
 
-    public function getId()
+    public function __construct()
     {
-        return $this->id;
+        $this->messagess = new ArrayCollection();
+        $this->date_creation = new \DateTime();
     }
 
-    public function setId($value)
+    public function getId(): ?int
     {
-        $this->id = $value;
+        return $this->id;
     }
 
     public function getUser_email()

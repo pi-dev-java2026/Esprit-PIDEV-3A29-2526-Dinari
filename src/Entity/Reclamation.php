@@ -33,6 +33,9 @@ class Reclamation
     #[ORM\Column(type: 'string', length: 50)]
     private string $statut = 'En attente';
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $reponse = null;
+
     public function getId_reclamation(): ?int
     {
         return $this->id_reclamation;
@@ -79,6 +82,17 @@ class Reclamation
     public function setStatut(string $value): self
     {
         $this->statut = $value;
+        return $this;
+    }
+
+    public function getReponse(): ?string
+    {
+        return $this->reponse;
+    }
+
+    public function setReponse(?string $reponse): self
+    {
+        $this->reponse = $reponse;
         return $this;
     }
 }

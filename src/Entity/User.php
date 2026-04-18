@@ -52,6 +52,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $created_at;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isBlockedByAdmin = false;
+
+    #[ORM\Column(type: 'string', length: 500, nullable: true)]
+    private ?string $blockReason = null;
+
+    #[ORM\Column(type: 'integer')]
+    private int $failedAttempts = 0;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $blockedUntil = null;
     public function __construct()
     {
         $this->created_at = new \DateTime();
@@ -136,6 +147,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $reset_expiration = null;
+
     public function getReset_code(): ?string
     {
         return $this->reset_code;
@@ -144,6 +158,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setReset_code(?string $value): self
     {
         $this->reset_code = $value;
+        return $this;
+    }
+
+    public function getResetExpiration(): ?\DateTimeInterface
+    {
+        return $this->reset_expiration;
+    }
+
+    public function setResetExpiration(?\DateTimeInterface $reset_expiration): self
+    {
+        $this->reset_expiration = $reset_expiration;
+
         return $this;
     }
 
@@ -177,6 +203,50 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreated_at(\DateTimeInterface $value): self
     {
         $this->created_at = $value;
+        return $this;
+    }
+
+    public function isBlockedByAdmin(): bool
+    {
+        return $this->isBlockedByAdmin;
+    }
+
+    public function setIsBlockedByAdmin(bool $isBlockedByAdmin): self
+    {
+        $this->isBlockedByAdmin = $isBlockedByAdmin;
+        return $this;
+    }
+
+    public function getBlockReason(): ?string
+    {
+        return $this->blockReason;
+    }
+
+    public function setBlockReason(?string $blockReason): self
+    {
+        $this->blockReason = $blockReason;
+        return $this;
+    }
+
+    public function getFailedAttempts(): int
+    {
+        return $this->failedAttempts;
+    }
+
+    public function setFailedAttempts(int $failedAttempts): self
+    {
+        $this->failedAttempts = $failedAttempts;
+        return $this;
+    }
+
+    public function getBlockedUntil(): ?\DateTimeInterface
+    {
+        return $this->blockedUntil;
+    }
+
+    public function setBlockedUntil(?\DateTimeInterface $blockedUntil): self
+    {
+        $this->blockedUntil = $blockedUntil;
         return $this;
     }
 

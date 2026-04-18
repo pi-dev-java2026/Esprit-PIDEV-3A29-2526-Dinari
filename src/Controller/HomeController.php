@@ -11,11 +11,6 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
-        // If the user is already logged in, redirect to dashboard
-        if ($this->getUser()) {
-            return $this->redirectToRoute('app_dashboard');
-        }
-
         return $this->render('index.html.twig');
     }
 }
