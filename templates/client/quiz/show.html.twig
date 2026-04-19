@@ -71,20 +71,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--d-light);color:var(--d-te
       {{ quiz.titre }}
     </p>
 
-    {% set answers = quiz.listeReponse ? quiz.listeReponse|split(',') : [] %}
+    {% set answers = quiz.answerChoices %}
     <div class="answers-list" id="answers-list">
       {% for answer in answers %}
-        <div class="answer-opt" onclick="selectAnswer(this, '{{ answer|trim }}')" data-value="{{ answer|trim }}">
+        {% if answer is not empty %}
+        <div class="answer-opt" onclick="selectAnswer(this, '{{ answer|e('html_attr') }}')" data-value="{{ answer|e('html_attr') }}">
           <div class="answer-dot"></div>
-          <span>{{ answer|trim }}</span>
+          <span>{{ answer }}</span>
         </div>
+        {% endif %}
       {% endfor %}
     </div>
 
     <div class="result-box" id="result-box"></div>
 
     <div class="quiz-actions">
-      <button class="btn-submit" onclick="checkAnswer('{{ quiz.reponseCorrect }}')" data-i18n="quiz_btn_check">
+      <button class="btn-submit" onclick="checkAnswer('{{ quiz.reponseCorrect|e('html_attr') }}')" data-i18n="quiz_btn_check">
         <i class="fa fa-check"></i> Vérifier ma réponse
       </button>
       <a href="{{ path('app_quiz_index') }}" class="btn-back-list" data-i18n="quiz_back">
@@ -126,16 +128,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--d-light);color:var(--d-te
 let selectedVal = null;
 
 function selectAnswer(el, val) {
+  if (resultSaved) return; // lock after submission
   document.querySelectorAll('.answer-opt').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
   selectedVal = val;
   document.getElementById('result-box').style.display = 'none';
 }
 
+let resultSaved = false;
+
 function checkAnswer(correct) {
-  const rb = document.getElementById('result-box');
+  const rb   = document.getElementById('result-box');
   const lang = localStorage.getItem('dinari_lang') || 'fr';
-  const t = QUIZ_SHOW_T[lang] || QUIZ_SHOW_T['fr'];
+  const t    = QUIZ_SHOW_T[lang] || QUIZ_SHOW_T['fr'];
 
   if (!selectedVal) {
     rb.className = 'result-box wrong';
@@ -144,6 +149,14 @@ function checkAnswer(correct) {
     return;
   }
 
+  // Prevent saving twice if user clicks the button again
+  if (resultSaved) return;
+  resultSaved = true;
+
+  // Disable the button to prevent double submission
+  const btn = document.querySelector('.btn-submit');
+  if (btn) btn.disabled = true;
+
   document.querySelectorAll('.answer-opt').forEach(o => {
     o.classList.remove('correct','wrong');
     if (o.dataset.value === correct) o.classList.add('correct');
@@ -151,13 +164,32 @@ function checkAnswer(correct) {
   });
 
   rb.style.display = 'block';
-  if (selectedVal === correct) {
+  const isCorrect = selectedVal === correct;
+  if (isCorrect) {
     rb.className = 'result-box correct';
     rb.textContent = t.quiz_correct_msg;
   } else {
     rb.className = 'result-box wrong';
     rb.textContent = t.quiz_wrong_msg + ' ' + correct;
   }
+
+  // Save result to DB → triggers notifications + feeds statistics
+  const scoreMax = {{ quiz.scoreQuiz ?? 100 }};
+  const fd = new FormData();
+  fd.append('quiz_id',      '{{ quiz.id }}');
+  fd.append('score_obtenu', isCorrect ? String(scoreMax) : '0');
+  fd.append('score_max',    String(scoreMax));
+  fd.append('niveau',       localStorage.getItem('dinari_niveau') || '');
+
+  fetch('/recommandations/enregistrer-resultat', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Append a small "saved" indicator to the result box
+        rb.textContent += '  —  ' + Math.round(data.pourcentage) + '%';
+      }
+    })
+    .catch(() => { /* silent fail — visual result already shown */ });
 }
 
 const QUIZ_SHOW_T = {

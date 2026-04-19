@@ -156,4 +156,28 @@ class Quiz
         if (!$this->theme) return [];
         return array_filter(array_map('trim', explode(',', strtolower($this->theme))));
     }
+
+    /**
+     * Returns answer choices as a clean array.
+     * Handles all separator formats: newline (admin form), pipe (fixtures), comma (legacy).
+     * Automatically skips the first element if it matches the question title (fixtures format).
+     */
+    public function getAnswerChoices(): array
+    {
+        if (!$this->listeReponse) return [];
+
+        $raw = $this->listeReponse;
+
+        // Normalise: replace | with newline, then split on newline
+        $raw   = str_replace('|', "\n", $raw);
+        $parts = array_filter(array_map('trim', explode("\n", $raw)));
+        $parts = array_values($parts);
+
+        // If first element matches the question title, it's the fixtures echo — skip it
+        if (!empty($parts) && $this->titre && trim($parts[0]) === trim($this->titre)) {
+            array_shift($parts);
+        }
+
+        return $parts;
+    }
 }
