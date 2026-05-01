@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recommandation IA — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--d-blue:#1a6fc4;--d-blue2:#0d4fa0;--d-green:#27ae60;--d-text:#1e2d40;--d-muted:#5a6e84;--d-border:#dde4ee;--d-light:#f5f7fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--d-light);color:var(--d-text);}
+.ia-page{max-width:680px;margin:0 auto;padding:48px 24px 80px;}
+.ia-page h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:6px;}
+.ia-page .subtitle{color:var(--d-muted);font-size:15px;margin-bottom:32px;}
+
+/* ── QUIZ BADGE ── */
+.quiz-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--d-border);
+  border-radius:8px;padding:10px 16px;font-size:14px;margin-bottom:28px;}
+.quiz-badge .score{font-weight:700;color:var(--d-blue);}
+.quiz-badge .lvl{background:var(--d-blue);color:#fff;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;}
+
+/* ── FORM ── */
+.ia-form{background:#fff;border:1.5px solid var(--d-border);border-radius:12px;padding:28px 24px;}
+.ia-form h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--d-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.field input{width:100%;padding:11px 14px;border:1.5px solid var(--d-border);border-radius:8px;font-size:15px;
+  font-family:'DM Sans',sans-serif;color:var(--d-text);transition:border-color .2s;}
+.field input:focus{outline:none;border-color:var(--d-blue);}
+.field .hint{font-size:12px;color:var(--d-muted);margin-top:4px;}
+.btn-submit{width:100%;padding:13px;background:var(--d-blue);color:#fff;border:none;border-radius:8px;
+  font-size:16px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:background .2s;margin-top:8px;}
+.btn-submit:hover{background:var(--d-blue2);}
+
+/* ── RESULT CARD ── */
+.result-card{background:#fff;border:2px solid var(--d-blue);border-radius:12px;padding:28px 24px;margin-bottom:28px;}
+.result-card .icon{font-size:40px;margin-bottom:12px;}
+.result-card .label-badge{display:inline-block;background:var(--d-light);border:1px solid var(--d-border);
+  border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:var(--d-muted);margin-bottom:12px;font-family:monospace;}
+.result-card h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:10px;color:var(--d-blue);}
+.result-card p{font-size:15px;line-height:1.65;color:var(--d-text);}
+.confidence{font-size:12px;color:var(--d-muted);margin-top:14px;}
+.confidence span{font-weight:600;color:var(--d-green);}
+
+/* ── BACK LINK ── */
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--d-muted);font-size:14px;
+  text-decoration:none;margin-bottom:24px;transition:color .2s;}
+.back-link:hover{color:var(--d-blue);}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ia-page">
+
+  <a href="{{ path('app_recommandations') }}" class="back-link">← Retour aux recommandations</a>
+
+  <h1>🤖 Recommandation IA</h1>
+  <p class="subtitle">Entrez vos données financières — notre modèle ML analyse votre profil et vous conseille.</p>
+
+  {# Quiz context badge #}
+  <div class="quiz-badge">
+    📊 Score moyen quiz :
+    <span class="score">{{ avg_score }}%</span>
+    &nbsp;·&nbsp; Niveau détecté :
+    <span class="lvl">{{ niveau }}</span>
+  </div>
+
+  {# Result #}
+  {% if result %}
+  <div class="result-card">
+    <div class="icon">{{ result.icon }}</div>
+    <div class="label-badge">{{ result.label }}</div>
+    <h2>{{ result.titre }}</h2>
+    <p>{{ result.conseil }}</p>
+    {% if result.confidence > 0 %}
+    <p class="confidence">Confiance du modèle : <span>{{ (result.confidence * 100)|round(1) }}%</span></p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# Form #}
+  <div class="ia-form">
+    <h2>Votre profil financier</h2>
+    <form method="POST" action="{{ path('app_recommandations_ia') }}">
+      <div class="field">
+        <label for="revenu">Revenu mensuel (DT)</label>
+        <input type="number" id="revenu" name="revenu" min="1" step="0.01"
+               placeholder="ex : 2500" required
+               value="{{ app.request.request.get('revenu') }}">
+      </div>
+      <div class="field">
+        <label for="total_depenses">Dépenses totales / mois (DT)</label>
+        <input type="number" id="total_depenses" name="total_depenses" min="0" step="0.01"
+               placeholder="ex : 1200" required
+               value="{{ app.request.request.get('total_depenses') }}">
+        <p class="hint">Loyer, alimentation, transport, loisirs…</p>
+      </div>
+      <div class="field">
+        <label for="total_abonnements">Abonnements / mois (DT)</label>
+        <input type="number" id="total_abonnements" name="total_abonnements" min="0" step="0.01"
+               placeholder="ex : 150" required
+               value="{{ app.request.request.get('total_abonnements') }}">
+        <p class="hint">Streaming, gym, logiciels, téléphone…</p>
+      </div>
+      <button type="submit" class="btn-submit">Analyser mon profil →</button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

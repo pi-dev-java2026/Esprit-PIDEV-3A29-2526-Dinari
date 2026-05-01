@@ -17,18 +17,21 @@ return [
         'entrypoint' => true,
     ],
     '@hotwired/stimulus' => [
-        'version' => '3.2.2',
+        'path' => './assets/vendor/@hotwired/stimulus/stimulus.index.js',
     ],
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
     ],
     '@hotwired/turbo' => [
-        'version' => '7.3.0',
+        'path' => './assets/vendor/@hotwired/turbo/turbo.index.js',
     ],
     '@symfony/ux-chartjs' => [
         'path' => './vendor/symfony/ux-chartjs/assets/dist/controller.js',
     ],
     'chart.js' => [
-        'version' => '4.4.0',
+        'path' => './assets/vendor/chart.js/chart.js.index.js',
+    ],
+    '@kurkle/color' => [
+        'path' => './assets/vendor/@kurkle/color.js',
     ],
 ];

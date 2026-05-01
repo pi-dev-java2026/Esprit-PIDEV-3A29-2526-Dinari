@@ -17,7 +17,7 @@ class AdminCommentaireController extends AbstractController
     public function index(CommentaireRepository $repo): Response
     {
         return $this->render('admin/commentaire/index.html.twig', [
-            'commentaires' => $repo->findBy([], ['dateCreation' => 'DESC']),
+            'commentaires' => $repo->findBy([], ['dateCreation' => 'DESC'], 50),
         ]);
     }
 

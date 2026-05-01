@@ -23,6 +23,7 @@ class CoursRepository extends ServiceEntityRepository
             ->where('c.nomCours LIKE :q')
             ->setParameter('q', '%' . $q . '%')
             ->orderBy('c.id', 'DESC')
+            ->setMaxResults(20)
             ->getQuery()
             ->getResult();
     }
@@ -37,6 +38,7 @@ class CoursRepository extends ServiceEntityRepository
             ->orderBy('c.id', 'DESC')
             ->addOrderBy('ch.position', 'ASC')
             ->addOrderBy('t.position', 'ASC')
+            ->setMaxResults(100)
             ->getQuery()
             ->getResult();
     }

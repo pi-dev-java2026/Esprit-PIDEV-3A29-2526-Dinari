@@ -1,494 +1,313 @@
-# Dinari — Architecture & Project Documentation
+# Dinari — Deep Architecture Documentation
 
-> Tunisian fintech learning platform built with Symfony 6.4.
-> This document covers the full project structure, features, APIs, database schema, and AI integration.
-
----
-
-## 1. Project Overview
-
-Dinari is a web-based fintech education platform that allows users to:
-- Browse and study fintech courses organized into chapters
-- Take quizzes and receive instant feedback
-- Get personalized course recommendations based on quiz performance
-- Track their learning progress and statistics
-- Interact with an AI-powered domain-specific chatbot
-- Receive smart notifications about their progress
-
-The platform has two sides: a **client-facing frontend** and an **admin dashboard** for content management.
+> Tunisian fintech learning platform built with Symfony 6.4 + Python ML microservice.
+> This document is a developer-level walkthrough of 4 core modules:
+> Chatbot, Notifications, Recommendations, and Translation/i18n.
 
 ---
 
-## 2. Technology Stack
+## Table of Contents
 
-| Layer | Technology |
-|---|---|
-| Framework | Symfony 6.4 (PHP 8.1+) |
-| ORM | Doctrine ORM 3.x |
-| Templating | Twig 3.x |
-| Frontend JS | Stimulus 3 + Turbo 7 (Hotwire) |
-| Asset Pipeline | Symfony Asset Mapper (importmap) |
-| Charts | Chart.js 4 via symfony/ux-chartjs |
-| Admin UI | EasyAdmin 4 (secondary admin) + custom admin |
-| CSS | Bootstrap 5 + custom design tokens |
-| Database | MySQL (via Doctrine) |
-| Mailer | Symfony Mailer |
-| Events | Symfony EventDispatcher |
+1. [Module 1 — Chatbot (AI Assistant)](#module-1--chatbot-ai-assistant)
+2. [Module 2 — Notifications](#module-2--notifications)
+3. [Module 3 — Recommendations](#module-3--recommendations)
+4. [Module 4 — Translation / i18n](#module-4--translation--i18n)
+5. [Global Architecture Summary](#global-architecture-summary)
+6. [Module Interactions](#module-interactions)
+7. [How to Debug Each Module](#how-to-debug-each-module)
+8. [Common Failure Points](#common-failure-points)
 
 ---
 
-## 3. Main Features
+## Module 1 — Chatbot (AI Assistant)
 
-### 3.1 Courses (Cours)
-- Courses are the top-level learning units, each with a title, description, difficulty level, and theme keywords.
-- Each course contains multiple ordered chapters (Chapitre).
-- Users can browse all courses, select one, and read its chapters.
-- Comments can be posted per chapter with emoji reactions.
+### Purpose
 
-### 3.2 Chapters (Chapitre)
-- Each chapter belongs to one course and has a position for ordering.
-- Content fields: intro, main content (contenuPrincipal), key takeaways (aRetenir), video URL, image.
-- Chapters can have sub-tasks (ChapitreTache) and reflection questions (ChapitreQuestion).
+The chatbot is a domain-specific AI assistant that answers questions about Dinari's fintech courses,
+chapters, quizzes, and financial concepts (budget, savings, investment). It is intentionally scoped
+to the platform's own content — it will not answer general knowledge questions outside this domain.
 
-### 3.3 Quiz System
-- Quizzes are linked to courses and contain a question, multiple-choice answers, and a correct answer.
-- Two modes: practice mode and timed exam mode (isExamMode + timeLimit).
-- After submission, a QuizResultat is saved with the session ID, score obtained, and score max.
-- Score percentage is computed automatically.
+### What Problem It Solves
 
-### 3.4 Recommendations
-- After each quiz, the RecommendationService analyzes the session's quiz history.
-- It infers the user's level (debutant / intermediaire / avance) based on average score.
-- It matches weak topics (from low-scoring quizzes) against course theme keywords.
-- Returns a ranked list of recommended courses with reasons.
+Users browsing courses often have questions like "What is this course about?", "Explain budgeting",
+or "What should I study first?". Rather than forcing them to navigate manually, the chatbot provides
+instant, contextual answers derived directly from the platform's own database and a built-in
+financial knowledge base. No external AI API is used — no OpenAI, no Gemini, no API costs.
 
-### 3.5 Notifications
-- The NotificationEventSubscriber listens to QuizCompletedEvent and RecommendationsGeneratedEvent.
-- On quiz completion: if score < 50%, a warning notification is created; if score >= 80%, a success notification.
-- Notifications are stored per session ID and can be marked as read.
-
-### 3.6 Statistics
-- Client statistics page shows: quiz history, average score, weak topics, inferred level, number of recommendations.
-- Visualized with Chart.js bar chart (score history) and pie chart (weak topics).
-- Admin statistics page shows: platform-wide counts, global average score, global weak topics, overview charts.
-
-### 3.7 Comments & Reactions
-- Users can post comments on course chapters (identified by slug + chapter key).
-- Comments support emoji reactions (👍 👎 😄 🎉 😮 ❤️ 🚀 👀).
-- Session-based ownership: users can edit/delete only their own comments.
-
-### 3.8 Chatbot (AI Assistant)
-- A floating chat widget available on every page (injected via base.html.twig).
-- Domain-specific: answers only questions about Dinari's courses, chapters, quizzes, and financial concepts.
-- No external AI API — all answers are generated from the platform's own database and a built-in knowledge base.
-- See Section 7 for full chatbot documentation.
-
-### 3.9 Admin Dashboard
-- Custom admin at `/admin` with sidebar navigation.
-- Manages: courses, chapters, quizzes, comments, statistics.
-- Secondary EasyAdmin interface at `/easyadmin` for CRUD operations.
-- Live search for courses via AJAX.
-
-### 3.10 Internationalization (i18n)
-- Three languages: French (FR), English (EN), Arabic (AR) with RTL support.
-- Language is stored in localStorage and applied client-side via a translation map in base.html.twig.
-- Pages can extend translations by defining `applyPageTranslations(lang)`.
-
----
-
-## 4. Database Structure
-
-### Entity: Cours (table: cours_symfony)
-| Column | Type | Description |
-|---|---|---|
-| id_cours | int (PK) | Auto-generated ID |
-| nom_cours | string(150) | Course title |
-| contenu | string(255) | Slug identifier (e.g. "finance-personnelle") |
-| description | text | Full description |
-| date_creation | date | Creation date |
-| niveau | string(20) | Difficulty: debutant / intermediaire / avance |
-| theme | string(255) | Comma-separated topic keywords (e.g. "budget,epargne") |
-
-Relations: one-to-many with Chapitre, one-to-many with Quiz.
-
----
-
-### Entity: Chapitre (table: chapitre)
-| Column | Type | Description |
-|---|---|---|
-| id | int (PK) | Auto-generated ID |
-| position | int | Display order within the course |
-| titre | string(200) | Chapter title |
-| sous_titre | string(255) | Subtitle |
-| intro | text | Introduction text |
-| contenu_principal | text | Main content body |
-| a_retenir | text | Key takeaways |
-| video_url | string(500) | Optional video link |
-| image_url | string(500) | Optional image |
-| image_titre | string(255) | Image caption title |
-| image_description | string(500) | Image caption description |
-| contenu | text | Legacy content field (kept for BC) |
-| id_cours | int (FK) | Parent course |
-
-Relations: many-to-one with Cours, one-to-many with ChapitreTache, one-to-many with ChapitreQuestion.
-
----
-
-### Entity: Quiz (table: quiz_symfony)
-| Column | Type | Description |
-|---|---|---|
-| id_quiz | int (PK) | Auto-generated ID |
-| titre | string(255) | Question text |
-| liste_reponse | text | Comma-separated answer choices |
-| reponse_correct | string(255) | The correct answer |
-| score_quiz | int | Points awarded for this quiz |
-| date_creation | date | Creation date |
-| is_exam_mode | boolean | Whether timed exam mode is active |
-| time_limit | int | Time limit in minutes (exam mode) |
-| id_cours | int (FK) | Parent course |
-| theme | string(255) | Comma-separated topic keywords |
-
-Relations: many-to-one with Cours, one-to-many with QuizResultat.
-
----
-
-### Entity: QuizResultat (table: quiz_resultat)
-| Column | Type | Description |
-|---|---|---|
-| id | int (PK) | Auto-generated ID |
-| session_id | string | Browser session identifier |
-| score_obtenu | int | Points scored |
-| score_max | int | Maximum possible points |
-| niveau_utilisateur | string | Level at time of attempt |
-| created_at | datetime | Timestamp |
-| id_quiz | int (FK) | The quiz attempted |
-
-Computed: `getScorePourcentage()` = (score_obtenu / score_max) * 100.
-
----
-
-### Entity: Commentaire (table: commentaire)
-| Column | Type | Description |
-|---|---|---|
-| id | int (PK) | Auto-generated ID |
-| auteur | string | Author name |
-| contenu | text | Comment body |
-| cours_slug | string | Course slug (links comment to course) |
-| chapitre | string | Chapter key (e.g. "budget") |
-| date_creation | datetime | Timestamp |
-
-Relations: one-to-many with Reaction.
-
----
-
-### Entity: Reaction (table: reaction)
-| Column | Type | Description |
-|---|---|---|
-| id | int (PK) | Auto-generated ID |
-| emoji | string | Emoji character |
-| session_id | string | Session that reacted |
-| commentaire_id | int (FK) | Parent comment |
-
----
-
-### Entity: Notification (table: notification)
-| Column | Type | Description |
-|---|---|---|
-| id | int (PK) | Auto-generated ID |
-| session_id | string | Target session |
-| message | text | Notification text |
-| type | string | info / success / warning |
-| is_read | boolean | Read status |
-| created_at | datetime | Timestamp |
-
----
-
-### Entity: ChapitreTache (table: chapitre_tache)
-Practical tasks/exercises linked to a chapter. Fields: libelle (task label), position, chapitre_id (FK).
-
-### Entity: ChapitreQuestion (table: chapitre_question)
-Reflection questions linked to a chapter. Fields: question text, position, chapitre_id (FK).
-
----
-
-## 5. API Endpoints
-
-All routes use Symfony attribute-based routing. No authentication is required (session-based only).
-
-### Client Routes
-
-| Method | Path | Route Name | Description |
-|---|---|---|---|
-| GET | `/` | app_home | Homepage with latest 3 courses |
-| GET/POST | `/cours` | app_cours_index | Course listing + comment submission |
-| POST | `/cours/commentaire/{id}/edit` | app_commentaire_edit | Edit own comment |
-| POST | `/cours/commentaire/{id}/delete` | app_commentaire_delete | Delete own comment |
-| POST | `/cours/commentaire/{id}/react` | app_commentaire_react | Toggle emoji reaction (JSON) |
-| GET | `/cours/new` | app_cours_new | Create course form (scaffold) |
-| GET | `/cours/{id}` | app_cours_show | Show single course |
-| GET/POST | `/cours/{id}/edit` | app_cours_edit | Edit course form (scaffold) |
-| POST | `/cours/{id}` | app_cours_delete | Delete course |
-| GET | `/quiz` | app_quiz_index | Quiz listing |
-| GET | `/quiz/{id}` | app_quiz_show | Take a quiz |
-| GET/POST | `/quiz/new` | app_quiz_new | Create quiz form (scaffold) |
-| GET/POST | `/quiz/{id}/edit` | app_quiz_edit | Edit quiz form (scaffold) |
-| POST | `/quiz/{id}` | app_quiz_delete | Delete quiz |
-| GET | `/recommandations` | app_recommandations | Personalized recommendations page |
-| GET | `/recommandations/api` | app_recommandations_api | Recommendations as JSON |
-| POST | `/recommandations/enregistrer-resultat` | app_quiz_save_result | Save quiz result + fire events |
-| GET | `/notifications` | app_notifications | Notifications list |
-| GET | `/notifications/unread-count` | app_notifications_unread_count | Unread count (JSON) |
-| POST | `/notifications/{id}/read` | app_notification_mark_read | Mark one notification read (JSON) |
-| POST | `/notifications/mark-all-read` | app_notifications_mark_all_read | Mark all read (JSON) |
-| GET | `/statistiques` | app_statistiques | User learning statistics |
-| POST | `/chatbot/message` | app_chatbot_message | Chatbot message endpoint (JSON) |
-
-### Admin Routes
-
-| Method | Path | Route Name | Description |
-|---|---|---|---|
-| GET | `/admin` | admin_dashboard | Admin dashboard with course tree |
-| GET | `/admin/search-cours` | admin_search_cours | Live course search (JSON) |
-| GET | `/admin/cours` | admin_cours_index | Course management list |
-| GET/POST | `/admin/cours/new` | admin_cours_new | Create course |
-| GET/POST | `/admin/cours/{id}/edit` | admin_cours_edit | Edit course |
-| POST | `/admin/cours/{id}/delete` | admin_cours_delete | Delete course |
-| GET | `/admin/cours/{coursId}/chapitres` | admin_chapitre_index | Chapter list for a course |
-| GET/POST | `/admin/cours/{coursId}/chapitres/new` | admin_chapitre_new | Create chapter |
-| GET/POST | `/admin/cours/{coursId}/chapitres/{id}/edit` | admin_chapitre_edit | Edit chapter |
-| POST | `/admin/cours/{coursId}/chapitres/{id}/delete` | admin_chapitre_delete | Delete chapter |
-| GET | `/admin/quiz` | admin_quiz_index | Quiz management list |
-| GET/POST | `/admin/quiz/new` | admin_quiz_new | Create quiz |
-| GET/POST | `/admin/quiz/{id}/edit` | admin_quiz_edit | Edit quiz |
-| POST | `/admin/quiz/{id}/delete` | admin_quiz_delete | Delete quiz |
-| GET | `/admin/commentaires` | admin_commentaire_index | Comment moderation |
-| POST | `/admin/commentaires/{id}/delete` | admin_commentaire_delete | Delete comment |
-| GET | `/admin/statistiques` | admin_statistiques | Platform-wide statistics |
-| * | `/easyadmin` | easyadmin | EasyAdmin CRUD interface |
-
----
-
-## 6. Application Architecture
+### Architecture Overview
 
 ```
-Browser
-  │
-  ├── GET/POST requests
+Browser (floating widget)
+  │  POST /chatbot/message  { "message": "..." }
+  ▼
+AssistantController::message()          [src/Controller/Client/AssistantController.php]
+  │  calls
+  ▼
+AssistantService::respond(string)       [src/Service/AssistantService.php]
+  │  HTTP POST to Python microservice
+  ▼
+FastAPI /chat endpoint                  [chatbot_service/app.py]
+  │  TF-IDF cosine similarity lookup
+  ▼
+model.pkl (trained TF-IDF model)        [chatbot_service/model.pkl]
+  │  returns best matching answer
+  ▼
+JSON { "reply": "..." }  ←  back up the chain to the browser
+```
+
+### Files Involved
+
+| File | Role |
+|---|---|
+| `src/Controller/Client/AssistantController.php` | HTTP entry point, validates input, calls service |
+| `src/Service/AssistantService.php` | PHP proxy — sends request to Python microservice via HttpClient |
+| `templates/chatbot/_widget.html.twig` | Floating chat UI (FAB button + chat window + JS logic) |
+| `chatbot_service/app.py` | FastAPI server — loads model, exposes /chat, /health, /retrain |
+| `chatbot_service/train.py` | Trains TF-IDF model from dataset.json, saves model.pkl |
+| `chatbot_service/build_dataset.py` | Connects to MySQL, extracts course/chapter/quiz content, writes dataset.json |
+| `chatbot_service/dataset.json` | Training data: array of { question, answer } pairs |
+| `chatbot_service/model.pkl` | Serialized trained model (vectorizer + question vectors + answers) |
+| `chatbot_service/requirements.txt` | Python deps: fastapi, uvicorn, scikit-learn, mysql-connector-python, python-dotenv |
+| `config/services.yaml` | Injects `$chatbotUrl` from `CHATBOT_SERVICE_URL` env var into AssistantService |
+
+
+### How Symfony Communicates with FastAPI
+
+`AssistantService` uses Symfony's `HttpClientInterface` (from `symfony/http-client`) to make a
+synchronous HTTP POST to the Python microservice. The URL is injected via DI:
+
+```yaml
+# config/services.yaml
+App\Service\AssistantService:
+    arguments:
+        $chatbotUrl: '%env(CHATBOT_SERVICE_URL)%'
+```
+
+```php
+// AssistantService.php — the actual HTTP call
+$response = $this->httpClient->request('POST', $this->chatbotUrl . '/chat', [
+    'json'    => ['message' => $message],
+    'timeout' => 8,
+]);
+$data = $response->toArray();
+return $data['reply'] ?? $this->fallback();
+```
+
+If the Python service is down or times out, `TransportExceptionInterface` is caught and a
+user-friendly error message is returned instead of crashing.
+
+### Why a Separate Python Microservice?
+
+The ML stack (scikit-learn TF-IDF, cosine similarity) is a Python-native ecosystem. Doing this
+in PHP would require either a heavy FFI bridge or a reimplementation. Separating it as a
+microservice means:
+- The ML model can be retrained independently without touching Symfony
+- Python's `scikit-learn` handles vectorization and similarity natively
+- The `/retrain` endpoint lets admins refresh the model after adding new courses
+
+The tradeoff is an extra process to manage and a network hop per message.
+
+### The Python ML Pipeline
+
+**Step 1 — Build the dataset** (`build_dataset.py`):
+- Connects to MySQL using credentials from `.env`
+- Queries `cours_symfony`, `chapitre`, and `quiz_symfony` tables
+- For each course: generates 2–3 Q&A pairs (e.g. "What is course X?" → description)
+- For each chapter: generates 4–5 Q&A pairs (explanation, key takeaways, chapter listing)
+- For each quiz: generates 2 Q&A pairs (question → correct answer)
+- Appends `STATIC_PAIRS`: hardcoded fintech knowledge (budget, savings, investment, fintech, greetings)
+- Writes everything to `dataset.json` as `[{ "question": "...", "answer": "..." }, ...]`
+
+**Step 2 — Train the model** (`train.py`):
+- Loads `dataset.json`
+- Extracts all questions into a list
+- Fits a `TfidfVectorizer` (unigrams + bigrams, `sublinear_tf=True`) on the questions
+- Transforms all questions into TF-IDF vectors
+- Saves a dict to `model.pkl` via pickle:
+  ```python
+  model = {
+      "vectorizer": vectorizer,        # fitted TfidfVectorizer
+      "question_vectors": question_vectors,  # sparse matrix (n_questions × vocab)
+      "questions": questions,          # list of question strings
+      "answers": answers,              # list of answer strings (same index)
+  }
+  ```
+
+**Step 3 — Serve** (`app.py`):
+- On startup: loads `model.pkl` into memory
+- On `POST /chat`:
+  1. Vectorizes the incoming message using the same fitted vectorizer
+  2. Computes cosine similarity between the message vector and all question vectors
+  3. Picks the index with the highest similarity score
+  4. If score < 0.15 (confidence threshold): returns the fallback message
+  5. Otherwise: returns `answers[best_idx]`
+
+**Step 4 — Retrain** (`POST /retrain`):
+- Runs `build_dataset.py` then `train.py` as subprocesses
+- Reloads `model.pkl` into memory
+- Returns `{ "status": "retrained", "pairs": N }`
+
+### The Widget — How the Chatbot Loads in the UI
+
+`_widget.html.twig` is included at the bottom of `base.html.twig`, making it available on every
+client page. It renders:
+
+1. A fixed FAB button (`#dinari-chat-fab`) at bottom-right, z-index 9999
+2. A hidden chat window (`#dinari-chat-window`) that animates open/closed
+3. Quick suggestion chips (pre-filled questions the user can click)
+4. A textarea input with auto-resize and Enter-to-send
+5. A typing indicator (3 animated dots) shown while waiting for a response
+
+The JS is wrapped in an IIFE so it doesn't pollute the global scope. Key behaviors:
+- First open triggers a greeting message (only once per page load)
+- After 3 seconds without opening, a red unread badge appears on the FAB
+- Escape key closes the window
+- `fetch()` calls `{{ path('app_chatbot_message') }}` (Twig generates the correct URL at render time)
+
+### Step-by-Step Message Flow
+
+```
+1. User clicks FAB or suggestion chip
+2. Widget opens, greeting message appears (if first time)
+3. User types message, presses Enter or clicks send button
+4. JS: addUserMessage(text) — renders user bubble immediately
+5. JS: showTyping() — renders animated dots
+6. JS: fetch POST /chatbot/message  { "message": "..." }
+7. Symfony router → AssistantController::message()
+8. Validates: message length ≤ 500 chars
+9. Calls AssistantService::respond($message)
+10. AssistantService: HTTP POST to http://localhost:8001/chat
+11. FastAPI: vectorizes message, computes cosine similarity
+12. FastAPI: returns { "reply": "best matching answer" }
+13. AssistantService: returns reply string to controller
+14. Controller: return $this->json(['reply' => $reply])
+15. JS: removeTyping(), addBotMessage(data.reply)
+16. Bot bubble appears in chat window
+```
+
+### Important Methods
+
+**`AssistantController::message()`**
+- Input: JSON body `{ "message": "..." }`
+- Validates message length (max 500 chars)
+- Delegates to `AssistantService::respond()`
+- Output: `JsonResponse { "reply": "..." }`
+
+**`AssistantService::respond(string $message)`**
+- Input: raw user message string
+- Makes HTTP POST to Python `/chat` with 8s timeout
+- Catches `TransportExceptionInterface` for network failures
+- Returns reply string or fallback string
+
+**`app.py::chat(req: ChatRequest)`**
+- Input: `{ "message": "..." }`
+- Vectorizes message, computes cosine similarity against all training questions
+- Returns best answer if similarity ≥ 0.15, else fallback
+- Output: `{ "reply": "..." }`
+
+**`build_dataset.py::build_pairs(cursor)`**
+- Input: MySQL cursor
+- Queries courses, chapters, quizzes
+- Returns list of `{ "question": str, "answer": str }` dicts
+
+**`train.py::train()`**
+- Input: `dataset.json` on disk
+- Fits TF-IDF vectorizer, transforms questions
+- Saves `model.pkl`
+
+### Bundles / Libraries Used
+
+| Library | Why |
+|---|---|
+| `symfony/http-client` | Makes HTTP requests from PHP to the Python microservice |
+| `fastapi` | Lightweight Python web framework for the ML API |
+| `uvicorn` | ASGI server to run FastAPI |
+| `scikit-learn` | TF-IDF vectorizer + cosine similarity |
+| `mysql-connector-python` | Direct DB access in build_dataset.py |
+| `python-dotenv` | Reads `.env` for DB credentials in Python scripts |
+
+### Example Flow — Chatbot Message
+
+```
+User types: "C'est quoi un budget ?"
+
+→ POST /chatbot/message { "message": "C'est quoi un budget ?" }
+→ AssistantController validates (length OK)
+→ AssistantService sends to FastAPI /chat
+→ FastAPI vectorizes "C'est quoi un budget ?"
+→ Cosine similarity finds best match in training data
+   (exact match: "C'est quoi un budget ?" → score ~1.0)
+→ Returns: "Un budget est un plan financier qui répartit vos revenus..."
+→ AssistantService returns that string
+→ Controller returns JSON { "reply": "Un budget est un plan financier..." }
+→ Widget renders bot bubble with the answer
+```
+
+### Design Choices
+
+- **No external AI API**: keeps data on-platform, zero API cost, works offline
+- **TF-IDF + cosine similarity**: simple, fast, deterministic — appropriate for a closed-domain FAQ bot
+- **Confidence threshold (0.15)**: prevents nonsensical answers when the question is too far from training data
+- **Microservice separation**: lets the ML pipeline evolve independently from Symfony
+- **Retrain endpoint**: admins can refresh the model after adding new courses without redeploying
+
+**Limitations**: No conversation memory (each message is independent), no semantic understanding
+(only keyword overlap), answers are only as good as the training data quality.
+
+---
+
+## Module 2 — Notifications
+
+### Purpose
+
+The notification system creates personalized in-app alerts for users based on their quiz performance
+and recommendation generation. Notifications are scoped to the browser session (no user accounts).
+
+### What Problem It Solves
+
+Without notifications, users would have no feedback loop after completing a quiz. The system
+automatically tells them: "You scored poorly — review these topics" or "Great score — move to the
+next level", and "Your personalized recommendations are ready."
+
+### Architecture Overview
+
+```
+Quiz submitted
   │
   ▼
-Symfony Router (config/routes.yaml — attribute scan of src/Controller/)
-  │
-  ├── Client Controllers (src/Controller/Client/)
-  │     ├── HomeController          → templates/client/home/
-  │     ├── CoursController         → templates/client/cours/
-  │     ├── QuizController          → templates/client/quiz/
-  │     ├── RecommendationController→ templates/client/recommandations/
-  │     ├── NotificationController  → templates/client/notifications/
-  │     ├── StatistiquesController  → templates/client/statistiques/
-  │     └── ChatbotController       → JSON response (no template)
-  │
-  ├── Admin Controllers (src/Controller/Admin/)
-  │     ├── AdminDashboardController    → templates/admin/dashboard/
-  │     ├── AdminCoursController        → templates/admin/cours/
-  │     ├── AdminChapitreController     → templates/admin/chapitre/
-  │     ├── AdminQuizController         → templates/admin/quiz/
-  │     ├── AdminCommentaireController  → templates/admin/commentaire/
-  │     ├── AdminStatistiquesController → templates/admin/statistiques/
-  │     └── EasyAdmin/ (DinariDashboardController + CRUD controllers)
-  │
-  ├── Services (src/Service/)
-  │     ├── ChatbotService       — domain-specific Q&A engine
-  │     ├── RecommendationService— personalized course matching
-  │     └── NotificationService  — creates session notifications
-  │
-  ├── Events (src/Event/)
-  │     ├── QuizCompletedEvent           — fired after quiz result saved
-  │     └── RecommendationsGeneratedEvent— fired after recommendations computed
-  │
-  ├── EventSubscriber (src/EventSubscriber/)
-  │     └── NotificationEventSubscriber — listens to both events, calls NotificationService
-  │
-  └── Doctrine ORM
-        ├── Entities (src/Entity/)
-        └── Repositories (src/Repository/)
+RecommendationController::saveResult()
+  │  persists QuizResultat
+  │  dispatches QuizCompletedEvent
+  ▼
+Symfony EventDispatcher
+  │  routes to subscriber
+  ▼
+NotificationEventSubscriber::onQuizCompleted()
+  │  calls
+  ▼
+NotificationService::notifyQuizResult()
+  │  creates Notification entity
+  ▼
+NotificationRepository → MySQL (notification table)
+
+Later, user visits /notifications
+  ▼
+NotificationController::index()
+  │  queries NotificationRepository
+  ▼
+templates/client/notifications/index.html.twig
 ```
 
-### Template Inheritance
-```
-templates/base.html.twig          ← client pages extend this
-templates/admin/base.html.twig    ← admin pages extend this
-  └── templates/client/**/*.twig
-  └── templates/admin/**/*.twig
-  └── templates/chatbot/_widget.html.twig  ← included in base.html.twig
-```
+### Files Involved
 
-### Event Flow (Quiz Completion)
-```
-User submits quiz
-  → POST /recommandations/enregistrer-resultat
-  → QuizResultat saved to DB
-  → QuizCompletedEvent dispatched
-  → NotificationEventSubscriber::onQuizCompleted()
-  → NotificationService::notifyQuizResult()
-  → Notification saved to DB (warning if score < 50%, success if >= 80%)
-```
-
----
-
-## 7. AI Chatbot Integration
-
-### Overview
-The chatbot is a **domain-specific rule-based assistant** built entirely in PHP. It does not use any external AI API (no OpenAI, no Gemini, etc.). All intelligence comes from:
-1. A built-in knowledge base of financial concepts (budget, saving, investment, fintech)
-2. Live queries to the platform's own database (courses, chapters, quizzes)
-
-### Architecture
-
-```
-User types message in browser
-  → POST /chatbot/message  (JSON: { "message": "..." })
-  → ChatbotController::message()
-  → ChatbotService::respond(string $message): string
-  → JSON response: { "reply": "..." }
-```
-
-### ChatbotService Logic (src/Service/ChatbotService.php)
-
-The service processes messages through a priority chain:
-
-1. **Greeting detection** — responds with a welcome message
-2. **Help/capability query** — lists what the bot can do
-3. **Course listing** — queries CoursRepository, supports level filtering
-4. **Chapter questions** — queries ChapitreRepository, matches course names
-5. **Quiz guidance** — explains quiz mechanics, score system, exam mode (never gives direct answers)
-6. **Budget concept** — built-in explanation with the 50/30/20 rule
-7. **Saving concept** — built-in explanation with types and tips
-8. **Investment concept** — built-in explanation with risk/return principles
-9. **Fintech concept** — built-in explanation of the fintech domain
-10. **Learning path** — queries all courses grouped by level
-11. **Recommendations** — redirects to the recommendations page
-12. **Notifications** — explains the notification system
-13. **DB fuzzy search** — searches course names, theme keywords, and chapter titles against the message
-14. **Fallback** — suggests example questions
-
-### Frontend Widget (templates/chatbot/_widget.html.twig)
-- Floating action button (FAB) fixed at bottom-right, z-index 9999
-- Chat window with typing indicator animation
-- Quick suggestion chips for common questions
-- Auto-resizing textarea input
-- Keyboard shortcut: Enter to send, Escape to close
-- Unread badge appears after 3 seconds if chat not opened
-- Uses existing CSS variables (`--dinari-blue`, etc.) for visual consistency
-- Injected once in `base.html.twig` — available on all client pages
-
-### Scope Limitations (by design)
-- Only answers questions about Dinari's content domain
-- Does not answer general knowledge questions outside fintech/finance
-- Does not give direct quiz answers (redirects to study material instead)
-- No conversation memory between sessions
-
----
-
-## 8. Bundles Used
-
-| Bundle | Purpose |
+| File | Role |
 |---|---|
-| symfony/framework-bundle | Core Symfony framework |
-| symfony/twig-bundle | Twig templating engine |
-| symfony/security-bundle | Security layer (in-memory provider) |
-| symfony/form | Form handling and validation |
-| symfony/validator | Entity constraint validation |
-| symfony/mailer | Email sending capability |
-| symfony/notifier | Notification channel abstraction |
-| symfony/messenger | Message bus / async processing |
-| symfony/http-client | HTTP client for external requests |
-| symfony/asset-mapper | Modern asset pipeline (replaces Webpack) |
-| symfony/stimulus-bundle | Stimulus JS controller integration |
-| symfony/ux-turbo | Turbo Drive/Frames for SPA-like navigation |
-| symfony/ux-chartjs | Chart.js integration for statistics |
-| doctrine/doctrine-bundle | Doctrine ORM integration |
-| doctrine/doctrine-migrations-bundle | Database migration management |
-| easycorp/easyadmin-bundle | Secondary admin CRUD interface |
-| twig/extra-bundle | Extra Twig filters and functions |
-| symfony/translation | i18n support |
-| symfony/serializer | Object serialization |
+| `src/Entity/Notification.php` | Doctrine entity — stores one notification |
+| `src/Repository/NotificationRepository.php` | DB queries: findBySession, countUnread, markAllRead |
+| `src/Service/NotificationService.php` | Business logic — creates notifications based on quiz score |
+| `src/Event/QuizCompletedEvent.php` | Event object carrying QuizResultat + sessionId |
+| `src/Event/RecommendationsGeneratedEvent.php` | Event object carrying sessionId + count |
+| `src/EventSubscriber/NotificationEventSubscriber.php` | Listens to both events, delegates to NotificationService |
+| `src/Controller/Client/NotificationController.php` | HTTP routes: list, unread count, mark read, mark all read |
+| `templates/client/notifications/index.html.twig` | Notification list UI with read/unread styling |
 
----
-
-## 9. Directory Structure
-
-```
-Dinari/
-├── assets/
-│   ├── app.js                    # Stimulus app entry point
-│   └── controllers/              # Custom Stimulus controllers
-├── config/
-│   ├── bundles.php               # Registered bundles
-│   ├── packages/                 # Bundle configuration (doctrine, security, etc.)
-│   ├── routes.yaml               # Route scanning config
-│   └── services.yaml             # DI container config
-├── migrations/                   # Doctrine database migrations
-├── public/
-│   ├── index.php                 # Front controller
-│   ├── css/                      # Bootstrap, FontAwesome, custom CSS
-│   ├── fonts/                    # FontAwesome web fonts
-│   ├── img/                      # Static images
-│   └── js/                       # Legacy JS (main.js, plugins.js, vendor/)
-├── src/
-│   ├── Controller/
-│   │   ├── Admin/                # Admin-side controllers + EasyAdmin CRUDs
-│   │   └── Client/               # User-facing controllers
-│   ├── Entity/                   # Doctrine entities (9 entities)
-│   ├── Event/                    # Custom Symfony events
-│   ├── EventSubscriber/          # Event listeners
-│   ├── Form/
-│   │   ├── Admin/                # Admin form types
-│   │   ├── CoursType.php         # Client course form (scaffold)
-│   │   └── QuizType.php          # Client quiz form (scaffold)
-│   ├── Repository/               # Doctrine repositories (6 repos)
-│   ├── Service/                  # Business logic services (3 services)
-│   └── Kernel.php
-└── templates/
-    ├── base.html.twig            # Main client layout (navbar, footer, chatbot)
-    ├── admin/
-    │   ├── base.html.twig        # Admin layout (sidebar)
-    │   ├── chapitre/             # Chapter management templates
-    │   ├── commentaire/          # Comment moderation templates
-    │   ├── cours/                # Course management templates
-    │   ├── dashboard/            # Admin dashboard template
-    │   ├── easyadmin/            # EasyAdmin custom template
-    │   ├── quiz/                 # Quiz management templates
-    │   └── statistiques/         # Admin stats template
-    ├── chatbot/
-    │   └── _widget.html.twig     # Chatbot floating widget
-    └── client/
-        ├── cours/                # Course browsing + comments
-        ├── home/                 # Homepage
-        ├── notifications/        # Notifications list
-        ├── quiz/                 # Quiz listing and detail
-        ├── recommandations/      # Recommendations page
-        └── statistiques/         # User stats page
-```
-
----
-
-## 10. Session-Based User Tracking
-
-The platform does not have a traditional user authentication system. Instead, it uses Symfony's session to track:
-- Quiz results (linked by `session_id`)
-- Notifications (linked by `session_id`)
-- Comment ownership (stored as `my_comment_ids` array in session)
-- Emoji reaction ownership (linked by `session_id`)
-
-This means all personalization (recommendations, stats, notifications) is scoped to the current browser session.
-
----
-
-## 11. Key Design Decisions
-
-- **No external AI API**: The chatbot is self-contained, ensuring no data leaves the platform and no API costs.
-- **Session-based tracking**: Avoids the need for user registration while still enabling personalization.
-- **Theme keywords**: Both `Cours` and `Quiz` entities have a `theme` field (comma-separated keywords) that powers the recommendation engine and chatbot search.
-- **Static fallbacks**: Admin controllers include static data arrays so the admin UI is never empty even with a fresh database.
-- **Event-driven notifications**: Quiz completion triggers events rather than direct service calls, keeping controllers thin and logic decoupled.
-- **Dual admin**: A custom admin (`/admin`) for the main workflow and EasyAdmin (`/easyadmin`) for quick CRUD operations.

@@ -12,6 +12,7 @@ class ChapitreTache
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 300)]
@@ -27,7 +28,7 @@ class ChapitreTache
     private int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Chapitre::class, inversedBy: "taches")]
-    #[ORM\JoinColumn(name: "id_chapitre", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(name: "id_chapitre_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private ?Chapitre $chapitre = null;
 
     public function getId(): ?int { return $this->id; }

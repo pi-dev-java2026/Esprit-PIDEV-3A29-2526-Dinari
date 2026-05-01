@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/cours')]
 final class CoursController extends AbstractController
 {
-    private const SLUG = 'finance-personnelle';
+    private const SLUG = 'finance-personnelle'; // @phpstan-ignore classConstant.unused
 
     #[Route(name: 'app_cours_index', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $em, CommentaireRepository $repo): Response
@@ -27,7 +27,7 @@ final class CoursController extends AbstractController
         $error   = null;
 
         // Load all courses for the listing
-        $coursList = $em->getRepository(Cours::class)->findBy([], ['id' => 'DESC']);
+        $coursList = $em->getRepository(Cours::class)->findBy([], ['id' => 'DESC'], 20);
 
         // Selected course: from query param or first available
         $selectedId = $request->query->getInt('id', 0);

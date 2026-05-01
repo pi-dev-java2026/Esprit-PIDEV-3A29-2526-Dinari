@@ -12,11 +12,12 @@ class Reaction
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Commentaire::class, inversedBy: "reactions")]
-    #[ORM\JoinColumn(name: "commentaire_id", referencedColumnName: "id", onDelete: "CASCADE")]
-    private ?Commentaire $commentaire = null;
+    #[ORM\JoinColumn(name: "commentaire_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    private Commentaire $commentaire;
 
     #[ORM\Column(type: "string", length: 20)]
     private string $emoji = '';
@@ -26,8 +27,8 @@ class Reaction
 
     public function getId(): ?int { return $this->id; }
 
-    public function getCommentaire(): ?Commentaire { return $this->commentaire; }
-    public function setCommentaire(?Commentaire $c): static { $this->commentaire = $c; return $this; }
+    public function getCommentaire(): Commentaire { return $this->commentaire; }
+    public function setCommentaire(Commentaire $c): static { $this->commentaire = $c; return $this; }
 
     public function getEmoji(): string { return $this->emoji; }
     public function setEmoji(string $e): static { $this->emoji = $e; return $this; }

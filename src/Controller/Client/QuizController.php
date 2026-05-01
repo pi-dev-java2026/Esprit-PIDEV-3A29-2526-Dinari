@@ -16,7 +16,7 @@ final class QuizController extends AbstractController
     #[Route(name: 'app_quiz_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
-        $quizzes = $entityManager->getRepository(Quiz::class)->findAll();
+        $quizzes = $entityManager->getRepository(Quiz::class)->findBy([], null, 20);
 
         return $this->render('client/quiz/index.html.twig', [
             'quizzes' => $quizzes,

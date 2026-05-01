@@ -17,6 +17,7 @@ class QuizResultat
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     /** Browser session ID — used as anonymous user identifier */
@@ -39,8 +40,16 @@ class QuizResultat
     private \DateTimeInterface $datePassage;
 
     #[ORM\ManyToOne(targetEntity: Quiz::class)]
-    #[ORM\JoinColumn(name: "id_quiz", referencedColumnName: "id_quiz", nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(name: "id_quiz_id", referencedColumnName: "id_quiz", nullable: false, onDelete: "CASCADE")]
     private ?Quiz $quiz = null;
+
+    /**
+     * Per-concept answer breakdown for this attempt, stored as JSON.
+     * Format: {"budget": {"correct": 2, "wrong": 1}, "epargne": {"correct": 0, "wrong": 3}}
+     * Populated when the quiz submission includes per-question concept data.
+     */
+    #[ORM\Column(name: "concept_answers", type: "json", nullable: true)]
+    private ?array $conceptAnswers = null;
 
     public function __construct()
     {
@@ -62,10 +71,15 @@ class QuizResultat
     public function setNiveauUtilisateur(?string $v): static { $this->niveauUtilisateur = $v; return $this; }
 
     public function getDatePassage(): \DateTimeInterface { return $this->datePassage; }
-    public function setDatePassage(\DateTimeInterface $v): static { $this->datePassage = $v; return $this; }
 
     public function getQuiz(): ?Quiz { return $this->quiz; }
     public function setQuiz(?Quiz $v): static { $this->quiz = $v; return $this; }
+
+    /** @return array<string, array{correct: int, wrong: int}>|null */
+    public function getConceptAnswers(): ?array { return $this->conceptAnswers; }
+
+    /** @param array<string, array{correct: int, wrong: int}>|null $v */
+    public function setConceptAnswers(?array $v): static { $this->conceptAnswers = $v; return $this; }
 
     /** Returns score as a percentage (0–100) */
     public function getScorePourcentage(): float

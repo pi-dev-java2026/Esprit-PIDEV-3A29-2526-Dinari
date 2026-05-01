@@ -14,6 +14,7 @@ class Chapitre
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(type: "integer")]
@@ -59,13 +60,15 @@ class Chapitre
 
     // ── Relations ──
     #[ORM\ManyToOne(targetEntity: Cours::class, inversedBy: "chapitres")]
-    #[ORM\JoinColumn(name: "id_cours", referencedColumnName: "id_cours", nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(name: "id_cours_id", referencedColumnName: "id_cours", nullable: false, onDelete: "CASCADE")]
     private ?Cours $cours = null;
 
+    /** @var Collection<int, ChapitreTache> */
     #[ORM\OneToMany(targetEntity: ChapitreTache::class, mappedBy: "chapitre", cascade: ["persist", "remove"], orphanRemoval: true)]
     #[ORM\OrderBy(["position" => "ASC"])]
     private Collection $taches;
 
+    /** @var Collection<int, ChapitreQuestion> */
     #[ORM\OneToMany(targetEntity: ChapitreQuestion::class, mappedBy: "chapitre", cascade: ["persist", "remove"], orphanRemoval: true)]
     #[ORM\OrderBy(["position" => "ASC"])]
     private Collection $questions;

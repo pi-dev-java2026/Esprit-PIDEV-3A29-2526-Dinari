@@ -12,6 +12,7 @@ class ChapitreQuestion
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(type: "text")]
@@ -41,12 +42,19 @@ class ChapitreQuestion
     #[Assert\Choice(choices: ['a', 'b', 'c', 'd'], message: "La bonne réponse doit être a, b, c ou d.")]
     private string $bonneReponse = 'a';
 
+    /**
+     * Concept keyword this question tests (e.g. "budget", "epargne", "investissement").
+     * Used by the behavioral AI to track per-concept performance.
+     */
+    #[ORM\Column(type: "string", length: 100, nullable: true)]
+    private ?string $concept = null;
+
     #[ORM\Column(type: "integer")]
     #[Assert\PositiveOrZero(message: "L'ordre doit être un nombre positif ou zéro.")]
     private int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Chapitre::class, inversedBy: "questions")]
-    #[ORM\JoinColumn(name: "id_chapitre", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(name: "id_chapitre_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private ?Chapitre $chapitre = null;
 
     public function getId(): ?int { return $this->id; }
@@ -68,6 +76,9 @@ class ChapitreQuestion
 
     public function getBonneReponse(): string { return $this->bonneReponse; }
     public function setBonneReponse(string $v): static { $this->bonneReponse = $v; return $this; }
+
+    public function getConcept(): ?string { return $this->concept; }
+    public function setConcept(?string $v): static { $this->concept = $v !== null ? strtolower(trim($v)) : null; return $this; }
 
     public function getPosition(): int { return $this->position; }
     public function setPosition(int $v): static { $this->position = $v; return $this; }

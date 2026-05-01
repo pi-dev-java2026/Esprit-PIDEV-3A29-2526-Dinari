@@ -14,6 +14,7 @@ class Commentaire
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 100)]
@@ -34,7 +35,8 @@ class Commentaire
     #[ORM\Column(name: "chapitre", type: "string", length: 100, nullable: true)]
     private ?string $chapitre = null;
 
-    #[ORM\OneToMany(targetEntity: Reaction::class, mappedBy: "commentaire", cascade: ["remove"], orphanRemoval: true)]
+    /** @var Collection<int, Reaction> */
+    #[ORM\OneToMany(targetEntity: Reaction::class, mappedBy: "commentaire", cascade: ["persist", "remove"], orphanRemoval: true)]
     private Collection $reactions;
 
     public function __construct()
@@ -52,7 +54,6 @@ class Commentaire
     public function setContenu(string $contenu): static { $this->contenu = $contenu; return $this; }
 
     public function getDateCreation(): \DateTimeInterface { return $this->dateCreation; }
-    public function setDateCreation(\DateTimeInterface $d): static { $this->dateCreation = $d; return $this; }
 
     public function getCoursSlug(): ?string { return $this->coursSlug; }
     public function setCoursSlug(?string $slug): static { $this->coursSlug = $slug; return $this; }
@@ -63,6 +64,7 @@ class Commentaire
     /** @return Collection<int, Reaction> */
     public function getReactions(): Collection { return $this->reactions; }
 
+    /** @return array<string, int> */
     public function getReactionCounts(): array
     {
         $counts = [];

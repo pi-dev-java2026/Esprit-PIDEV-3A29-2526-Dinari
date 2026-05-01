@@ -12,6 +12,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
+/**
+ * @extends AbstractCrudController<Quiz>
+ */
 class QuizCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string

@@ -4,14 +4,12 @@ namespace App\Service;
 
 use App\Entity\Notification;
 use App\Entity\QuizResultat;
-use App\Repository\CoursRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class NotificationService
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly CoursRepository        $coursRepository,
     ) {}
 
     public function notifyQuizResult(QuizResultat $resultat, string $sessionId): void

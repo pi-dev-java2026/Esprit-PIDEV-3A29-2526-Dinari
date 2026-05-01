@@ -17,6 +17,7 @@ class Notification
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(type: "text")]
@@ -30,6 +31,9 @@ class Notification
 
     #[ORM\Column(name: "created_at", type: "datetime")]
     private \DateTimeInterface $createdAt;
+
+    #[ORM\Column(name: "updated_at", type: "datetime", nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(name: "session_id", type: "string", length: 128)]
     private string $sessionId = '';
@@ -51,7 +55,9 @@ class Notification
     public function setIsRead(bool $v): static { $this->isRead = $v; return $this; }
 
     public function getCreatedAt(): \DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeInterface $v): static { $this->createdAt = $v; return $this; }
+
+    public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
+    public function setUpdatedAt(?\DateTimeInterface $v): static { $this->updatedAt = $v; return $this; }
 
     public function getSessionId(): string { return $this->sessionId; }
     public function setSessionId(string $v): static { $this->sessionId = $v; return $this; }

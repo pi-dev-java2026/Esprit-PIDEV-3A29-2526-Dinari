@@ -12,6 +12,7 @@ class Quiz
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: "id_quiz", type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(name: "titre", type: "string", length: 255, nullable: true)]
@@ -43,7 +44,7 @@ class Quiz
     private ?int $timeLimit = null;
 
     #[ORM\ManyToOne(targetEntity: Cours::class, inversedBy: "quizzes")]
-    #[ORM\JoinColumn(name: "id_cours", referencedColumnName: "id_cours", nullable: true)]
+    #[ORM\JoinColumn(name: "id_cours_id", referencedColumnName: "id_cours", nullable: true)]
     private ?Cours $cours = null;
 
     /**
@@ -53,6 +54,14 @@ class Quiz
      */
     #[ORM\Column(name: "theme", type: "string", length: 255, nullable: true)]
     private ?string $theme = null;
+
+    /**
+     * Primary concept this quiz tests (single keyword).
+     * Used by the behavioral AI for per-concept tracking.
+     * Example: "budget"
+     */
+    #[ORM\Column(name: "concept", type: "string", length: 100, nullable: true)]
+    private ?string $concept = null;
 
     public function getId(): ?int
     {
@@ -150,7 +159,12 @@ class Quiz
     public function getTheme(): ?string { return $this->theme; }
     public function setTheme(?string $theme): static { $this->theme = $theme; return $this; }
 
-    /** Returns theme as an array of trimmed keywords */
+    public function getConcept(): ?string { return $this->concept; }
+    public function setConcept(?string $v): static { $this->concept = $v !== null ? strtolower(trim($v)) : null; return $this; }
+
+    /** Returns theme as an array of trimmed keywords
+     * @return string[]
+     */
     public function getThemeKeywords(): array
     {
         if (!$this->theme) return [];
@@ -161,6 +175,7 @@ class Quiz
      * Returns answer choices as a clean array.
      * Handles all separator formats: newline (admin form), pipe (fixtures), comma (legacy).
      * Automatically skips the first element if it matches the question title (fixtures format).
+     * @return string[]
      */
     public function getAnswerChoices(): array
     {

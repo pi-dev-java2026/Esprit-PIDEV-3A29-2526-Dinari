@@ -14,6 +14,7 @@ class Cours
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: "id_cours", type: "integer")]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(name: "nom_cours", type: "string", length: 150, nullable: true)]
@@ -48,10 +49,12 @@ class Cours
     #[ORM\Column(name: "theme", type: "string", length: 255, nullable: true)]
     private ?string $theme = null;
 
-    #[ORM\OneToMany(targetEntity: Chapitre::class, mappedBy: "cours", cascade: ["remove"], orphanRemoval: true)]
+    /** @var Collection<int, Chapitre> */
+    #[ORM\OneToMany(targetEntity: Chapitre::class, mappedBy: "cours", cascade: ["persist", "remove"], orphanRemoval: true)]
     #[ORM\OrderBy(["position" => "ASC"])]
     private Collection $chapitres;
 
+    /** @var Collection<int, Quiz> */
     #[ORM\OneToMany(targetEntity: Quiz::class, mappedBy: "cours")]
     private Collection $quizzes;
 
@@ -122,6 +125,7 @@ class Cours
     public function setTheme(?string $theme): static { $this->theme = $theme; return $this; }
 
     /** Returns theme as an array of trimmed keywords */
+    /** @return string[] */
     public function getThemeKeywords(): array
     {
         if (!$this->theme) return [];

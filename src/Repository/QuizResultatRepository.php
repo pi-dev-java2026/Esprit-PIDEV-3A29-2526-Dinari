@@ -79,10 +79,14 @@ class QuizResultatRepository extends ServiceEntityRepository
      */
     public function getGlobalAverageScore(): float
     {
-        $results = $this->findAll();
-        if (empty($results)) return 0.0;
-        $total = array_sum(array_map(fn($r) => $r->getScorePourcentage(), $results));
-        return round($total / count($results), 1);
+        // AVG( (scoreObtenu / scoreMax) * 100 ) computed in DB
+        $avg = $this->createQueryBuilder('r')
+            ->select('AVG((r.scoreObtenu * 100.0) / r.scoreMax)')
+            ->where('r.scoreMax > 0')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $avg !== null ? round((float) $avg, 1) : 0.0;
     }
 
     /**
@@ -93,7 +97,13 @@ class QuizResultatRepository extends ServiceEntityRepository
      */
     public function findGlobalWeakTopics(float $threshold = 50.0): array
     {
-        $results     = $this->findAll();
+        $results = $this->createQueryBuilder('r')
+            ->join('r.quiz', 'q')
+            ->leftJoin('q.cours', 'c')
+            ->addSelect('q', 'c')
+            ->setMaxResults(500)
+            ->getQuery()
+            ->getResult();
         $topicScores = [];
 
         foreach ($results as $result) {
@@ -166,5 +176,18 @@ class QuizResultatRepository extends ServiceEntityRepository
         }
 
         return $weak;
+    }
+
+    /**
+     * Converts an average score to a level string.
+     * < 40  → debutant
+     * 40–70 → intermediaire
+     * > 70  → avance
+     */
+    public function inferLevelFromScore(float $avgScore): string
+    {
+        if ($avgScore >= 70) return 'avance';
+        if ($avgScore >= 40) return 'intermediaire';
+        return 'debutant';
     }
 }

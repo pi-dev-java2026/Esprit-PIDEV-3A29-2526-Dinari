@@ -7,6 +7,9 @@ use App\Event\QuizCompletedEvent;
 use App\Event\RecommendationsGeneratedEvent;
 use App\Repository\QuizRepository;
 use App\Repository\QuizResultatRepository;
+use App\Repository\UserConceptProgressRepository;
+use App\Service\AiRecommendationService;
+use App\Service\ConceptWeaknessService;
 use App\Service\RecommendationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -88,6 +91,9 @@ class RecommendationController extends AbstractController
     /**
      * Records a quiz result for the current session.
      * Called via POST after a quiz is completed.
+     *
+     * Builds concept_answers automatically from the quiz entity so the
+     * behavioral AI always has data — no frontend changes required.
      */
     #[Route('/enregistrer-resultat', name: 'app_quiz_save_result', methods: ['POST'])]
     public function saveResult(
@@ -107,17 +113,39 @@ class RecommendationController extends AbstractController
             return new JsonResponse(['error' => 'Quiz introuvable'], 404);
         }
 
+        $scoreMax    = max(1, $scoreMax);
+        $scoreObtenu = max(0, min($scoreObtenu, $scoreMax));
+        $isCorrect   = $scoreObtenu >= $scoreMax;
+
         $resultat = new QuizResultat();
         $resultat->setSessionId($sessionId);
         $resultat->setQuiz($quiz);
-        $resultat->setScoreObtenu(max(0, $scoreObtenu));
-        $resultat->setScoreMax(max(1, $scoreMax));
+        $resultat->setScoreObtenu($scoreObtenu);
+        $resultat->setScoreMax($scoreMax);
         $resultat->setNiveauUtilisateur($niveau);
+
+        // Build concept_answers from the quiz entity so the behavioral AI
+        // always receives structured data, regardless of what the frontend sends.
+        $concept = $quiz->getConcept();
+        if ($concept === null || $concept === '') {
+            // Fall back to the first theme keyword
+            $keywords = $quiz->getThemeKeywords();
+            $concept  = $keywords[0] ?? null;
+        }
+
+        if ($concept !== null && $concept !== '') {
+            $resultat->setConceptAnswers([
+                $concept => [
+                    'correct' => $isCorrect ? 1 : 0,
+                    'wrong'   => $isCorrect ? 0 : 1,
+                ],
+            ]);
+        }
 
         $em->persist($resultat);
         $em->flush();
 
-        // Dispatch event — subscriber handles notification creation
+        // Dispatch event — subscriber handles notification + behavioral AI update
         $dispatcher->dispatch(
             new QuizCompletedEvent($resultat, $sessionId),
             QuizCompletedEvent::NAME
@@ -126,6 +154,130 @@ class RecommendationController extends AbstractController
         return new JsonResponse([
             'success'     => true,
             'pourcentage' => $resultat->getScorePourcentage(),
+            'concept'     => $concept,
+        ]);
+    }
+
+    /**
+     * AI recommendation page — collects financial data via form and shows ML-based advice.
+     * GET  /recommandations/ia          → renders the form
+     * POST /recommandations/ia          → submits data, shows result
+     */
+    #[Route('/ia', name: 'app_recommandations_ia', methods: ['GET', 'POST'])]
+    public function ia(
+        Request                  $request,
+        AiRecommendationService  $aiService,
+        QuizResultatRepository   $resultatRepo,
+    ): Response {
+        $sessionId = $request->getSession()->getId();
+        $avgScore  = $resultatRepo->getAverageScore($sessionId);
+        $niveau    = $resultatRepo->inferLevelFromScore($avgScore);
+
+        $result = null;
+
+        if ($request->isMethod('POST')) {
+            $revenu          = (float) $request->request->get('revenu', 0);
+            $totalDepenses   = (float) $request->request->get('total_depenses', 0);
+            $totalAbonnements = (float) $request->request->get('total_abonnements', 0);
+
+            if ($revenu > 0) {
+                $result = $aiService->getRecommendation(
+                    scorePourcentage:  $avgScore,
+                    niveauUtilisateur: $niveau,
+                    totalDepenses:     $totalDepenses,
+                    totalAbonnements:  $totalAbonnements,
+                    revenu:            $revenu,
+                );
+            }
+        }
+
+        return $this->render('client/recommandations/ia.html.twig', [
+            'result'    => $result,
+            'avg_score' => $avgScore,
+            'niveau'    => $niveau,
+        ]);
+    }
+
+    /**
+     * AI recommendation JSON API — for AJAX calls.
+     * POST /recommandations/ia/api
+     */
+    #[Route('/ia/api', name: 'app_recommandations_ia_api', methods: ['POST'])]
+    public function iaApi(
+        Request                 $request,
+        AiRecommendationService $aiService,
+        QuizResultatRepository  $resultatRepo,
+    ): JsonResponse {
+        $sessionId = $request->getSession()->getId();
+        $avgScore  = $resultatRepo->getAverageScore($sessionId);
+        $niveau    = $resultatRepo->inferLevelFromScore($avgScore);
+
+        $data = $request->toArray();
+
+        $revenu           = (float) ($data['revenu'] ?? 0);
+        $totalDepenses    = (float) ($data['total_depenses'] ?? 0);
+        $totalAbonnements = (float) ($data['total_abonnements'] ?? 0);
+
+        if ($revenu <= 0) {
+            return new JsonResponse(['error' => 'Le revenu doit être supérieur à 0'], 400);
+        }
+
+        $result = $aiService->getRecommendation(
+            scorePourcentage:  $avgScore,
+            niveauUtilisateur: $niveau,
+            totalDepenses:     $totalDepenses,
+            totalAbonnements:  $totalAbonnements,
+            revenu:            $revenu,
+        );
+
+        return new JsonResponse($result);
+    }
+
+    /**
+     * Behavioral AI analysis page — shows concept-level weakness detection.
+     * GET /recommandations/analyse
+     */
+    #[Route('/analyse', name: 'app_analyse_comportementale', methods: ['GET'])]
+    public function analyseComportementale(
+        Request                        $request,
+        ConceptWeaknessService         $weaknessService,
+        UserConceptProgressRepository  $progressRepo,
+    ): Response {
+        $sessionId = $request->getSession()->getId();
+        $analysis  = $weaknessService->analyze($sessionId);
+
+        return $this->render('client/recommandations/analyse.html.twig', [
+            'analysis'  => $analysis,
+            'sessionId' => $sessionId,
+        ]);
+    }
+
+    /**
+     * Behavioral AI analysis JSON API.
+     * GET /recommandations/analyse/api
+     */
+    #[Route('/analyse/api', name: 'app_analyse_comportementale_api', methods: ['GET'])]
+    public function analyseApi(
+        Request                $request,
+        ConceptWeaknessService $weaknessService,
+    ): JsonResponse {
+        $sessionId = $request->getSession()->getId();
+        $analysis  = $weaknessService->analyze($sessionId);
+
+        $concepts = array_map(fn($p) => [
+            'concept'            => $p->getConcept(),
+            'correct'            => $p->getCorrectCount(),
+            'wrong'              => $p->getWrongCount(),
+            'accuracy'           => round($p->getAccuracy() * 100, 1),
+            'level'              => $p->getLevel(),
+            'repeated_weakness'  => $p->isRepeatedWeakness(),
+            'streak'             => $p->getWeakQuizStreak(),
+        ], $analysis['concepts']);
+
+        return new JsonResponse([
+            'concepts' => $concepts,
+            'feedback' => $analysis['feedback'],
+            'summary'  => $analysis['summary'],
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Cours;
 use App\Repository\CoursRepository;
 use App\Repository\QuizResultatRepository;
+use App\Repository\UserConceptProgressRepository;
 
 /**
  * Computes a recommendation score for each course based on:
@@ -25,8 +26,9 @@ class RecommendationService
     private const LEVEL_ORDER = ['debutant' => 1, 'intermediaire' => 2, 'avance' => 3];
 
     public function __construct(
-        private readonly CoursRepository       $coursRepository,
-        private readonly QuizResultatRepository $quizResultatRepository,
+        private readonly CoursRepository                $coursRepository,
+        private readonly QuizResultatRepository         $quizResultatRepository,
+        private readonly UserConceptProgressRepository  $conceptProgressRepository,
     ) {}
 
     /**
@@ -49,7 +51,11 @@ class RecommendationService
         // 2. Gather context
         $weakTopics    = $this->quizResultatRepository->findWeakTopics($sessionId);
         $attemptedIds  = $this->quizResultatRepository->findAttemptedCoursIds($sessionId);
-        $allCours      = $this->coursRepository->findAll();
+        $allCours      = $this->coursRepository->findBy([], null, 100);
+
+        // Merge behavioral AI weak concepts (more precise than theme-based weak topics)
+        $conceptWeakTopics = $this->conceptProgressRepository->findWeakConceptNames($sessionId);
+        $weakTopics        = array_unique(array_merge($weakTopics, $conceptWeakTopics));
 
         // 3. Score each course
         $scored = [];

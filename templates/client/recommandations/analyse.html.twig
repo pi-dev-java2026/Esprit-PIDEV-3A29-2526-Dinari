@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Analyse comportementale — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--d-blue:#1a6fc4;--d-green:#27ae60;--d-orange:#e67e22;--d-red:#e74c3c;--d-text:#1e2d40;--d-muted:#5a6e84;--d-border:#dde4ee;--d-light:#f5f7fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f5f7fa;color:var(--d-text);}
+.page{max-width:1000px;margin:0 auto;padding:40px 30px 80px;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--d-muted);margin-bottom:20px;}
+.breadcrumb a{color:var(--d-muted);text-decoration:none;}.breadcrumb a:hover{color:var(--d-blue);}
+.breadcrumb .sep{font-size:11px;color:var(--d-border);}.breadcrumb .current{color:var(--d-text);font-weight:600;}
+.btn-back{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#fff;color:var(--d-text);
+  border:1.5px solid var(--d-border);border-radius:6px;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;
+  text-decoration:none;transition:all .2s;margin-bottom:24px;}
+.btn-back:hover{border-color:var(--d-blue);color:var(--d-blue);}
+
+/* Header */
+.page-header{background:linear-gradient(135deg,#1a3a5c 0%,#1a6fc4 100%);border-radius:12px;padding:36px 40px;margin-bottom:32px;position:relative;overflow:hidden;}
+.page-header::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);}
+.page-tag{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px;}
+.page-header h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:8px;}
+.page-header p{font-size:14px;color:rgba(255,255,255,.7);max-width:520px;line-height:1.75;}
+
+/* Summary banner */
+.summary-banner{background:#fff;border:1px solid var(--d-border);border-radius:10px;padding:18px 24px;margin-bottom:24px;
+  font-size:14px;font-weight:500;color:var(--d-text);display:flex;align-items:center;gap:10px;}
+
+/* Feedback */
+.feedback-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.feedback-item{background:#fff;border:1px solid var(--d-border);border-radius:8px;padding:14px 18px;font-size:13.5px;line-height:1.6;}
+
+/* Concept grid */
+.section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--d-text);margin-bottom:16px;}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:32px;}
+.concept-card{background:#fff;border:1px solid var(--d-border);border-radius:10px;padding:20px 22px;transition:box-shadow .2s;}
+.concept-card:hover{box-shadow:0 6px 20px rgba(26,111,196,.08);}
+.concept-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.concept-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.level-badge{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:3px;}
+.level-strong  {background:rgba(39,174,96,.12);color:#27ae60;}
+.level-moderate{background:rgba(52,152,219,.12);color:#2980b9;}
+.level-weak    {background:rgba(230,126,34,.12);color:#e67e22;}
+.level-critical{background:rgba(231,76,60,.12);color:#e74c3c;}
+
+/* Progress bar */
+.progress-wrap{margin-bottom:10px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--d-muted);margin-bottom:4px;}
+.progress-bar{height:6px;background:#eef1f6;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s;}
+.fill-strong  {background:#27ae60;}
+.fill-moderate{background:#2980b9;}
+.fill-weak    {background:#e67e22;}
+.fill-critical{background:#e74c3c;}
+
+.concept-stats{display:flex;gap:16px;font-size:12px;color:var(--d-muted);}
+.stat-correct{color:#27ae60;font-weight:600;}
+.stat-wrong  {color:#e74c3c;font-weight:600;}
+.repeated-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;
+  color:#e74c3c;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);
+  border-radius:4px;padding:2px 8px;margin-top:8px;}
+
+/* Empty state */
+.empty-state{text-align:center;padding:60px 20px;color:var(--d-muted);}
+.empty-state .icon{font-size:48px;margin-bottom:16px;}
+.empty-state p{font-size:14px;line-height:1.7;}
+.empty-state a{color:var(--d-blue);font-weight:600;}
+
+@media(max-width:600px){.page{padding:24px 16px 60px;}.page-header{padding:24px 20px;}}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+
+  {# Breadcrumb #}
+  <nav class="breadcrumb">
+    <a href="{{ path('app_cours_index') }}">Accueil</a>
+    <span class="sep">›</span>
+    <a href="{{ path('app_recommandations') }}">Recommandations</a>
+    <span class="sep">›</span>
+    <span class="current">Analyse comportementale</span>
+  </nav>
+
+  <a href="{{ path('app_recommandations') }}" class="btn-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Retour aux recommandations
+  </a>
+
+  {# Header #}
+  <div class="page-header">
+    <div class="page-tag">🧠 IA Comportementale</div>
+    <h1>Analyse de vos erreurs</h1>
+    <p>Détection intelligente de vos points faibles par concept, basée sur l'analyse de vos réponses à travers le temps.</p>
+  </div>
+
+  {% if analysis.concepts is empty %}
+    <div class="empty-state">
+      <div class="icon">📊</div>
+      <p>Aucune donnée disponible pour le moment.<br>
+        <a href="{{ path('app_cours_index') }}">Complétez des quiz</a> pour obtenir votre analyse comportementale.
+      </p>
+    </div>
+  {% else %}
+
+    {# Summary #}
+    <div class="summary-banner">
+      💡 {{ analysis.summary }}
+    </div>
+
+    {# Feedback messages #}
+    {% if analysis.feedback %}
+      <div class="feedback-list">
+        {% for msg in analysis.feedback %}
+          <div class="feedback-item">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {# Concept cards #}
+    <div class="section-title">Détail par concept ({{ analysis.concepts|length }} concept(s) analysé(s))</div>
+    <div class="concept-grid">
+      {% for progress in analysis.concepts %}
+        {% set accuracy = progress.accuracy * 100 %}
+        {% set level = progress.level %}
+        <div class="concept-card">
+          <div class="concept-top">
+            <span class="concept-name">{{ progress.concept|capitalize }}</span>
+            <span class="level-badge level-{{ level }}">
+              {% if level == 'strong'   %}Fort
+              {% elseif level == 'moderate' %}Modéré
+              {% elseif level == 'weak'     %}Faible
+              {% else %}Critique
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Précision</span>
+              <span>{{ accuracy|round(1) }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill fill-{{ level }}" style="width:{{ accuracy|round(1) }}%"></div>
+            </div>
+          </div>
+
+          <div class="concept-stats">
+            <span>Total : {{ progress.totalCount }} réponses</span>
+            <span class="stat-correct">✓ {{ progress.correctCount }}</span>
+            <span class="stat-wrong">✗ {{ progress.wrongCount }}</span>
+          </div>
+
+          {% if progress.isRepeatedWeakness %}
+            <div class="repeated-badge">⚠️ Faiblesse répétée ({{ progress.weakQuizStreak }} quiz)</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    {# Link to recommendations #}
+    {% if analysis.weak is not empty %}
+      <div style="text-align:center;margin-top:8px;">
+        <a href="{{ path('app_recommandations') }}" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;
+          background:var(--d-blue);color:#fff;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;text-decoration:none;">
+          📚 Voir les cours recommandés pour vos points faibles
+        </a>
+      </div>
+    {% endif %}
+
+  {% endif %}
+</div>
+{% endblock %}
