@@ -1,0 +1,101 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}AI Model Admin{% endblock %}
+
+{% block stylesheets %}
+<style>
+
+.admin-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 100px 30px 60px;
+}
+
+/* HEADER */
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.admin-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--d-text);
+}
+
+.admin-title span {
+    color: var(--d-blue);
+}
+
+/* CARD CENTER */
+.ai-card {
+    background: #fff;
+    border: 1px solid var(--d-border);
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+.ai-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+/* BUTTON */
+.btn-retrain {
+    background: linear-gradient(135deg, #6c5ce7, #4b3cc4);
+    color: white;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 6px 18px rgba(108,92,231,0.3);
+}
+
+.btn-retrain:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(108,92,231,0.4);
+}
+
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="admin-wrapper">
+
+    <div class="admin-header">
+        <h1 class="admin-title">
+            🤖 AI Model <span>Management</span>
+        </h1>
+    </div>
+
+    <div class="ai-card">
+
+        <div class="ai-icon">🧠</div>
+
+        <h2>Re-train AI Model</h2>
+
+        <p style="color: var(--d-muted); margin-bottom: 25px;">
+            Update your machine learning model using latest database data
+        </p>
+
+        <form method="post" action="{{ path('admin_ai_retrain') }}">
+            <button type="submit" class="btn-retrain">
+                🔄 Re-train AI Model
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

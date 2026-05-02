@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un justificatif — Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+.page-wrapper { max-width: 600px; margin: 0 auto; padding: 100px 30px 60px; }
+
+.page-header  { margin-bottom: 32px; }
+.breadcrumb   { font-size: 13px; color: var(--d-muted); margin-bottom: 8px; }
+.breadcrumb a { color: var(--d-blue); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.page-title   { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--d-text); }
+.page-title span { color: var(--d-blue); }
+
+/* Flash */
+.flash { padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; font-weight: 500; }
+.flash-error { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #c0392b; }
+
+/* Résumé dépense */
+.depense-info {
+    background: #f5f7fa; border: 1px solid var(--d-border);
+    border-radius: 8px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 28px;
+}
+.depense-info-icon {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: var(--d-blue); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.depense-info-text .title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--d-text); }
+.depense-info-text .sub   { font-size: 13px; color: var(--d-muted); margin-top: 3px; }
+.depense-info-amount {
+    margin-left: auto; font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 800; color: var(--d-blue);
+}
+
+/* Form */
+.form-card { background: #fff; border: 1px solid var(--d-border); border-radius: 8px; padding: 36px; }
+.form-group { margin-bottom: 24px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--d-text); margin-bottom: 8px; }
+
+/* Upload zone */
+.upload-zone {
+    border: 2px dashed var(--d-border);
+    border-radius: 8px; padding: 40px 20px;
+    text-align: center; cursor: pointer;
+    transition: all 0.25s; position: relative;
+    background: #fafbfc;
+}
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--d-blue);
+    background: #f0f6ff;
+}
+.upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0;
+    cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(26,111,196,0.08); color: var(--d-blue);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin: 0 auto 16px;
+    transition: all 0.25s;
+}
+.upload-zone:hover .upload-icon { background: var(--d-blue); color: #fff; }
+.upload-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--d-text); margin-bottom: 6px; }
+.upload-sub   { font-size: 13px; color: var(--d-muted); }
+.upload-sub span { color: var(--d-blue); font-weight: 600; }
+.upload-formats { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.format-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+}
+.format-badge.pdf  { background: rgba(231,76,60,0.1);  color: #c0392b; }
+.format-badge.png  { background: rgba(26,111,196,0.1); color: var(--d-blue); }
+.format-badge.jpg  { background: rgba(39,174,96,0.1);  color: #1e8449; }
+
+/* Preview */
+.file-preview {
+    display: none; margin-top: 16px;
+    background: #fff; border: 1px solid var(--d-border);
+    border-radius: 6px; padding: 12px 16px;
+    align-items: center; gap: 12px;
+}
+.file-preview.show { display: flex; }
+.preview-icon { font-size: 22px; color: var(--d-blue); }
+.preview-name { font-size: 13px; font-weight: 600; color: var(--d-text); }
+.preview-size { font-size: 11px; color: var(--d-muted); }
+.preview-remove {
+    margin-left: auto; background: none; border: none;
+    color: #e74c3c; cursor: pointer; font-size: 16px;
+    transition: color 0.2s;
+}
+.preview-remove:hover { color: #c0392b; }
+
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--d-border); }
+.btn-submit {
+    padding: 12px 28px; background: var(--d-blue); color: #fff;
+    border: none; border-radius: 4px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+    cursor: pointer; transition: all 0.25s;
+}
+.btn-submit:hover { background: var(--d-blue2); transform: translateY(-2px); }
+.btn-submit:disabled { background: #b0bec5; cursor: not-allowed; transform: none; }
+.btn-cancel {
+    padding: 12px 24px; background: var(--d-light); color: var(--d-text);
+    border: 1.5px solid var(--d-border); border-radius: 4px;
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    transition: all 0.2s; display: inline-flex; align-items: center;
+}
+.btn-cancel:hover { background: var(--d-border); color: var(--d-text); text-decoration: none; }
+
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    background: #27ae60; /* vert */
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.25);
+}
+
+.btn-add:hover {
+    background: #219150;
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.35);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+
+    {% for msg in app.flashes('error') %}
+        <div class="flash flash-error"><i class="fa fa-exclamation-circle"></i> {{ msg }}</div>
+    {% endfor %}
+
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ path('depense_index') }}">Dépenses</a> ›
+            <a href="{{ path('justificatif_list', {id: depense.id}) }}">Dépense #{{ depense.id }}</a> ›
+            Nouveau justificatif
+        </div>
+        <h1 class="page-title">Ajouter un <span>justificatif</span></h1>
+    </div>
+
+    {# Info dépense #}
+    <div class="depense-info">
+        <div class="depense-info-icon"><i class="fa fa-receipt"></i></div>
+        <div class="depense-info-text">
+            <div class="title">Dépense #{{ depense.id }} — {{ depense.categorie }}</div>
+            <div class="sub">
+                {{ depense.dateDepense|date('d/m/Y') }}
+                {% if depense.description %} · {{ depense.description }}{% endif %}
+            </div>
+        </div>
+        <div class="depense-info-amount">{{ depense.montant|number_format(0, ',', ' ') }} DT</div>
+    </div>
+
+    <div class="form-card">
+  {% include 'justificatif/_form.html.twig' with {
+        form: form,
+        depense: depense
+    } %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const input = document.querySelector('input[type="file"]');
+const preview  = document.getElementById('file-preview');
+const btnSubmit = document.getElementById('btn-submit');
+const zone     = document.getElementById('upload-zone');
+
+input.addEventListener('change', function() {
+    if (this.files && this.files[0]) showPreview(this.files[0]);
+});
+
+// Drag & drop
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        // Créer un DataTransfer pour assigner au input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        showPreview(file);
+    }
+});
+
+function showPreview(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const icon = document.getElementById('preview-icon');
+
+    icon.className = 'fa preview-icon ' + (ext === 'pdf' ? 'fa-file-pdf-o' : 'fa-file-image-o');
+    document.getElementById('preview-name').textContent = file.name;
+    document.getElementById('preview-size').textContent = formatSize(file.size);
+
+    preview.classList.add('show');
+    btnSubmit.disabled = false;
+}
+
+function clearFile() {
+    input.value = '';
+    preview.classList.remove('show');
+    btnSubmit.disabled = true;
+}
+
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' o';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+}
+</script>
+{% endblock %}

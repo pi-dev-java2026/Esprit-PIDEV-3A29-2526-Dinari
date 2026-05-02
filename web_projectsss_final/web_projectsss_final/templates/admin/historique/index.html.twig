@@ -1,0 +1,166 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Historique des dépenses — Admin{% endblock %}
+{% block topbar_title %}Historique des dépenses{% endblock %}
+{% block topbar_sub %}Traçabilité de toutes les actions{% endblock %}
+
+{% block body %}
+
+{# PAGE HEADER #}
+<div class="page-header">
+    <div>
+        <h1>Historique des dépenses</h1>
+        <div class="breadcrumb-d">
+            <a href="{{ path('admin_index') }}">Dashboard</a>
+            <span class="sep">›</span> Historique
+        </div>
+    </div>
+</div>
+
+{# STATS RAPIDES #}
+<div class="stats-grid" style="grid-template-columns: repeat(3,1fr); max-width: 700px; margin-bottom: 24px;">
+    {% set nb_cree     = entries|filter(e => e.action == 'CRÉÉ')|length %}
+    {% set nb_modifie  = entries|filter(e => e.action == 'MODIFIÉ')|length %}
+    {% set nb_supprime = entries|filter(e => e.action == 'SUPPRIMÉ')|length %}
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(39,174,96,0.1);">
+            <i class="ri-add-circle-line" style="color:#27ae60;"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ nb_cree }}</div>
+            <div class="stat-label">Créations</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(243,156,18,0.1);">
+            <i class="ri-edit-line" style="color:#f39c12;"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ nb_modifie }}</div>
+            <div class="stat-label">Modifications</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(231,76,60,0.1);">
+            <i class="ri-delete-bin-line" style="color:#e74c3c;"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ nb_supprime }}</div>
+            <div class="stat-label">Suppressions</div>
+        </div>
+    </div>
+</div>
+
+{# TABLEAU #}
+<div class="card-dinari">
+    <div class="card-header-dinari">
+        <span class="card-title">
+            <i class="ri-history-line" style="color:var(--blue);margin-right:6px;"></i>
+            Journal des actions
+            <span style="font-size:12px;font-weight:500;color:var(--muted);margin-left:8px;">
+                {{ entries|length }} entrée{{ entries|length != 1 ? 's' : '' }}
+            </span>
+        </span>
+
+        {# FILTRES #}
+        <form method="GET" style="display:flex;align-items:center;gap:8px;">
+            <select name="action" onchange="this.form.submit()"
+                style="padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;
+                       font-size:13px;font-family:'Raleway',sans-serif;color:var(--text);
+                       background:#fff;cursor:pointer;">
+                <option value="">Toutes les actions</option>
+                {% for a in actions %}
+                    <option value="{{ a }}" {{ filterAction == a ? 'selected' : '' }}>{{ a }}</option>
+                {% endfor %}
+            </select>
+            {% if filterAction %}
+                <a href="{{ path('admin_historique_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+                    <i class="ri-close-line"></i> Réinitialiser
+                </a>
+            {% endif %}
+        </form>
+    </div>
+
+    {% if entries is empty %}
+        <div style="text-align:center;padding:48px 0;color:var(--muted);">
+            <i class="ri-inbox-line" style="font-size:42px;display:block;margin-bottom:10px;"></i>
+            Aucune entrée dans l'historique
+        </div>
+    {% else %}
+        <table class="table-dinari">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Action</th>
+                    <th>Dépense ID</th>
+                    <th>Données avant</th>
+                    <th>Données après</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td style="color:var(--muted);font-size:12px;">{{ entry.id }}</td>
+                    <td>
+                        {% if entry.action == 'CRÉÉ' %}
+                            <span class="badge-dinari badge-success"><i class="ri-add-circle-line"></i> {{ entry.action }}</span>
+                        {% elseif entry.action == 'MODIFIÉ' %}
+                            <span class="badge-dinari badge-warning"><i class="ri-edit-line"></i> {{ entry.action }}</span>
+                        {% else %}
+                            <span class="badge-dinari badge-danger"><i class="ri-delete-bin-line"></i> {{ entry.action }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge-dinari badge-info">#{{ entry.depenseId }}</span>
+                    </td>
+                    <td>
+                        {% if entry.donneesAvant %}
+                            <div class="snapshot-box">
+                                {% for k, v in entry.donneesAvant %}
+                                    <div><span class="snap-key">{{ k }}</span> {{ v }}</div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span style="color:var(--muted);font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if entry.donneesApres %}
+                            <div class="snapshot-box snapshot-after">
+                                {% for k, v in entry.donneesApres %}
+                                    <div><span class="snap-key">{{ k }}</span> {{ v }}</div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span style="color:var(--muted);font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space:nowrap;color:var(--muted);font-size:12px;">
+                        <i class="ri-time-line" style="margin-right:4px;"></i>
+                        {{ entry.dateAction|date('d/m/Y H:i:s') }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<style>
+    .snapshot-box {
+        font-size: 11px; line-height: 1.7;
+        background: #f8f9fa; border-radius: 6px;
+        padding: 6px 10px; border: 1px solid var(--border);
+        min-width: 160px;
+    }
+    .snapshot-box.snapshot-after { background: rgba(39,174,96,0.05); border-color: rgba(39,174,96,0.2); }
+    .snap-key {
+        font-weight: 700; color: var(--muted);
+        text-transform: uppercase; font-size: 10px;
+        margin-right: 4px; letter-spacing: 0.5px;
+    }
+</style>
+
+{% endblock %}

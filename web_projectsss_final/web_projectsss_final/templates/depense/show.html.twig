@@ -1,0 +1,349 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dépense #{{ depense.id }} — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── PAGE ── */
+body {
+    background: linear-gradient(145deg, #eaf2ff 0%, #f0f6ff 35%, #e8f4fd 65%, #f5f8ff 100%) !important;
+    min-height: 100vh;
+}
+.page-wrapper {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 100px 30px 60px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 32px; }
+.breadcrumb  { font-size: 12.5px; color: #64748b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.breadcrumb a { color: #1a6fc4; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+.breadcrumb a:hover { color: #1558a0; text-decoration: underline; }
+.page-title  { font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #1e293b; letter-spacing: -0.3px; margin: 0; }
+
+/* ── AMOUNT HERO ── */
+.amount-hero {
+    background: linear-gradient(135deg, #1a6fc4 0%, #1558a0 60%, #0f4080 100%);
+    border-radius: 20px;
+    padding: 36px 32px;
+    text-align: center;
+    margin-bottom: 24px;
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(26,111,196,0.3);
+    position: relative;
+    overflow: hidden;
+}
+.amount-hero::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+}
+.amount-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 40px;
+    width: 160px; height: 160px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+}
+.amount-hero .label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 10px;
+}
+.amount-hero .value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    letter-spacing: -1px;
+}
+.amount-hero .date {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 12px;
+}
+
+/* ── DETAIL CARD ── */
+.detail-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 28px rgba(26,111,196,0.08);
+}
+.detail-card-title {
+    padding: 16px 26px;
+    border-bottom: 1px solid rgba(226,232,240,0.7);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    background: rgba(241,245,249,0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.2px;
+}
+.detail-card-title i { color: #1a6fc4; }
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    padding: 15px 26px;
+    border-bottom: 1px solid rgba(241,245,249,0.9);
+    transition: background 0.18s;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row:hover { background: rgba(26,111,196,0.02); }
+
+.detail-label {
+    width: 160px;
+    flex-shrink: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+.detail-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* ── BADGES ── */
+.badge-categorie {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.badge-loyer      { background: rgba(231,76,60,0.1);   color: #c0392b; }
+.badge-nourriture { background: rgba(39,174,96,0.1);   color: #1e8449; }
+.badge-transport  { background: rgba(52,152,219,0.1);  color: #1a5276; }
+.badge-internet   { background: rgba(155,89,182,0.1);  color: #6c3483; }
+.badge-loisirs    { background: rgba(243,156,18,0.1);  color: #9a7d0a; }
+.badge-autre      { background: rgba(127,140,141,0.1); color: #5a6e84; }
+
+/* ── JUSTIFICATIFS IN DETAIL ── */
+.justif-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 26px;
+    border-bottom: 1px solid rgba(241,245,249,0.9);
+    transition: background 0.18s;
+}
+.justif-item:last-child { border-bottom: none; }
+.justif-item:hover { background: rgba(26,111,196,0.02); }
+
+.justif-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    background: rgba(26,111,196,0.08);
+    color: #1a6fc4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.justif-name { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #1e293b; }
+.justif-meta { font-family: 'Poppins', sans-serif; font-size: 11px; color: #94a3b8; margin-top: 3px; }
+.justif-link {
+    margin-left: auto;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12.5px;
+    color: #1a6fc4;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: 1.5px solid rgba(26,111,196,0.2);
+    border-radius: 8px;
+    transition: all 0.22s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.justif-link:hover {
+    background: #1a6fc4;
+    color: #fff;
+    border-color: #1a6fc4;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+.no-justif {
+    padding: 28px 26px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ── PAGE ACTIONS ── */
+.page-actions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+
+.btn-edit-page {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #fff;
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; font-size: 14px;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 5px 16px rgba(245,158,11,0.3);
+}
+.btn-edit-page:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(245,158,11,0.4);
+    color: #fff; text-decoration: none;
+}
+
+.btn-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500; font-size: 14px;
+    text-decoration: none;
+    transition: all 0.22s;
+}
+.btn-back:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    text-decoration: none;
+    border-color: #cbd5e1;
+}
+
+.btn-delete-page {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px;
+    background: rgba(239,68,68,0.08);
+    color: #dc2626;
+    border: 1.5px solid rgba(239,68,68,0.2);
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    margin-left: auto;
+}
+.btn-delete-page:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(239,68,68,0.3);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ path('depense_index') }}">Dépenses</a> › Dépense #{{ depense.id }}
+        </div>
+        <h1 class="page-title">Détail de la dépense</h1>
+    </div>
+
+    {# Montant hero #}
+    <div class="amount-hero" style:"color:black !important;">
+        <div class="label">Montant</div>
+        <div class="value">{{ depense.montant|number_format(0, ',', ' ') }} DT</div>
+    </div>
+
+    {# Informations #}
+    <div class="detail-card">
+        <div class="detail-card-title"><i class="fa fa-info-circle" style="color:var(--d-blue);margin-right:6px;"></i>Informations</div>
+        <div class="detail-row">
+            <div class="detail-label">Catégorie</div>
+            <div class="detail-value">
+                <span class="badge-categorie badge-{{ depense.categorie|lower }}">{{ depense.categorie }}</span>
+            </div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Mode paiement</div>
+            <div class="detail-value">
+                {% if depense.modePaiement == 'Carte bancaire' %}<i class="fa fa-credit-card" style="margin-right:6px;color:var(--d-blue);"></i>
+                {% elseif depense.modePaiement == 'Virement' %}<i class="fa fa-exchange" style="margin-right:6px;color:var(--d-blue);"></i>
+                {% else %}<i class="fa fa-money" style="margin-right:6px;color:var(--d-green);"></i>{% endif %}
+                {{ depense.modePaiement }}
+            </div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Description</div>
+            <div class="detail-value">{{ depense.description ?: '—' }}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Date</div>
+            <div class="detail-value">{{ depense.dateDepense|date('d/m/Y') }}</div>
+        </div>
+    </div>
+
+    {# Justificatifs #}
+    <div class="detail-card">
+        <div class="detail-card-title"><i class="fa fa-paperclip" style="color:var(--d-blue);margin-right:6px;"></i>Justificatifs</div>
+        {% if depense.justificatifs is empty %}
+            <div class="no-justif"><i class="fa fa-folder-open-o"></i> Aucun justificatif attaché.</div>
+        {% else %}
+            {% for j in depense.justificatifs %}
+            <div class="justif-item">
+                <div class="justif-icon">
+                    {% if j.typefichier == 'pdf' %}
+                        <i class="fa fa-file-pdf-o"></i>
+                    {% else %}
+                        <i class="fa fa-file-image-o"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="justif-name">{{ j.filepath|split('/')|last }}</div>
+                    <div class="justif-meta">{{ j.typefichier|upper }} · Ajouté le {{ j.dateajout|date('d/m/Y') }}</div>
+                </div>
+                <a href="{{ asset(j.filepath) }}" target="_blank" class="justif-link">
+                    <i class="fa fa-download"></i> Télécharger
+                </a>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {# Actions #}
+    <div class="page-actions">
+        <a href="{{ path('depense_index') }}" class="btn-back">
+            <i class="fa fa-arrow-left"></i> Retour
+        </a>
+       
+    </div>
+
+</div>
+{% endblock %}

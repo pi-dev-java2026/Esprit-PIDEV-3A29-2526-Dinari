@@ -1,0 +1,197 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le justificatif — Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+.page-wrapper { max-width: 600px; margin: 0 auto; padding: 100px 30px 60px; }
+.page-header  { margin-bottom: 32px; }
+.breadcrumb   { font-size: 13px; color: var(--d-muted); margin-bottom: 8px; }
+.breadcrumb a { color: var(--d-blue); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.page-title   { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--d-text); }
+.page-title span { color: #e67e22; }
+
+/* Flash */
+.flash { padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; font-weight: 500; }
+.flash-error { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #c0392b; }
+
+/* Fichier actuel */
+.current-file {
+    background: #f5f7fa; border: 1px solid var(--d-border);
+    border-radius: 8px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 28px;
+}
+.current-file-icon {
+    width: 44px; height: 44px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+}
+.current-file-icon.pdf   { background: rgba(231,76,60,0.1);  color: #e74c3c; }
+.current-file-icon.image { background: rgba(26,111,196,0.1); color: var(--d-blue); }
+.current-file-name { font-weight: 600; font-size: 14px; color: var(--d-text); }
+.current-file-meta { font-size: 12px; color: var(--d-muted); margin-top: 3px; }
+.current-file-dl {
+    margin-left: auto; font-size: 13px; font-weight: 600;
+    color: var(--d-blue); text-decoration: none;
+    padding: 6px 12px; border: 1px solid rgba(26,111,196,0.2);
+    border-radius: 4px; transition: all 0.2s; flex-shrink: 0;
+}
+.current-file-dl:hover { background: var(--d-blue); color: #fff; text-decoration: none; }
+
+.form-card { background: #fff; border: 1px solid var(--d-border); border-radius: 8px; padding: 36px; }
+.form-group { margin-bottom: 24px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--d-text); margin-bottom: 8px; }
+.form-hint { font-size: 12px; color: var(--d-muted); margin-top: 6px; }
+
+/* Upload zone */
+.upload-zone {
+    border: 2px dashed var(--d-border); border-radius: 8px;
+    padding: 32px 20px; text-align: center; cursor: pointer;
+    transition: all 0.25s; position: relative; background: #fafbfc;
+}
+.upload-zone:hover { border-color: var(--d-blue); background: #f0f6ff; }
+.upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0;
+    cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(26,111,196,0.08); color: var(--d-blue);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin: 0 auto 12px; transition: all 0.25s;
+}
+.upload-zone:hover .upload-icon { background: var(--d-blue); color: #fff; }
+.upload-title { font-weight: 600; font-size: 14px; color: var(--d-text); margin-bottom: 4px; }
+.upload-sub   { font-size: 13px; color: var(--d-muted); }
+.upload-sub span { color: var(--d-blue); font-weight: 600; }
+
+/* Preview */
+.file-preview {
+    display: none; margin-top: 14px;
+    background: #fff; border: 1px solid var(--d-border);
+    border-radius: 6px; padding: 12px 16px;
+    align-items: center; gap: 12px;
+}
+.file-preview.show { display: flex; }
+.preview-name { font-size: 13px; font-weight: 600; color: var(--d-text); }
+.preview-size { font-size: 11px; color: var(--d-muted); }
+.preview-remove {
+    margin-left: auto; background: none; border: none;
+    color: #e74c3c; cursor: pointer; font-size: 16px;
+}
+.preview-remove:hover { color: #c0392b; }
+
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--d-border); }
+.btn-submit {
+    padding: 12px 28px; background: #e67e22; color: #fff;
+    border: none; border-radius: 4px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+    cursor: pointer; transition: all 0.25s;
+}
+.btn-submit:hover { background: #d35400; transform: translateY(-2px); }
+.btn-cancel {
+    padding: 12px 24px; background: var(--d-light); color: var(--d-text);
+    border: 1.5px solid var(--d-border); border-radius: 4px;
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    transition: all 0.2s; display: inline-flex; align-items: center;
+}
+.btn-cancel:hover { background: var(--d-border); color: var(--d-text); text-decoration: none; }
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    background: #27ae60; /* vert */
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.25);
+}
+
+.btn-add:hover {
+    background: #219150;
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.35);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+
+    {% for msg in app.flashes('error') %}
+        <div class="flash flash-error"><i class="fa fa-exclamation-circle"></i> {{ msg }}</div>
+    {% endfor %}
+
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ path('depense_index') }}">Dépenses</a> ›
+            <a href="{{ path('justificatif_list', {id: depense.id}) }}">Dépense #{{ depense.id }}</a> ›
+            Modifier le justificatif
+        </div>
+        <h1 class="page-title">Modifier le <span>justificatif</span></h1>
+    </div>
+
+    {# Fichier actuel #}
+    <div class="current-file">
+        <div class="current-file-icon {{ justificatif.typefichier == 'pdf' ? 'pdf' : 'image' }}">
+            {% if justificatif.typefichier == 'pdf' %}
+                <i class="fa fa-file-pdf-o"></i>
+            {% else %}
+                <i class="fa fa-file-image-o"></i>
+            {% endif %}
+        </div>
+        <div>
+            <div class="current-file-name">{{ justificatif.filepath|split('/')|last }}</div>
+            <div class="current-file-meta">
+                {{ justificatif.typefichier|upper }} · Ajouté le {{ justificatif.dateajout|date('d/m/Y') }}
+            </div>
+        </div>
+        <a href="{{ asset(justificatif.filepath) }}" target="_blank" class="current-file-dl">
+            <i class="fa fa-eye"></i> Voir
+        </a>
+    </div>
+
+    <div class="form-card">
+        {% include 'justificatif/_form.html.twig' with {
+        form: form,
+        depense: depense
+    } %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const input  = document.getElementById('fichier-input');
+const preview = document.getElementById('file-preview');
+
+input.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        const file = this.files[0];
+        document.getElementById('preview-name').textContent = file.name;
+        document.getElementById('preview-size').textContent = formatSize(file.size);
+        preview.classList.add('show');
+    }
+});
+
+function clearFile() {
+    input.value = '';
+    preview.classList.remove('show');
+}
+
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' o';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+}
+</script>
+{% endblock %}
