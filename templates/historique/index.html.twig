@@ -1,0 +1,300 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon historique — Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .histo-page {
+        max-width: 1100px;
+        margin: 100px auto 60px;
+        padding: 0 24px;
+    }
+
+    /* Header */
+    .histo-header {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        margin-bottom: 28px; flex-wrap: wrap; gap: 14px;
+    }
+    .histo-header h1 { font-size: 26px; font-weight: 800; color: #2c3e50; margin-bottom: 4px; }
+    .histo-header .sub { font-size: 13px; color: #7f8c8d; }
+    .histo-header .sub a { color: #1a6fc4; text-decoration: none; }
+
+    /* Stats */
+    .histo-stats {
+        display: grid; grid-template-columns: repeat(6, 1fr);
+        gap: 12px; margin-bottom: 24px;
+    }
+    @media(max-width:900px){ .histo-stats { grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:500px){ .histo-stats { grid-template-columns: repeat(2,1fr); } }
+    .hstat {
+        background: #fff; border-radius: 10px; border: 1px solid #e9ecef;
+        padding: 14px 16px; text-align: center; transition: all 0.2s;
+    }
+    .hstat:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+    .hstat-val { font-size: 22px; font-weight: 800; color: #2c3e50; line-height: 1; }
+    .hstat-lbl { font-size: 11px; color: #7f8c8d; margin-top: 4px; font-weight: 600; }
+
+    /* Card */
+    .histo-card {
+        background: #fff; border-radius: 12px; border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+    .histo-card-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 18px 22px; border-bottom: 1px solid #e9ecef;
+        flex-wrap: wrap; gap: 12px;
+    }
+    .histo-card-title { font-size: 15px; font-weight: 700; color: #2c3e50; }
+
+    /* Filters */
+    .histo-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .histo-select {
+        padding: 7px 12px; border: 1.5px solid #e9ecef; border-radius: 8px;
+        font-size: 13px; font-family: 'Raleway', sans-serif; color: #2c3e50;
+        background: #fff; cursor: pointer; transition: border-color 0.2s;
+    }
+    .histo-select:focus { outline: none; border-color: #1a6fc4; }
+    .btn-reset {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 7px 13px; border-radius: 8px; font-size: 12px; font-weight: 600;
+        background: #f0f4f8; color: #5a6e84; border: 1px solid #e9ecef;
+        text-decoration: none; transition: all 0.2s;
+    }
+    .btn-reset:hover { background: #e2e8f0; color: #2c3e50; }
+
+    /* Timeline */
+    .timeline { padding: 0; }
+    .tl-item {
+        display: flex; gap: 16px; padding: 18px 22px;
+        border-bottom: 1px solid #f5f7fa; transition: background 0.15s;
+    }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-item:hover { background: #fafbfc; }
+
+    .tl-icon {
+        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; font-size: 17px;
+        margin-top: 2px;
+    }
+    .tl-icon.cree     { background: rgba(39,174,96,0.1);  color: #27ae60; }
+    .tl-icon.modifie  { background: rgba(243,156,18,0.1); color: #f39c12; }
+    .tl-icon.supprime { background: rgba(231,76,60,0.1);  color: #e74c3c; }
+
+    .tl-body { flex: 1; min-width: 0; }
+    .tl-top {
+        display: flex; align-items: center; gap: 8px;
+        flex-wrap: wrap; margin-bottom: 6px;
+    }
+    .tl-title { font-size: 14px; font-weight: 700; color: #2c3e50; }
+    .tl-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .tl-badge.cree     { background: rgba(39,174,96,0.12);  color: #27ae60; }
+    .tl-badge.modifie  { background: rgba(243,156,18,0.12); color: #f39c12; }
+    .tl-badge.supprime { background: rgba(231,76,60,0.12);  color: #e74c3c; }
+    .tl-type-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+        background: rgba(26,111,196,0.08); color: #1a6fc4;
+    }
+    .tl-date { font-size: 11px; color: #7f8c8d; margin-left: auto; white-space: nowrap; }
+
+    /* Snapshot diff */
+    .tl-diff {
+        display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap;
+    }
+    .tl-snap {
+        background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;
+        padding: 8px 12px; font-size: 12px; min-width: 160px; flex: 1;
+    }
+    .tl-snap.after { background: rgba(39,174,96,0.04); border-color: rgba(39,174,96,0.2); }
+    .tl-snap-label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 1px; color: #7f8c8d; margin-bottom: 5px;
+    }
+    .tl-snap-row { display: flex; gap: 6px; margin-bottom: 3px; line-height: 1.5; }
+    .tl-snap-key { font-weight: 700; color: #7f8c8d; font-size: 11px; min-width: 80px; }
+    .tl-snap-val { color: #2c3e50; }
+
+    /* Empty */
+    .histo-empty {
+        text-align: center; padding: 56px 0; color: #7f8c8d;
+    }
+    .histo-empty i { font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.4; }
+    .histo-empty p { font-size: 14px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="histo-page">
+
+    {# HEADER #}
+    <div class="histo-header">
+        <div>
+            <h1><i class="fa fa-history" style="color:#1a6fc4;margin-right:10px;"></i>Mon historique</h1>
+            <div class="sub">
+                <a href="{{ path('app_home') }}">Accueil</a> › Historique de mes actions
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+            <a href="{{ path('depense_index') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;
+                      border-radius:8px;background:#f0f4f8;color:#5a6e84;font-size:13px;
+                      font-weight:600;text-decoration:none;border:1px solid #e9ecef;">
+                <i class="fa fa-list"></i> Mes dépenses
+            </a>
+            <a href="{{ path('budget_index') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;
+                      border-radius:8px;background:#1a6fc4;color:#fff;font-size:13px;
+                      font-weight:600;text-decoration:none;">
+                <i class="fa fa-pie-chart"></i> Mes budgets
+            </a>
+        </div>
+    </div>
+
+    {# STATS #}
+    <div class="histo-stats">
+        <div class="hstat">
+            <div class="hstat-val">{{ stats.total }}</div>
+            <div class="hstat-lbl">Total actions</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-val" style="color:#27ae60;">{{ stats.cree }}</div>
+            <div class="hstat-lbl">Créations</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-val" style="color:#f39c12;">{{ stats.modifie }}</div>
+            <div class="hstat-lbl">Modifications</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-val" style="color:#e74c3c;">{{ stats.supprime }}</div>
+            <div class="hstat-lbl">Suppressions</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-val" style="color:#1a6fc4;">{{ stats.depenses }}</div>
+            <div class="hstat-lbl">Dépenses</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-val" style="color:#8e44ad;">{{ stats.budgets }}</div>
+            <div class="hstat-lbl">Budgets</div>
+        </div>
+    </div>
+
+    {# TIMELINE CARD #}
+    <div class="histo-card">
+        <div class="histo-card-header">
+            <span class="histo-card-title">
+                Journal de mes actions
+                <span style="font-size:12px;font-weight:500;color:#7f8c8d;margin-left:6px;">
+                    {{ entries|length }} entrée{{ entries|length != 1 ? 's' : '' }}
+                </span>
+            </span>
+
+            {# FILTRES #}
+            <form method="GET" class="histo-filters">
+                <select name="action" class="histo-select" onchange="this.form.submit()">
+                    <option value="">Toutes les actions</option>
+                    {% for a in actions %}
+                        <option value="{{ a }}" {{ filterAction == a ? 'selected' : '' }}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+                <select name="type" class="histo-select" onchange="this.form.submit()">
+                    <option value="">Tous les types</option>
+                    <option value="depense" {{ filterType == 'depense' ? 'selected' : '' }}>Dépenses</option>
+                    <option value="budget"  {{ filterType == 'budget'  ? 'selected' : '' }}>Budgets</option>
+                </select>
+                {% if filterAction or filterType %}
+                    <a href="{{ path('historique_index') }}" class="btn-reset">
+                        <i class="fa fa-times"></i> Réinitialiser
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if entries is empty %}
+            <div class="histo-empty">
+                <i class="fa fa-inbox"></i>
+                <p>Aucune action enregistrée pour le moment.</p>
+                <p style="font-size:12px;margin-top:4px;">
+                    Créez ou modifiez une dépense ou un budget pour voir l'historique ici.
+                </p>
+            </div>
+        {% else %}
+            <div class="timeline">
+                {% for entry in entries %}
+                {% set actionClass = entry.action == 'CRÉÉ' ? 'cree' : (entry.action == 'MODIFIÉ' ? 'modifie' : 'supprime') %}
+                <div class="tl-item">
+
+                    {# Icône #}
+                    <div class="tl-icon {{ actionClass }}">
+                        {% if entry.action == 'CRÉÉ' %}
+                            <i class="fa fa-plus"></i>
+                        {% elseif entry.action == 'MODIFIÉ' %}
+                            <i class="fa fa-pencil"></i>
+                        {% else %}
+                            <i class="fa fa-trash"></i>
+                        {% endif %}
+                    </div>
+
+                    <div class="tl-body">
+                        <div class="tl-top">
+                            <span class="tl-title">
+                                {% if entry.typeRessource == 'budget' %}Budget{% else %}Dépense{% endif %}
+                                #{{ entry.depenseId }}
+                                {% set snap = entry.donneesApres ?? entry.donneesAvant %}
+                                {% if snap %}
+                                    {% if entry.typeRessource == 'depense' and snap.montant is defined %}
+                                        — {{ snap.montant }} DT
+                                    {% elseif entry.typeRessource == 'budget' and snap.mois is defined %}
+                                        — {{ snap.mois }}
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                            <span class="tl-badge {{ actionClass }}">{{ entry.action }}</span>
+                            <span class="tl-type-badge">
+                                <i class="fa fa-{{ entry.typeRessource == 'budget' ? 'pie-chart' : 'shopping-cart' }}"></i>
+                                {{ entry.typeRessource|capitalize }}
+                            </span>
+                            <span class="tl-date">
+                                <i class="fa fa-clock-o"></i>
+                                {{ entry.dateAction|date('d/m/Y à H:i') }}
+                            </span>
+                        </div>
+
+                        {# Snapshot avant / après #}
+                        {% if entry.donneesAvant or entry.donneesApres %}
+                        <div class="tl-diff">
+                            {% if entry.donneesAvant %}
+                            <div class="tl-snap">
+                                <div class="tl-snap-label">Avant</div>
+                                {% for k, v in entry.donneesAvant %}
+                                <div class="tl-snap-row">
+                                    <span class="tl-snap-key">{{ k }}</span>
+                                    <span class="tl-snap-val">{{ v ?? '—' }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if entry.donneesApres %}
+                            <div class="tl-snap after">
+                                <div class="tl-snap-label">Après</div>
+                                {% for k, v in entry.donneesApres %}
+                                <div class="tl-snap-row">
+                                    <span class="tl-snap-key">{{ k }}</span>
+                                    <span class="tl-snap-val">{{ v ?? '—' }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

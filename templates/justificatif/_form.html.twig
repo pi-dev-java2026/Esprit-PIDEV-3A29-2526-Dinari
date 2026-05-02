@@ -1,0 +1,54 @@
+{{ form_start(form, {
+    'attr': {
+        'enctype': 'multipart/form-data',
+        'id': 'upload-form'
+    }
+}) }}
+
+<div class="form-group">
+    <label>Sélectionner un fichier <span style="color:#e74c3c;">*</span></label>
+
+    <div class="upload-zone" id="upload-zone">
+
+        {{ form_widget(form.file, {
+            'attr': {
+                'id': 'fichier-input',
+                'accept': '.pdf,.png,.jpg,.jpeg'
+            }
+        }) }}
+
+        <div class="upload-icon"><i class="fa fa-cloud-upload"></i></div>
+        <div class="upload-title">Glissez votre fichier ici</div>
+        <div class="upload-sub">ou <span>cliquez pour parcourir</span></div>
+
+        <div class="upload-formats">
+            <span class="format-badge pdf">PDF</span>
+            <span class="format-badge png">PNG</span>
+            <span class="format-badge jpg">JPG</span>
+        </div>
+    </div>
+
+    {# Preview #}
+    <div class="file-preview" id="file-preview">
+        <i class="fa fa-file preview-icon" id="preview-icon"></i>
+        <div>
+            <div class="preview-name" id="preview-name">—</div>
+            <div class="preview-size" id="preview-size">—</div>
+        </div>
+        <button type="button" class="preview-remove" onclick="clearFile()">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<div class="form-actions">
+    <a href="{{ path('justificatif_list', {id: depense.id}) }}" class="btn-cancel">
+        Annuler
+    </a>
+
+    <button type="submit" class="btn-submit btn-add" id="btn-submit">
+        Uploader
+    </button>
+</div>
+
+{{ form_end(form) }}

@@ -1,0 +1,52 @@
+{{ form_start(form) }}
+
+<div class="form-row">
+    <div class="form-group">
+        <label>Montant (DT) <span class="required">*</span></label>
+        {{ form_widget(form.montant, {
+            'attr': {'class': 'form-control', 'placeholder': '0.00'}
+        }) }}
+    </div>
+
+    <div class="form-group">
+        <label>Date <span class="required">*</span></label>
+        {{ form_widget(form.dateDepense, {
+            'attr': {'class': 'form-control'}
+        }) }}
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+        <label>Catégorie <span class="required">*</span></label>
+        {{ form_widget(form.categorie, {
+            'attr': {'class': 'form-control'}
+        }) }}
+    </div>
+
+    <div class="form-group">
+        <label>Mode de paiement <span class="required">*</span></label>
+        {{ form_widget(form.modePaiement, {
+            'attr': {'class': 'form-control'}
+        }) }}
+    </div>
+</div>
+
+<div class="form-group">
+    <label>Description</label>
+    {{ form_widget(form.description, {
+        'attr': {'class': 'form-control', 'placeholder': 'Ex : Courses du samedi...'}
+    }) }}
+</div>
+
+<div class="form-actions">
+    <a href="{{ path('depense_index') }}" class="btn-cancel">
+        <i class="fa fa-times" style="margin-right:6px;"></i> Annuler
+    </a>
+
+    <button type="submit" class="btn-submit btn-add">
+        <i class="fa fa-check" style="margin-right:6px;"></i> Enregistrer
+    </button>
+</div>
+
+{{ form_end(form) }}

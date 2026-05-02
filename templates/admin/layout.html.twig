@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Admin — Dinari{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fontAwesome.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --blue:    #1a6fc4;
+            --blue2:   #1558a0;
+            --sidebar: #1a2035;
+            --sidebar2: #141728;
+            --text:    #2c3e50;
+            --muted:   #7f8c8d;
+            --border:  #e9ecef;
+            --light:   #f8f9fa;
+            --sidebar-w: 220px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Raleway', sans-serif; background: #f5f7fa; color: var(--text); }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar-w); height: 100vh;
+            background: var(--sidebar);
+            display: flex; flex-direction: column;
+            z-index: 200; overflow-y: auto;
+        }
+        .sidebar-logo {
+            display: flex; flex-direction: column; align-items: flex-start;
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .sidebar-logo-row {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sidebar-logo-icon {
+            width: 38px; height: 38px; background: var(--blue);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 900; color: #fff; font-style: italic;
+        }
+        .sidebar-logo-name { font-size: 18px; font-weight: 700; color: #fff; }
+        .sidebar-logo-sub {
+            font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.4);
+            letter-spacing: 1.5px; text-transform: uppercase;
+            margin-top: 4px; padding-left: 2px;
+        }
+
+        .sidebar-section {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+            text-transform: uppercase; color: rgba(255,255,255,0.3);
+            padding: 20px 20px 6px;
+        }
+        .sidebar-nav { list-style: none; padding: 0 10px; }
+        .sidebar-nav li a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 8px;
+            color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 600;
+            text-decoration: none; transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+        .sidebar-nav li a i { font-size: 17px; flex-shrink: 0; }
+        .sidebar-nav li a:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .sidebar-nav li a.active {
+            background: var(--blue); color: #fff;
+            box-shadow: 0 4px 12px rgba(26,111,196,0.4);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 10px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+        .sidebar-footer a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 8px;
+            color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 600;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .sidebar-footer a:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .sidebar-footer a i { font-size: 17px; }
+
+        .sidebar-status {
+            padding: 10px 20px 16px;
+            font-size: 10px; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; color: rgba(255,255,255,0.3);
+        }
+        .sidebar-status .dot {
+            display: inline-block; width: 7px; height: 7px;
+            border-radius: 50%; background: #27ae60; margin-right: 6px;
+        }
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            position: fixed; top: 0;
+            left: var(--sidebar-w); right: 0;
+            height: 60px; z-index: 100;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+        }
+        .topbar-left { display: flex; flex-direction: column; }
+        .topbar-title { font-size: 15px; font-weight: 700; color: var(--text); }
+        .topbar-sub { font-size: 12px; color: var(--muted); }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-icon-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--light); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); font-size: 17px; cursor: pointer;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .topbar-icon-btn:hover { background: #e9ecef; color: var(--text); }
+        .topbar-notif-dot {
+            position: absolute; top: 6px; right: 6px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #e74c3c; border: 2px solid #fff;
+        }
+        .topbar-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--blue);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 13px; font-weight: 700;
+        }
+        .topbar-user { display: flex; flex-direction: column; }
+        .topbar-user-name { font-size: 13px; font-weight: 700; color: var(--text); }
+        .topbar-user-role { font-size: 11px; color: var(--muted); }
+
+        /* ===== MAIN WRAPPER ===== */
+        .main-wrapper {
+            margin-left: var(--sidebar-w);
+            padding-top: 60px;
+            min-height: 100vh;
+        }
+        .main-content {
+            padding: 28px 28px 60px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .page-header h1 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .page-header .breadcrumb-d { font-size: 12px; color: var(--muted); }
+        .page-header .breadcrumb-d a { color: var(--blue); text-decoration: none; }
+        .page-header .breadcrumb-d .sep { margin: 0 4px; color: #ccc; }
+
+        /* ===== CARDS ===== */
+        .card-dinari {
+            background: #fff; border-radius: 12px;
+            border: 1px solid var(--border); padding: 22px;
+            margin-bottom: 22px; transition: box-shadow 0.2s;
+        }
+        .card-dinari:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .card-dinari .card-header-dinari {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px; padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-dinari .card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 22px;
+        }
+        @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+        .stat-card {
+            background: #fff; border-radius: 12px; border: 1px solid var(--border);
+            padding: 18px 20px; display: flex; align-items: center; gap: 14px;
+            transition: all 0.25s;
+        }
+        .stat-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); transform: translateY(-3px); }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 21px; flex-shrink: 0;
+        }
+        .stat-value { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; }
+        .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+        /* ===== TABLE ===== */
+        .table-dinari { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table-dinari thead th {
+            background: #f8f9fa; padding: 11px 14px;
+            font-size: 10px; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--muted);
+            border-bottom: 1px solid var(--border); white-space: nowrap;
+        }
+        .table-dinari tbody td {
+            padding: 13px 14px; border-bottom: 1px solid #f0f4f8;
+            color: var(--text); vertical-align: middle;
+        }
+        .table-dinari tbody tr:hover { background: #fafbfc; }
+        .table-dinari tbody tr:last-child td { border-bottom: none; }
+
+        /* ===== BADGES ===== */
+        .badge-dinari {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700;
+        }
+        .badge-success { background: rgba(39,174,96,0.12);  color: #27ae60; }
+        .badge-danger  { background: rgba(231,76,60,0.12);  color: #e74c3c; }
+        .badge-info    { background: rgba(26,111,196,0.12); color: var(--blue); }
+        .badge-warning { background: rgba(243,156,18,0.12); color: #f39c12; }
+
+        /* ===== BUTTONS ===== */
+        .btn-dinari {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            text-decoration: none; cursor: pointer; transition: all 0.2s; border: none;
+            font-family: 'Raleway', sans-serif;
+        }
+        .btn-dinari i { font-size: 15px; }
+        .btn-primary-d   { background: var(--blue); color: #fff; }
+        .btn-primary-d:hover   { background: var(--blue2); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,111,196,0.3); }
+        .btn-danger-d    { background: #e74c3c; color: #fff; }
+        .btn-danger-d:hover    { background: #c0392b; color: #fff; }
+        .btn-warning-d   { background: #f39c12; color: #fff; }
+        .btn-warning-d:hover   { background: #e67e22; color: #fff; }
+        .btn-secondary-d { background: #f0f4f8; color: #5a6e84; border: 1px solid var(--border); }
+        .btn-secondary-d:hover { background: #e2e8f0; color: var(--text); }
+        .btn-sm-d { padding: 5px 11px; font-size: 12px; }
+        .btn-sm-d i { font-size: 13px; }
+
+        /* ===== FORM ===== */
+        .form-group-d { margin-bottom: 18px; }
+        .form-group-d label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .form-group-d .form-control {
+            width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: 14px; font-family: 'Raleway', sans-serif;
+            color: var(--text); transition: border-color 0.2s; background: #fff;
+        }
+        .form-group-d .form-control:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,111,196,0.1); }
+
+        /* ===== ALERTS ===== */
+        .alert-dinari {
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 18px;
+            font-size: 13px; display: flex; align-items: center; gap: 10px;
+        }
+        .alert-dinari i { font-size: 17px; }
+        .alert-success-d { background: rgba(39,174,96,0.1);  color: #27ae60; border: 1px solid rgba(39,174,96,0.2); }
+        .alert-danger-d  { background: rgba(231,76,60,0.1);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
+
+        /* ===== FOOTER ===== */
+        .admin-footer {
+            background: #fff; border-top: 1px solid var(--border);
+            padding: 14px 28px; text-align: center;
+            font-size: 12px; color: var(--muted);
+        }
+        .admin-footer a { color: var(--blue); text-decoration: none; }
+
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+        @media (max-width: 900px) { .quick-actions { grid-template-columns: repeat(2,1fr); } }
+        .qa-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; padding: 20px 12px; border-radius: 10px;
+            border: 1.5px dashed var(--border); text-decoration: none;
+            color: var(--text); font-size: 12px; font-weight: 600;
+            transition: all 0.2s; text-align: center;
+        }
+        .qa-item:hover { border-color: var(--blue); background: rgba(26,111,196,0.04); color: var(--blue); transform: translateY(-2px); }
+        .qa-item i { font-size: 24px; color: var(--blue); }
+
+        /* ===== TWO-COL ===== */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* ===== PILL LIST ===== */
+        .pill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; border-radius: 20px;
+            background: rgba(26,111,196,0.07); color: var(--blue);
+            font-size: 12px; font-weight: 600;
+        }
+        .pill i { font-size: 13px; }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+{# ===== SIDEBAR ===== #}
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-row">
+            <div class="sidebar-logo-icon">D</div>
+            <span class="sidebar-logo-name">Dinari</span>
+        </div>
+        <div class="sidebar-logo-sub">Panneau Admin</div>
+    </div>
+
+    <div class="sidebar-section">Tableau de bord</div>
+    <ul class="sidebar-nav">
+        <li>
+            <a href="{{ path('admin_index') }}"
+               class="{{ app.request.get('_route') == 'admin_index' ? 'active' : '' }}">
+                <i class="ri-dashboard-line"></i> Dashboard
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-section">Gestion</div>
+    <ul class="sidebar-nav">
+        <li>
+            <a href="{{ path('admin_categorie_index') }}"
+               class="{{ app.request.get('_route') starts with 'admin_categorie' ? 'active' : '' }}">
+                <i class="ri-price-tag-3-line"></i> Catégories
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('admin_mode_paiement_index') }}"
+               class="{{ app.request.get('_route') starts with 'admin_mode_paiement' ? 'active' : '' }}">
+                <i class="ri-bank-card-line"></i> Modes Paiement
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('admin_historique_index') }}"
+               class="{{ app.request.get('_route') starts with 'admin_historique' ? 'active' : '' }}">
+                <i class="ri-history-line"></i> Historique
+            </a>
+        </li>
+        <li>
+         <a href="{{ path('admin_ai_model') }}"
+   class="{{ app.request.get('_route') starts with 'admin_ai' ? 'active' : '' }}">
+    <i class="ri-robot-line"></i> Re-train AI Model
+    </a>
+    </li>
+    </ul>
+
+    <div class="sidebar-section">Autres modules</div>
+    <ul class="sidebar-nav">
+        <li><a href="#"><i class="ri-pie-chart-2-line"></i> Budgets</a></li>
+        <li><a href="#"><i class="ri-shopping-cart-line"></i> Dépenses</a></li>
+        <li><a href="#"><i class="ri-team-line"></i> Utilisateurs</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <a href="{{ path('app_home') }}">
+            <i class="ri-global-line"></i> Voir le site
+        </a>
+    </div>
+
+    <div class="sidebar-status">
+        <span class="dot"></span> Opérationnel &nbsp; v1.0
+    </div>
+</aside>
+
+{# ===== TOPBAR ===== #}
+<header class="topbar">
+    <div class="topbar-left">
+        <span class="topbar-title">{% block topbar_title %}Dashboard{% endblock %}</span>
+        <span class="topbar-sub">{% block topbar_sub %}Vue d'ensemble{% endblock %}</span>
+    </div>
+    <div class="topbar-right">
+        <a href="#" class="topbar-icon-btn">
+            <i class="ri-notification-3-line"></i>
+            <span class="topbar-notif-dot"></span>
+        </a>
+        <div class="topbar-avatar">AD</div>
+        <div class="topbar-user">
+            <span class="topbar-user-name">Admin</span>
+            <span class="topbar-user-role">Administrateur</span>
+        </div>
+    </div>
+</header>
+
+{# ===== MAIN ===== #}
+<div class="main-wrapper">
+    <div class="main-content">
+
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert-dinari {{ type == 'success' ? 'alert-success-d' : 'alert-danger-d' }}">
+                    <i class="ri-{{ type == 'success' ? 'checkbox-circle-line' : 'error-warning-line' }}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% block body %}{% endblock %}
+    </div>
+
+    <footer class="admin-footer">
+        &copy; {{ "now"|date("Y") }} <strong style="color:var(--blue);">Dinari</strong> Admin
+        &nbsp;·&nbsp;
+        <a href="{{ path('app_home') }}">← Retour au site public</a>
+    </footer>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="{{ asset('js/vendor/bootstrap.min.js') }}"></script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

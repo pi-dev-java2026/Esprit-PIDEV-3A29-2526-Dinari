@@ -1,0 +1,405 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Justificatifs — Dépense #{{ depense.id }} — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── PAGE ── */
+body {
+    background: linear-gradient(145deg, #eaf2ff 0%, #f0f6ff 35%, #e8f4fd 65%, #f5f8ff 100%) !important;
+    min-height: 100vh;
+}
+.page-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 100px 30px 60px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 32px; }
+.breadcrumb  { font-size: 12.5px; color: #64748b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.breadcrumb a { color: #1a6fc4; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+.breadcrumb a:hover { color: #1558a0; text-decoration: underline; }
+.page-title  { font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #1e293b; letter-spacing: -0.3px; margin: 0; }
+.page-title span { color: #1a6fc4; }
+
+/* ── DEPENSE SUMMARY BANNER ── */
+.depense-summary {
+    background: linear-gradient(135deg, #1a6fc4 0%, #1558a0 60%, #0f4080 100%);
+    border-radius: 20px;
+    padding: 24px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: 0 10px 36px rgba(26,111,196,0.28);
+    position: relative;
+    overflow: hidden;
+}
+.depense-summary::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+.depense-summary-info { color: #fff; }
+.depense-summary-info .label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 5px;
+}
+.depense-summary-info .value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+.depense-summary-info .sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 5px;
+}
+
+/* Add justif button inside banner */
+.btn-add-justif {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    text-decoration: none;
+    transition: all 0.25s;
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+}
+.btn-add-justif:hover {
+    background: rgba(255,255,255,0.28);
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
+    border-color: rgba(255,255,255,0.55);
+}
+
+/* ── FLASH ── */
+.flash { padding: 13px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+.flash-success { background: rgba(39,174,96,0.08); border: 1px solid rgba(39,174,96,0.25); color: #166534; }
+.flash-error   { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #991b1b; }
+
+/* ── TABLE CARD ── */
+.table-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 28px rgba(26,111,196,0.08);
+}
+.table-card-header {
+    padding: 18px 26px;
+    border-bottom: 1px solid rgba(226,232,240,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(241,245,249,0.5);
+}
+.table-card-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.table-card-header h3 i { color: #1a6fc4; }
+
+.count-badge {
+    background: linear-gradient(135deg, #1a6fc4, #2563eb);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px rgba(26,111,196,0.25);
+}
+
+/* ── TABLE ── */
+table { width: 100%; border-collapse: collapse; }
+thead th {
+    padding: 13px 18px;
+    text-align: left;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    background: rgba(241,245,249,0.6);
+    border-bottom: 1px solid rgba(226,232,240,0.8);
+}
+tbody tr { border-bottom: 1px solid rgba(241,245,249,0.9); transition: background 0.18s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(26,111,196,0.025); }
+tbody td { padding: 14px 18px; font-family: 'Poppins', sans-serif; font-size: 13.5px; color: #1e293b; vertical-align: middle; }
+
+/* ── FILE CELL ── */
+.file-cell { display: flex; align-items: center; gap: 12px; }
+.file-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+}
+.file-icon.pdf   { background: rgba(239,68,68,0.1);  color: #dc2626; }
+.file-icon.image { background: rgba(26,111,196,0.1); color: #1a6fc4; }
+.file-name { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px; color: #1e293b; }
+.file-size { font-family: 'Poppins', sans-serif; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+/* ── TYPE BADGE ── */
+.badge-type {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.badge-type.pdf  { background: rgba(239,68,68,0.1);  color: #dc2626; }
+.badge-type.png,
+.badge-type.jpg,
+.badge-type.jpeg { background: rgba(26,111,196,0.1); color: #1a6fc4; }
+
+/* ── DOWNLOAD BUTTON ── */
+.btn-dl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a6fc4;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1.5px solid rgba(26,111,196,0.2);
+    border-radius: 8px;
+    transition: all 0.22s;
+}
+.btn-dl:hover {
+    background: #1a6fc4;
+    color: #fff;
+    border-color: #1a6fc4;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26,111,196,0.25);
+}
+
+/* ── ACTION BUTTONS ── */
+.actions { display: flex; gap: 6px; align-items: center; }
+.btn-action {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.22s ease;
+    border: none; cursor: pointer;
+}
+.btn-edit   { background: rgba(245,158,11,0.1); color: #d97706; }
+.btn-delete { background: rgba(239,68,68,0.1);  color: #dc2626; }
+.btn-edit:hover   { background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; transform: scale(1.08); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+.btn-delete:hover { background: linear-gradient(135deg,#ef4444,#dc2626); color: #fff; transform: scale(1.08); box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+.empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.22; display: block; }
+.empty-state p { font-family: 'Poppins', sans-serif; font-size: 14.5px; margin-bottom: 20px; }
+
+/* Empty state add button */
+.empty-state .btn-add-justif {
+    background: linear-gradient(135deg, #2563eb 0%, #1a6fc4 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 5px 16px rgba(26,111,196,0.3);
+    display: inline-flex;
+}
+.empty-state .btn-add-justif:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1558a0 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(26,111,196,0.4);
+}
+
+/* ── FOOTER ── */
+.page-footer { margin-top: 24px; }
+.btn-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; font-weight: 500;
+    text-decoration: none;
+    transition: all 0.22s;
+}
+.btn-back:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    text-decoration: none;
+    border-color: #cbd5e1;
+}
+
+@media(max-width: 768px) {
+    .depense-summary { flex-direction: column; }
+    thead th, tbody td { padding: 10px 12px; font-size: 12.5px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+
+    {# Flash messages #}
+    {% for msg in app.flashes('success') %}
+        <div class="flash flash-success"><i class="fa fa-check-circle"></i> {{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="flash flash-error"><i class="fa fa-exclamation-circle"></i> {{ msg }}</div>
+    {% endfor %}
+
+    {# En-tête #}
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ path('depense_index') }}">Dépenses</a> ›
+            <a href="{{ path('depense_show', {id: depense.id}) }}">Dépense #{{ depense.id }}</a> ›
+            Justificatifs
+        </div>
+        <h1 class="page-title">Justificatifs de la <span>dépense</span></h1>
+    </div>
+
+    {# Résumé dépense #}
+    <div class="depense-summary">
+        <div class="depense-summary-info">
+            <div class="label">Dépense #{{ depense.id }}</div>
+            <div class="value">{{ depense.montant|number_format(0, ',', ' ') }} DT</div>
+            <div class="sub">
+                <i class="fa fa-calendar"></i> {{ depense.dateDepense|date('d/m/Y') }}
+                &nbsp;·&nbsp;
+                <i class="fa fa-tag"></i> {{ depense.categorie }}
+                &nbsp;·&nbsp;
+                {{ depense.description ?: 'Sans description' }}
+            </div>
+        </div>
+        <a href="{{ path('justificatif_new', {id: depense.id}) }}" class="btn-add-justif">
+            <i class="fa fa-plus"></i> Ajouter un justificatif
+        </a>
+    </div>
+
+    {# Table justificatifs #}
+    <div class="table-card">
+        <div class="table-card-header">
+            <h3><i class="fa fa-paperclip" style="color:var(--d-blue);margin-right:8px;"></i>Liste des justificatifs</h3>
+            <span class="count-badge">{{ justificatifs|length }} fichier{{ justificatifs|length > 1 ? 's' : '' }}</span>
+        </div>
+
+        {% if justificatifs is empty %}
+            <div class="empty-state">
+                <i class="fa fa-folder-open-o"></i>
+                <p>Aucun justificatif pour cette dépense.</p>
+                <a href="{{ path('justificatif_new', {id: depense.id}) }}" class="btn-add-justif" style="background:var(--d-blue);color:#fff;display:inline-flex;">
+                    <i class="fa fa-plus"></i> Ajouter le premier justificatif
+                </a>
+            </div>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Fichier</th>
+                        <th>Type</th>
+                        <th>Date d'ajout</th>
+                        <th>Télécharger</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for j in justificatifs %}
+                    <tr>
+                        <td style="color:var(--d-muted);font-size:12px;">{{ j.id }}</td>
+                        <td>
+                            <div class="file-cell">
+                                <div class="file-icon {{ j.typefichier == 'pdf' ? 'pdf' : 'image' }}">
+                                    {% if j.typefichier == 'pdf' %}
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    {% else %}
+                                        <i class="fa fa-file-image-o"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="file-name">{{ j.filepath|split('/')|last }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-type {{ j.typefichier }}">{{ j.typefichier|upper }}</span>
+                        </td>
+                        <td>{{ j.dateajout|date('d/m/Y') }}</td>
+                        <td>
+                            <a href="{{ asset(j.filepath) }}" target="_blank" class="btn-dl">
+                                <i class="fa fa-download"></i> Ouvrir
+                            </a>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ path('justificatif_edit', {id: j.id}) }}"
+                                   class="btn-action btn-edit" title="Modifier">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                                <form method="post" action="{{ path('justificatif_delete', {id: j.id}) }}"
+                                      onsubmit="return confirm('Supprimer ce justificatif ?');" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_justif' ~ j.id) }}">
+                                    <button type="submit" class="btn-action btn-delete" title="Supprimer">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    {# Retour #}
+    <div class="page-footer">
+        <a href="{{ path('depense_index') }}" class="btn-back">
+            <i class="fa fa-arrow-left"></i> Retour aux dépenses
+        </a>
+    </div>
+
+</div>
+{% endblock %}

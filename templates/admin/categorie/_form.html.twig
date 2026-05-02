@@ -1,0 +1,26 @@
+{{ form_start(form) }}
+
+<div class="form-card">
+
+    <div class="form-group">
+        <label>Nom de la catégorie</label>
+        {{ form_widget(form.label, {
+            attr: {
+                class: 'form-control'
+            }
+        }) }}
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ path('admin_categorie_index') }}" class="btn-cancel">
+            Annuler
+        </a>
+
+        <button type="submit" class="btn-submit btn-add">
+            {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+
+</div>
+
+{{ form_end(form) }}

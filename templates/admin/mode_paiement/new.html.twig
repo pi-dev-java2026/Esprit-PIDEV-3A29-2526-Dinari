@@ -1,0 +1,61 @@
+{# ── Sauvegarde sous templates/admin/mode_paiement/new.html.twig ── #}
+{% extends 'admin/layout.html.twig' %}
+{% block title %}Nouveau mode de paiement — Admin{% endblock %}
+{% block stylesheets %}
+<style>
+.admin-wrapper { max-width: 500px; margin: 0 auto; padding: 100px 30px 60px; }
+.breadcrumb { font-size: 13px; color: var(--d-muted); margin-bottom: 8px; }
+.breadcrumb a { color: var(--d-blue); text-decoration: none; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: var(--d-text); margin-bottom: 28px; }
+.page-title span { color: var(--d-blue); }
+.flash { padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
+.flash-error { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #c0392b; }
+.form-card { background: #fff; border: 1px solid var(--d-border); border-radius: 8px; padding: 32px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--d-text); margin-bottom: 6px; }
+.form-control { width: 100%; padding: 11px 14px; border: 1.5px solid var(--d-border); border-radius: 6px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--d-text); outline: none; transition: border-color 0.2s; }
+.form-control:focus { border-color: var(--d-blue); }
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--d-border); }
+.btn-submit { padding: 11px 26px; background: var(--d-blue); color: #fff; border: none; border-radius: 4px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.25s; }
+.btn-submit:hover { background: var(--d-blue2); transform: translateY(-2px); }
+.btn-cancel { padding: 11px 20px; background: var(--d-light); color: var(--d-text); border: 1.5px solid var(--d-border); border-radius: 4px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.2s; }
+.btn-cancel:hover { background: var(--d-border); color: var(--d-text); text-decoration: none; }
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    background: #27ae60; /* vert */
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.25);
+}
+
+.btn-add:hover {
+    background: #219150;
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.35);
+}
+</style>
+{% endblock %}
+{% block body %}
+<div class="admin-wrapper">
+    {% for msg in app.flashes('error') %}
+        <div class="flash flash-error"><i class="fa fa-exclamation-circle"></i> {{ msg }}</div>
+    {% endfor %}
+    <div class="breadcrumb"><a href="{{ path('admin_mode_paiement_index') }}">Modes de paiement</a> › Nouveau</div>
+    <h1 class="page-title">Nouveau <span>mode de paiement</span></h1>
+    <div class="form-card">
+       {{ include('admin/mode_paiement/_form.html.twig', {
+        form: form,
+        button_label: 'Créer'
+    }) }}
+    </div>
+</div>
+{% endblock %}
