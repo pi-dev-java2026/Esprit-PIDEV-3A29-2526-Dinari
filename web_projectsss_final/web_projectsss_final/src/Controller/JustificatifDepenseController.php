@@ -169,7 +169,7 @@ class JustificatifDepenseController extends AbstractController
 
             $this->addFlash('success', 'Justificatif supprimé.');
         }
-
+        //reponse 
         return $this->redirectToRoute('justificatif_list', [
             'id' => $depenseId
         ]);
