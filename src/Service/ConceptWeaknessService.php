@@ -57,8 +57,8 @@ class ConceptWeaknessService
 
             $progress = $this->progressRepo->findOrCreate($sessionId, $concept);
 
-            $correct = max(0, (int) ($counts['correct'] ?? 0));
-            $wrong   = max(0, (int) ($counts['wrong']   ?? 0));
+            $correct = max(0, (int) $counts['correct']);
+            $wrong   = max(0, (int) $counts['wrong']);
 
             $progress->setCorrectCount($progress->getCorrectCount() + $correct);
             $progress->setWrongCount($progress->getWrongCount() + $wrong);
@@ -68,7 +68,7 @@ class ConceptWeaknessService
                 $progress->setWeakQuizStreak($progress->getWeakQuizStreak() + 1);
             }
 
-            $progress->setLastUpdated(new \DateTime());
+            // lastUpdated is refreshed automatically via #[ORM\PreUpdate]
 
             // Reclassify
             $this->classify($progress);

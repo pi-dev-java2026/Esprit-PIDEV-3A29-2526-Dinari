@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(columns: ["session_id"], name: "idx_ucp_session")]
 #[ORM\Index(columns: ["session_id", "concept"], name: "idx_ucp_session_concept")]
 #[ORM\UniqueConstraint(name: "uniq_session_concept", columns: ["session_id", "concept"])]
+#[ORM\HasLifecycleCallbacks]
 class UserConceptProgress
 {
     /** Classification levels */
@@ -64,13 +65,30 @@ class UserConceptProgress
     #[ORM\Column(name: "is_repeated_weakness", type: "boolean")]
     private bool $isRepeatedWeakness = false;
 
+    /** Set on insert and refreshed automatically on every update — never set manually. */
     #[ORM\Column(name: "last_updated", type: "datetime")]
-    private \DateTimeInterface $lastUpdated;
+    private \DateTime $lastUpdated;
 
     public function __construct()
     {
         $this->lastUpdated = new \DateTime();
     }
+
+    // ── Lifecycle callbacks ───────────────────────────────────────────────────
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->lastUpdated = new \DateTime();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->lastUpdated = new \DateTime();
+    }
+
+    // ── Getters / setters ─────────────────────────────────────────────────────
 
     public function getId(): ?int { return $this->id; }
 
@@ -78,7 +96,7 @@ class UserConceptProgress
     public function setSessionId(string $v): static { $this->sessionId = $v; return $this; }
 
     public function getConcept(): string { return $this->concept; }
-    public function setConcept(string $v): static { $this->concept = $v; return $this; }
+    public function setConcept(string $v): static { $this->concept = strtolower(trim($v)); return $this; }
 
     public function getCorrectCount(): int { return $this->correctCount; }
     public function setCorrectCount(int $v): static { $this->correctCount = $v; return $this; }
@@ -95,8 +113,10 @@ class UserConceptProgress
     public function isRepeatedWeakness(): bool { return $this->isRepeatedWeakness; }
     public function setIsRepeatedWeakness(bool $v): static { $this->isRepeatedWeakness = $v; return $this; }
 
-    public function getLastUpdated(): \DateTimeInterface { return $this->lastUpdated; }
-    public function setLastUpdated(\DateTimeInterface $v): static { $this->lastUpdated = $v; return $this; }
+    /** Read-only — managed automatically by Doctrine lifecycle callbacks. */
+    public function getLastUpdated(): \DateTime { return $this->lastUpdated; }
+
+    // ── Business logic ────────────────────────────────────────────────────────
 
     /** Total answers attempted for this concept */
     public function getTotalCount(): int

@@ -47,6 +47,8 @@ class QuizResultat
      * Per-concept answer breakdown for this attempt, stored as JSON.
      * Format: {"budget": {"correct": 2, "wrong": 1}, "epargne": {"correct": 0, "wrong": 3}}
      * Populated when the quiz submission includes per-question concept data.
+     *
+     * @var array<string, array{correct: int, wrong: int}>|null
      */
     #[ORM\Column(name: "concept_answers", type: "json", nullable: true)]
     private ?array $conceptAnswers = null;
@@ -78,7 +80,9 @@ class QuizResultat
     /** @return array<string, array{correct: int, wrong: int}>|null */
     public function getConceptAnswers(): ?array { return $this->conceptAnswers; }
 
-    /** @param array<string, array{correct: int, wrong: int}>|null $v */
+    /**
+     * @param array<string, array{correct: int, wrong: int}>|null $v
+     */
     public function setConceptAnswers(?array $v): static { $this->conceptAnswers = $v; return $this; }
 
     /** Returns score as a percentage (0–100) */
