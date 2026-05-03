@@ -7,13 +7,13 @@ use App\Entity\Conversations;
 use App\Repository\MessagesRepository;
 
 #[ORM\Entity(repositoryClass: MessagesRepository::class)]
-#[ORM\Table(name: 'messages')]
+#[ORM\Table(name: 'message')]
 class Messages
 {
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
         #[ORM\ManyToOne(targetEntity: Conversations::class, inversedBy: "messagess")]
@@ -69,8 +69,5 @@ class Messages
         return $this->date_message;
     }
 
-    public function setDate_message($value)
-    {
-        $this->date_message = $value;
-    }
+  
 }

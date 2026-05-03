@@ -35,3 +35,8 @@ services:
         arguments:
             $secretKey: '%env(RECAPTCHA_SECRET_KEY)%'
 
+    # Service de classification ML — injecte le répertoire racine du projet
+    App\Service\ReclamationClassifierService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+

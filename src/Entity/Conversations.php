@@ -9,13 +9,13 @@ use App\Entity\Messages;
 use App\Repository\ConversationsRepository;
 
 #[ORM\Entity(repositoryClass: ConversationsRepository::class)]
-#[ORM\Table(name: 'conversations')]
+#[ORM\Table(name: 'conversation')]
 class Conversations
 {
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 100)]
@@ -50,12 +50,8 @@ class Conversations
         return $this->date_creation;
     }
 
-    public function setDate_creation($value)
-    {
-        $this->date_creation = $value;
-    }
 
-    #[ORM\OneToMany(mappedBy: "conversation_id", targetEntity: Messages::class)]
+    #[ORM\OneToMany(mappedBy: "conversation_id", targetEntity: Messages::class, cascade: ['persist', 'remove'])]
     private Collection $messagess;
 
         public function getMessagess(): Collection

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Reclamation;
 use App\Form\ReclamationType;
 use App\Repository\ReclamationRepository;
+use App\Service\ReclamationClassifierService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -135,5 +136,101 @@ class ReclamationController extends AbstractController
             $this->addFlash('success', 'Réclamation supprimée.');
         }
         return $this->redirectToRoute('app_reclamation_index');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ADMIN — Réponse groupée par type (ML)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /** Affiche la page de gestion ML */
+    #[Route('/admin/bulk', name: 'admin_bulk', methods: ['GET'])]
+    public function adminBulk(): Response
+    {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('reclamation/admin_bulk_response.html.twig', [
+            'predicted_type' => null,
+            'confidence'     => null,
+            'all_scores'     => [],
+            'reclamations'   => [],
+            'search_text'    => '',
+            'ml_error'       => null,
+        ]);
+    }
+
+    /** Classifie le texte via ML et retourne les réclamations du type prédit */
+    #[Route('/admin/bulk/search', name: 'admin_bulk_search', methods: ['POST'])]
+    public function adminBulkSearch(
+        Request $request,
+        ReclamationRepository $repo,
+        ReclamationClassifierService $classifier
+    ): Response {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $searchText = trim((string) $request->request->get('search_text', ''));
+
+        if (empty($searchText)) {
+            $this->addFlash('error', 'Veuillez saisir un texte pour la classification ML.');
+            return $this->redirectToRoute('app_reclamation_admin_bulk');
+        }
+
+        // ── Appel au modèle ML ──────────────────────────────────────────────
+        $mlResult = $classifier->classify($searchText);
+
+        $predictedType = $mlResult['type'];
+        $confidence    = $mlResult['confidence'];
+        $allScores     = $mlResult['all_scores'];
+        $mlError       = $mlResult['error'];
+
+        $reclamations = [];
+        if (!$mlError && $predictedType !== 'Inconnu') {
+            $reclamations = $repo->findByType($predictedType);
+        }
+
+        return $this->render('reclamation/admin_bulk_response.html.twig', [
+            'predicted_type' => $predictedType,
+            'confidence'     => $confidence,
+            'all_scores'     => $allScores,
+            'reclamations'   => $reclamations,
+            'search_text'    => $searchText,
+            'ml_error'       => $mlError,
+        ]);
+    }
+
+    /** Envoie une réponse unique à toutes les réclamations du type prédit */
+    #[Route('/admin/bulk/send', name: 'admin_bulk_send', methods: ['POST'])]
+    public function adminBulkSend(
+        Request $request,
+        ReclamationRepository $repo,
+        EntityManagerInterface $em
+    ): Response {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $type    = trim((string) $request->request->get('type', ''));
+        $reponse = trim((string) $request->request->get('reponse', ''));
+
+        if (empty($type) || empty($reponse)) {
+            $this->addFlash('error', 'Le type et la réponse sont obligatoires.');
+            return $this->redirectToRoute('app_reclamation_admin_bulk');
+        }
+
+        // ── Mise à jour groupée via DQL ──────────────────────────────────────
+        $affected = $repo->updateReclamationsByType($type, $reponse);
+
+        if ($affected > 0) {
+            $this->addFlash('success',
+                "✅ Réponse envoyée avec succès à {$affected} réclamation(s) de type « {$type} » — statut mis à jour : Traitée."
+            );
+        } else {
+            $this->addFlash('error', "Aucune réclamation de type « {$type} » n'a été trouvée ou modifiée.");
+        }
+
+        return $this->redirectToRoute('app_reclamation_admin_bulk');
     }
 }

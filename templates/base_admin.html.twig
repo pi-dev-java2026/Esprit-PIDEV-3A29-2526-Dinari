@@ -165,8 +165,18 @@
         <div class="nav-divider"></div>
         <div class="nav-section-lbl">Utilisateurs</div>
 
-        <a href="{{ path('app_reclamation_index') }}" class="sidebar-link {{ app.request.attributes.get('_route') starts with 'app_reclamation' ? 'active' : '' }}">
+        <a href="{{ path('app_reclamation_index') }}" class="sidebar-link {{ app.request.attributes.get('_route') in ['app_reclamation_index','app_reclamation_new','app_reclamation_show','app_reclamation_edit'] ? 'active' : '' }}">
             <i class="ri-chat-3-line"></i> Réclamations
+        </a>
+        <a href="{{ path('app_reclamation_admin_bulk') }}" class="sidebar-link {{ app.request.attributes.get('_route') starts with 'app_reclamation_admin_bulk' ? 'active' : '' }}" style="position:relative;">
+            <i class="ri-robot-line"></i> Réponse groupée IA
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;font-size:8px;font-weight:800;padding:1px 6px;border-radius:10px;letter-spacing:0.3px;">ML</span>
+        </a>
+        <a href="{{ path('app_ml_predict_interface') }}" class="sidebar-link {{ app.request.attributes.get('_route') == 'app_ml_predict_interface' ? 'active' : '' }}">
+            <i class="ri-pulse-line"></i> Prédiction IA
+        </a>
+        <a href="{{ path('app_nlp_assistant') }}" class="sidebar-link {{ app.request.attributes.get('_route') == 'app_nlp_assistant' ? 'active' : '' }}">
+            <i class="ri-brain-line"></i> Assistant IA (NLP)
         </a>
         <a href="{{ path('app_user_index') }}" class="sidebar-link {{ app.request.attributes.get('_route') starts with 'app_user' ? 'active' : '' }}">
             <i class="ri-team-line"></i> Utilisateurs

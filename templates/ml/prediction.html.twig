@@ -1,0 +1,371 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Admin — Prédiction IA{% endblock %}
+{% block page_title %}Prédiction du temps de résolution (IA){% endblock %}
+
+{% block stylesheets %}
+<style>
+    .ml-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .ml-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .ml-header h1 {
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--blue), var(--indigo));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+    }
+    
+    .ml-header p {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .ml-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        border-radius: 20px;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Decorative glass orbs */
+    .ml-card::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    
+    .ml-card::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: -50px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(79,70,229,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+        letter-spacing: 0.3px;
+    }
+
+    .custom-select-wrapper {
+        position: relative;
+    }
+
+    .custom-select-wrapper i {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted2);
+        pointer-events: none;
+        font-size: 18px;
+    }
+
+    .custom-select {
+        width: 100%;
+        appearance: none;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 44px 14px 16px;
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--text);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .custom-select:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .custom-select:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+    }
+
+    .ml-btn-submit {
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--blue), var(--indigo));
+        color: white;
+        font-weight: 700;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 6px 20px rgba(37,99,235,0.3);
+        transition: all 0.3s ease;
+        margin-top: 32px;
+    }
+
+    .ml-btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(37,99,235,0.4);
+    }
+
+    .ml-btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .ml-btn-submit.loading i {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .result-widget {
+        margin-top: 32px;
+        padding: 24px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 30px rgba(16,185,129,0.3);
+        animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .result-widget.error-mode {
+         background: linear-gradient(135deg, #EF4444, #DC2626);
+         box-shadow: 0 10px 30px rgba(239,68,68,0.3);
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .result-title {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.9;
+    }
+
+    .result-value {
+        font-size: 32px;
+        font-weight: 800;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .result-value span {
+        font-size: 16px;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    .result-icon {
+        width: 56px;
+        height: 56px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ml-container">
+    <div class="ml-header">
+        <h1>Intelligence Artificielle</h1>
+        <p>Estimez précisément le temps de résolution d'une réclamation en fonction de ses paramètres.</p>
+    </div>
+
+    <div class="ml-card">
+        <form id="ml-form">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Type de problème</label>
+                        <div class="custom-select-wrapper">
+                            <select id="ml-type" class="custom-select" required>
+                                <option value="" disabled selected>Sélectionnez un type</option>
+                                <option value="Paiement">Paiement</option>
+                                <option value="Technique">Technique</option>
+                                <option value="Livraison">Livraison</option>
+                                <option value="Service">Service</option>
+                            </select>
+                            <i class="ri-arrow-down-s-line"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Agent assigné</label>
+                        <div class="custom-select-wrapper">
+                            <select id="ml-agent" class="custom-select" required>
+                                <option value="" disabled selected>Sélectionnez un agent</option>
+                                <option value="1">Agent 1</option>
+                                <option value="2">Agent 2</option>
+                                <option value="3">Agent 3</option>
+                                <option value="4">Agent 4</option>
+                                <option value="5">Agent 5</option>
+                            </select>
+                            <i class="ri-arrow-down-s-line"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Priorité</label>
+                        <div class="custom-select-wrapper">
+                            <select id="ml-priorite" class="custom-select" required>
+                                <option value="" disabled selected>Sélectionnez la priorité</option>
+                                <option value="low">Faible</option>
+                                <option value="medium">Moyenne</option>
+                                <option value="high">Haute</option>
+                            </select>
+                            <i class="ri-arrow-down-s-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="ml-btn-submit" id="ml-submit">
+                <i class="ri-flashlight-line"></i>
+                Prédire le temps de résolution
+            </button>
+        </form>
+
+        <div class="result-widget" id="ml-result">
+            <div class="result-content">
+                <div class="result-title" id="ml-result-title">Temps estimé</div>
+                <div class="result-value" id="ml-result-value">-- <span>heures</span></div>
+            </div>
+            <div class="result-icon">
+                <i class="ri-timer-flash-line" id="ml-result-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.getElementById('ml-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('ml-submit');
+    const resultWidget = document.getElementById('ml-result');
+    const resultValue = document.getElementById('ml-result-value');
+    const iconState = btn.querySelector('i');
+    
+    const type = document.getElementById('ml-type').value;
+    const agent = document.getElementById('ml-agent').value;
+    const priorite = document.getElementById('ml-priorite').value;
+
+    if(!type || !agent || !priorite) return;
+
+    // Loading state
+    btn.classList.add('loading');
+    iconState.className = "ri-loader-4-line";
+    resultWidget.style.display = 'none';
+    resultWidget.classList.remove('error-mode');
+
+    fetch('/test-ml-predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            type: type,
+            agent_id: agent,
+            priorite: priorite
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.classList.remove('loading');
+        iconState.className = "ri-flashlight-line";
+        
+        resultWidget.style.display = 'flex';
+        
+        if(data.success && data.estimated_resolution_time_hours) {
+            document.getElementById('ml-result-title').innerText = "Temps de résolution estimé";
+            document.getElementById('ml-result-icon').className = "ri-timer-flash-line";
+            
+            // Format number to 1 decimal
+            const hours = parseFloat(data.estimated_resolution_time_hours).toFixed(1);
+            resultValue.innerHTML = `${hours} <span>heures</span>`;
+        } else {
+            // Error handling
+            resultWidget.classList.add('error-mode');
+            document.getElementById('ml-result-title').innerText = "Erreur de l'API ML";
+            document.getElementById('ml-result-icon').className = "ri-error-warning-line";
+            resultValue.innerHTML = `N/A <span>vérifiez le serveur Flask</span>`;
+        }
+    })
+    .catch(error => {
+        btn.classList.remove('loading');
+        iconState.className = "ri-flashlight-line";
+        
+        resultWidget.style.display = 'flex';
+        resultWidget.classList.add('error-mode');
+        document.getElementById('ml-result-title').innerText = "Erreur Serveur";
+        document.getElementById('ml-result-icon').className = "ri-cloud-off-line";
+        resultValue.innerHTML = `Erreur <span>Impossible de joindre Flask</span>`;
+        console.error('Error:', error);
+    });
+});
+</script>
+{% endblock %}
