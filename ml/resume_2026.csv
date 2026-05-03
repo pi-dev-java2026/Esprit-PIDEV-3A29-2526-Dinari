@@ -1,0 +1,14 @@
+abonnement_id,nom,categorie,tier,prix,nb_ventes_predit,rang
+1,Spotify Personal,musique,Normal,9.99,235,1
+12,Duolingo Plus,education,Normal,6.99,176,2
+2,Spotify Famille,musique,Gold,16.99,146,3
+9,NordVPN,securite,Normal,7.99,144,4
+11,Disney+,streaming,Normal,8.99,141,5
+3,Netflix Standard,streaming,Silver,14.99,129,6
+7,Xbox Game Pass,gaming,Silver,11.99,123,7
+6,Office 365 Famille,productivite,Gold,22.99,120,8
+13,YouTube Premium,streaming,Silver,13.99,83,9
+4,Netflix Premium,streaming,Gold,19.99,72,10
+5,Office 365 Solo,productivite,Normal,12.99,48,11
+10,Adobe Creative,productivite,Platinum,54.99,36,12
+8,Coursera Plus,education,Platinum,49.99,24,13

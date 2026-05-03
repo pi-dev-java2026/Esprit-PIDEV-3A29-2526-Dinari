@@ -1,0 +1,30 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\StripeService:
+        arguments:
+            $secretKey: '%env(STRIPE_SECRET_KEY)%'
+
+    App\Service\OtpService:
+        arguments:
+            $resendApiKey: '%env(RESEND_API_KEY)%'
+
+    App\Controller\Client\RdvController:
+        arguments:
+            $resendApiKey: '%env(RESEND_API_KEY)%'
+
+    # Nouveau service pour l'audio local (Whisper + Piper)
+    App\Service\LocalAudioService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

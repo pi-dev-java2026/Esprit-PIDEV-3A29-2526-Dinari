@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: DejaVu Sans, Arial, sans-serif;
+    font-size: 12px;
+    color: #1a1a2e;
+    background: #fff;
+  }
+
+  /* ── PAGE LAYOUT ─────────────────────────────── */
+  .page { width: 100%; }
+
+  /* ── HEADER ──────────────────────────────────── */
+  .header {
+    background: #1a1a2e;
+    padding: 28px 36px 0 36px;
+    position: relative;
+  }
+  .header-top {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .header-top td { vertical-align: middle; }
+
+  .logo-circle {
+    width: 42px; height: 42px;
+    background: #27ae60;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 42px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    display: inline-block;
+  }
+  .logo-name {
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 2px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .logo-sub {
+    font-size: 9px;
+    color: #adb5bd;
+    display: block;
+    margin-left: 52px;
+    margin-top: -2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .facture-title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #fff;
+    text-align: right;
+    letter-spacing: 3px;
+  }
+  .facture-num {
+    font-size: 11px;
+    color: #27ae60;
+    text-align: right;
+    font-weight: 700;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* Infos entreprise + dates */
+  .header-bottom {
+    width: 100%;
+    padding: 16px 0 20px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .header-bottom td { vertical-align: top; }
+  .company-info { font-size: 9px; color: #adb5bd; line-height: 1.8; }
+  .company-info strong { color: #e9ecef; font-size: 10px; }
+
+  .date-label { font-size: 9px; color: #adb5bd; text-align: right; display: block; }
+  .date-value { font-size: 11px; color: #fff; font-weight: 700; text-align: right; display: block; }
+
+  /* Badge statut */
+  .badge-paye {
+    background: #27ae60;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-attente {
+    background: #6c757d;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Barre verte séparatrice */
+  .green-bar {
+    background: #27ae60;
+    height: 4px;
+    width: 100%;
+  }
+
+  /* ── BODY ────────────────────────────────────── */
+  .body { padding: 28px 36px; }
+
+  /* Cartes client / abonnement */
+  .info-table { width: 100%; margin-bottom: 24px; }
+  .info-table td { vertical-align: top; width: 50%; }
+
+  .info-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .info-card-title {
+    font-size: 8px;
+    font-weight: 900;
+    color: #16213e;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #27ae60;
+  }
+  .info-card p {
+    font-size: 10px;
+    color: #6c757d;
+    line-height: 1.9;
+    margin: 0;
+  }
+  .info-card strong {
+    color: #1a1a2e;
+    font-size: 12px;
+  }
+
+  /* ── TABLEAU ─────────────────────────────────── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #27ae60;
+    display: inline-block;
+  }
+
+  .invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  .invoice-table thead tr {
+    background: #16213e;
+  }
+  .invoice-table thead th {
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  .invoice-table thead th.right { text-align: right; }
+
+  .invoice-table tbody tr {
+    background: #f0f7f4;
+    border-left: 3px solid #27ae60;
+  }
+  .invoice-table tbody td {
+    padding: 12px 12px;
+    font-size: 11px;
+    color: #1a1a2e;
+    border-bottom: 1px solid #dee2e6;
+  }
+  .invoice-table tbody td.right { text-align: right; font-weight: 700; }
+  .invoice-table tbody td.desc strong {
+    font-size: 12px;
+    color: #1a1a2e;
+    display: block;
+  }
+  .invoice-table tbody td.desc span {
+    font-size: 9px;
+    color: #6c757d;
+  }
+
+  /* Totaux */
+  .totaux-table {
+    width: 260px;
+    margin-left: auto;
+    border-collapse: collapse;
+    margin-bottom: 28px;
+  }
+  .totaux-table tr td {
+    padding: 7px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  .totaux-table tr td:last-child { text-align: right; font-weight: 700; }
+  .totaux-table tr td.label { color: #6c757d; }
+
+  .totaux-table tr.total-ttc td {
+    background: #27ae60;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 10px 12px;
+    border-bottom: none;
+  }
+  .totaux-table tr.total-ttc td:first-child { border-radius: 6px 0 0 6px; }
+  .totaux-table tr.total-ttc td:last-child  { border-radius: 0 6px 6px 0; }
+
+  /* ── CACHET PAYÉ ─────────────────────────────── */
+  .stamp-wrapper {
+    position: relative;
+    height: 0;
+  }
+  .stamp {
+    position: absolute;
+    right: 36px;
+    top: -110px;
+    width: 110px;
+    height: 110px;
+    border: 4px solid #27ae60;
+    border-radius: 50%;
+    text-align: center;
+    transform: rotate(-20deg);
+    /* Dompdf ne supporte pas transform — on utilise l'angle via table */
+  }
+
+  /* Dompdf ne supporte pas transform, on fait un div rotatif via style inline */
+  .stamp-box {
+    border: 3.5px solid #27ae60;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    display: inline-block;
+    padding-top: 22px;
+  }
+  .stamp-inner-ring {
+    border: 1.5px solid #27ae60;
+    border-radius: 50%;
+    width: 86px;
+    height: 86px;
+    margin: 0 auto;
+    padding-top: 14px;
+  }
+  .stamp-text {
+    font-size: 18px;
+    font-weight: 900;
+    color: #27ae60;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .stamp-stars {
+    font-size: 8px;
+    color: #27ae60;
+    margin-top: 2px;
+    letter-spacing: 4px;
+  }
+
+  /* ── NOTES / STRIPE ID ───────────────────────── */
+  .notes-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .notes-box p { font-size: 10px; color: #15803d; line-height: 1.7; margin: 0; }
+  .notes-box strong { font-size: 10px; color: #15803d; }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  .footer {
+    background: #1a1a2e;
+    padding: 18px 36px;
+    text-align: center;
+    border-top: 3px solid #27ae60;
+  }
+  .footer p {
+    font-size: 8px;
+    color: #6c757d;
+    line-height: 2;
+    margin: 0;
+  }
+  .footer strong { color: #adb5bd; }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  {# ══════════════════════════════════════════════ HEADER #}
+  <div class="header">
+    <table class="header-top" cellpadding="0" cellspacing="0">
+      <tr>
+        <td>
+          {# Logo #}
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <div class="logo-circle">D</div>
+              </td>
+              <td style="padding-left:10px;vertical-align:middle;">
+                <span class="logo-name">DINARI</span>
+                <span class="logo-sub">Plateforme de gestion financière</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td style="text-align:right;">
+          <div class="facture-title">FACTURE</div>
+          <div class="facture-num">N° {{ numeroFacture }}</div>
+        </td>
+      </tr>
+    </table>
+
+    <table class="header-bottom" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="width:55%;">
+          <div class="company-info">
+            <strong>Dinari Technologies SARL</strong><br/>
+            123 Avenue Habib Bourguiba, Tunis 1000<br/>
+            Tunisie &nbsp;|&nbsp; RC: B12345678 &nbsp;|&nbsp; MF: 123456A<br/>
+            contact@dinari.tn &nbsp;|&nbsp; +216 71 000 000
+          </div>
+        </td>
+        <td style="text-align:right;vertical-align:middle;">
+          <span class="date-label">Date d'émission</span>
+          <span class="date-value">{{ paiement.datePaiement|date('d/m/Y') }}</span>
+          <br/>
+          <span style="display:inline-block;margin-top:8px;">
+            {% if paiement.statut == 'payé' %}
+              <span class="badge-paye">&#10003; Payé</span>
+            {% else %}
+              <span class="badge-attente">En attente</span>
+            {% endif %}
+          </span>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="green-bar"></div>
+
+  {# ══════════════════════════════════════════════ BODY #}
+  <div class="body">
+
+    {# ── Infos client + abonnement ── #}
+    <table class="info-table" cellpadding="0" cellspacing="8">
+      <tr>
+        <td style="padding-right:12px;">
+          <div class="info-card">
+            <div class="info-card-title">Facturé à</div>
+            <p>
+              <strong>{{ paiement.prenomTitulaire }} {{ paiement.nomTitulaire }}</strong><br/>
+              {% if paiement.modePaiement %}Mode : {{ paiement.modePaiement }}<br/>{% endif %}
+              {% if paiement.numeroCarte %}
+                Carte : &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; {{ paiement.numeroCarte|slice(-4) }}
+              {% endif %}
+            </p>
+          </div>
+        </td>
+        <td style="padding-left:12px;">
+          <div class="info-card">
+            <div class="info-card-title">Détails abonnement</div>
+            <p>
+              <strong>{{ paiement.abonnementId.nom }}</strong><br/>
+              Plan : {{ paiement.abonnementId.tier ?? paiement.abonnementId.typeAbonnement ?? 'Standard' }}<br/>
+              Catégorie : {{ paiement.abonnementId.categorie|capitalize }}<br/>
+              {% if dateFin %}Expiration : {{ dateFin|date('d/m/Y') }}{% endif %}
+            </p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    {# ── Tableau récapitulatif ── #}
+    <div class="section-title">Récapitulatif de la commande</div>
+
+    <table class="invoice-table" cellpadding="0" cellspacing="0">
+      <thead>
+        <tr>
+          <th style="width:42%;">Description</th>
+          <th style="width:22%;">Période</th>
+          <th style="width:10%;text-align:center;">Qté</th>
+          <th style="width:13%;text-align:right;">P.U. HT</th>
+          <th style="width:13%;text-align:right;">Total HT</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set tvaRate = 0.19 %}
+        {% set montantHT = paiement.montant / (1 + tvaRate) %}
+        <tr>
+          <td class="desc">
+            <strong>Abonnement {{ paiement.abonnementId.nom }}</strong>
+            <span>Plan {{ paiement.abonnementId.tier ?? 'Standard' }} · {{ paiement.abonnementId.frequence }}</span>
+          </td>
+          <td style="font-size:10px;color:#6c757d;">
+            {{ paiement.datePaiement|date('d/m/Y') }}<br/>
+            {% if dateFin %}&rarr; {{ dateFin|date('d/m/Y') }}{% endif %}
+          </td>
+          <td style="text-align:center;">1</td>
+          <td class="right">{{ montantHT|number_format(2, '.', ' ') }} DT</td>
+          <td class="right">{{ montantHT|number_format(2, '.', ' ') }} DT</td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# Cachet PAYÉ — positionné à droite avec float #}
+    {% if paiement.statut == 'payé' %}
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:0;">
+      <tr>
+        <td style="vertical-align:bottom;padding-bottom:8px;">
+          {# Espace vide à gauche #}
+        </td>
+        <td style="text-align:right;width:280px;vertical-align:top;padding-right:8px;">
+          {# Cachet rotatif simulé via table imbriquée #}
+          <table cellpadding="0" cellspacing="0" style="margin-left:auto;margin-right:0;">
+            <tr>
+              <td>
+                <div style="
+                  border: 3px solid #27ae60;
+                  border-radius: 50%;
+                  width: 100px;
+                  height: 100px;
+                  text-align: center;
+                  padding-top: 20px;
+                  -webkit-transform: rotate(-20deg);
+                ">
+                  <div style="
+                    border: 1.5px solid #27ae60;
+                    border-radius: 50%;
+                    width: 84px;
+                    height: 84px;
+                    margin: 0 auto;
+                    padding-top: 12px;
+                  ">
+                    <div style="font-size:17px;font-weight:900;color:#27ae60;letter-spacing:2px;">PAYE</div>
+                    <div style="font-size:7px;color:#27ae60;letter-spacing:3px;margin-top:3px;">* * *</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    {% endif %}
+
+    {# Totaux #}
+    {% set tvaRate  = 0.19 %}
+    {% set montantHT = paiement.montant / (1 + tvaRate) %}
+    {% set montantTVA = paiement.montant - montantHT %}
+
+    <table class="totaux-table" cellpadding="0" cellspacing="0">
+      <tr>
+        <td class="label">Sous-total HT</td>
+        <td>{{ montantHT|number_format(2, '.', ' ') }} DT</td>
+      </tr>
+      <tr>
+        <td class="label">TVA (19%)</td>
+        <td>{{ montantTVA|number_format(2, '.', ' ') }} DT</td>
+      </tr>
+      <tr class="total-ttc">
+        <td>TOTAL TTC</td>
+        <td>{{ paiement.montant|number_format(2, '.', ' ') }} DT</td>
+      </tr>
+    </table>
+
+    {# Note Stripe / référence #}
+    <div class="notes-box">
+      <p>
+        <strong>Référence paiement :</strong> #{{ '%06d'|format(paiement.id) }}<br/>
+        {% if paiement.stripeTransactionId %}
+        <strong>Transaction ID :</strong> {{ paiement.stripeTransactionId }}<br/>
+        {% endif %}
+        <strong>Note :</strong> Cette facture est générée automatiquement. Elle constitue un justificatif officiel de votre paiement.
+      </p>
+    </div>
+
+  </div>
+  {# ══════════════════════════════════════════════ END BODY #}
+
+  {# ══════════════════════════════════════════════ FOOTER #}
+  <div class="footer">
+    <p>
+      <strong>Dinari Technologies SARL</strong> &nbsp;|&nbsp; RC B12345678 &nbsp;|&nbsp; MF 123456A/P/M/000<br/>
+      123 Avenue Habib Bourguiba, 1000 Tunis, Tunisie &nbsp;|&nbsp; contact@dinari.tn &nbsp;|&nbsp; +216 71 000 000<br/>
+      Facture émise électroniquement — valide sans signature manuscrite. Délai de contestation : 30 jours.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

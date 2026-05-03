@@ -1,0 +1,698 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Nouvel Abonnement — Admin Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.new-page {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    max-width: 740px;
+    margin: 0 auto;
+    padding-bottom: 60px;
+}
+
+/* ══ NAV ══ */
+.nav-back {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+}
+.nav-back h1 { font-size: 24px; font-weight: 800; color: #0d1f35; margin: 0 0 5px; }
+.nav-back .breadcrumb { font-size: 13px; color: #6b7f96; }
+.nav-back .breadcrumb a { color: #1a6fc4; text-decoration: none; font-weight: 600; }
+.btn-back {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 20px; background: #fff;
+    border: 1.5px solid #d4dbe8; border-radius: 9px;
+    color: #2d4460; font-size: 13px; font-weight: 700;
+    text-decoration: none; transition: all 0.2s;
+}
+.btn-back:hover { border-color: #1a6fc4; color: #1a6fc4; text-decoration: none; }
+
+/* ══ BANNER ══ */
+.service-banner {
+    border-radius: 18px; padding: 22px 26px;
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 28px; position: relative; overflow: hidden;
+}
+.service-banner::before {
+    content: ''; position: absolute; inset: 0;
+    background: inherit; filter: blur(40px) brightness(1.3);
+    transform: scale(1.6); z-index: 0;
+}
+.banner-logo {
+    width: 58px; height: 58px; border-radius: 14px;
+    object-fit: contain; background: rgba(255,255,255,0.25);
+    padding: 5px; position: relative; z-index: 1;
+    border: 2px solid rgba(255,255,255,0.4);
+}
+.logo-fallback-initials {
+    width: 58px; height: 58px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800; color: #fff;
+    background: rgba(255,255,255,0.25); position: relative; z-index: 1;
+    letter-spacing: -1px;
+}
+.banner-content { position: relative; z-index: 1; flex: 1; }
+.banner-name { font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 3px; text-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.banner-desc { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 500; }
+.banner-prix { position: relative; z-index: 1; text-align: right; }
+.banner-prix-val { font-size: 28px; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+.banner-prix-freq { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 600; }
+
+/* ══ CARD ══ */
+.form-card {
+    background: #fff; border: 1.5px solid #dce4f0;
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 4px 28px rgba(15,31,55,0.08);
+}
+.form-card-header {
+    padding: 20px 28px; border-bottom: 1.5px solid #edf1f9;
+    background: linear-gradient(to right, #f6f9fd, #eef3fb);
+    display: flex; align-items: center; gap: 14px;
+}
+.form-card-header h2 { font-size: 16px; font-weight: 800; color: #0d1f35; margin: 0; }
+.card-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, #1a6fc4, #1254a0);
+    color: #fff; display: flex; align-items: center;
+    justify-content: center; font-size: 16px;
+    box-shadow: 0 4px 12px rgba(26,111,196,0.3);
+}
+.form-card-body { padding: 30px; }
+
+/* ══ SECTION ══ */
+.section-block { margin-bottom: 30px; }
+.section-sep { border: none; border-top: 1.5px solid #edf1f9; margin: 28px 0; }
+.section-title {
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #1a6fc4; margin: 0 0 18px;
+    display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+    content: ''; flex: 1; height: 1.5px;
+    background: linear-gradient(to right, #c8ddf5, transparent);
+}
+
+/* ══ GRID ══ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ══ FIELD ══ */
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field > label { font-size: 13px; font-weight: 700; color: #162d4a; }
+.field .form-control {
+    width: 100%; padding: 12px 15px;
+    border: 2px solid #cdd6e4; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #0d1f35; background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none; -webkit-appearance: none;
+}
+.field .form-control:focus {
+    outline: none; border-color: #1a6fc4;
+    box-shadow: 0 0 0 4px rgba(26,111,196,0.13);
+}
+.field .form-control[readonly] {
+    background: #f0f5fb; color: #5a7a9e;
+    cursor: not-allowed; border-color: #c8d6e8;
+}
+
+/* ══ VALIDATION ROUGE ══ */
+.field.has-error .form-control {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231,76,60,0.15) !important;
+    background: #fff8f8 !important;
+}
+.field.has-error > label { color: #e74c3c !important; }
+.field-error-msg {
+    font-size: 12px; font-weight: 600; color: #e74c3c;
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 2px;
+}
+.field-error-msg::before { content: '⚠ '; }
+
+/* ══ PRIX WRAP ══ */
+.prix-wrap { position: relative; }
+.prix-wrap .form-control { padding-right: 50px; font-size: 20px; font-weight: 700; }
+.prix-unit {
+    position: absolute; right: 15px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px; font-weight: 800; color: #8a9fb8; pointer-events: none;
+}
+.prix-auto-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; color: #1a7a47;
+    background: #e8faf2; border: 1px solid #a3d9bc;
+    border-radius: 6px; padding: 3px 8px; width: fit-content;
+}
+.field-hint { font-size: 12px; font-weight: 500; color: #6b7f96; }
+
+/* ══ BADGE ÉCONOMIE ══ */
+.economie-wrap { margin-top: 12px; min-height: 34px; }
+.economie-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 16px; border-radius: 20px;
+    background: linear-gradient(135deg, #e8faf2, #d0f2e3);
+    border: 1.5px solid #a3d9bc;
+    color: #1a7a47; font-size: 13px; font-weight: 700;
+    transition: opacity 0.3s, transform 0.3s;
+}
+.economie-badge.hidden { opacity: 0; transform: scale(0.94); pointer-events: none; }
+
+/* ══ DESCRIPTION PREVIEW ══ */
+.desc-preview {
+    background: linear-gradient(135deg, #f0f8ff, #e8f4fd);
+    border: 1.5px solid #b8d9f5; border-radius: 12px;
+    padding: 16px 20px; margin-top: 8px;
+    font-size: 13px; color: #1a4a7a; font-weight: 500; line-height: 1.7;
+    display: none;
+}
+.desc-preview.visible { display: block; }
+.desc-preview-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; color: #1a6fc4; margin-bottom: 6px;
+}
+
+/* ══ BADGE RADIO ══ */
+.badge-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.badge-option { position: relative; }
+.badge-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.badge-option label {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border: 2px solid #cdd6e4; border-radius: 20px;
+    font-size: 13px; font-weight: 700; color: #4a6080;
+    background: #f6f9fd; cursor: pointer; transition: all 0.18s;
+}
+.badge-option label:hover { border-color: #1a6fc4; color: #1a6fc4; background: #eef5ff; }
+.badge-option input[type="radio"]:checked + label {
+    border-color: #1a6fc4;
+    background: linear-gradient(135deg, #1a6fc4, #1254a0);
+    color: #fff; box-shadow: 0 4px 12px rgba(26,111,196,0.3);
+}
+.badge-option-none label { border-style: dashed; }
+.badge-section-hint { font-size: 12px; font-weight: 500; color: #6b7f96; margin-top: 6px; }
+
+/* ══ PROMOTIONS ══ */
+.promo-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+.promo-card {
+    background: #f6f9fd; border: 2px solid #dce4f0;
+    border-radius: 13px; padding: 20px; transition: border-color 0.2s;
+}
+.promo-card:hover { border-color: #b0c8e8; }
+.promo-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+}
+.promo-num {
+    font-size: 12px; font-weight: 800; color: #1a6fc4;
+    background: #e8f1fd; border: 1.5px solid #b8d0f0;
+    padding: 4px 12px; border-radius: 20px;
+}
+.promo-remove {
+    border: none; background: transparent; color: #b03030;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    padding: 5px 12px; border-radius: 7px; transition: background 0.2s;
+    display: flex; align-items: center; gap: 5px;
+}
+.promo-remove:hover { background: #fde8e8; }
+.promo-empty {
+    text-align: center; padding: 24px;
+    border: 2px dashed #cdd6e4; border-radius: 12px;
+    color: #6b7f96; font-size: 13px; font-weight: 600;
+    background: #f6f9fd; line-height: 1.5;
+}
+.btn-add-promo {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 13px;
+    background: #eef5ff; border: 2px dashed #90bdf0;
+    border-radius: 11px; color: #1a6fc4;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.btn-add-promo:hover { background: #dbeafe; border-color: #1a6fc4; }
+
+/* ══ ACTIONS ══ */
+.form-actions {
+    display: flex; gap: 12px; align-items: center;
+    padding-top: 26px; border-top: 2px solid #edf1f9; margin-top: 28px;
+}
+.btn-submit {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 13px 32px;
+    background: linear-gradient(135deg, #1a6fc4, #1254a0);
+    color: #fff; border: none; border-radius: 11px;
+    font-size: 15px; font-weight: 800; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 5px 18px rgba(26,111,196,0.35); transition: all 0.2s;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,111,196,0.45); }
+.btn-cancel {
+    padding: 13px 24px; background: #f0f4fa;
+    border: 2px solid #cdd6e4; border-radius: 11px;
+    color: #2d4460; font-size: 14px; font-weight: 700;
+    text-decoration: none; transition: all 0.2s;
+}
+.btn-cancel:hover { background: #e4eaf5; text-decoration: none; }
+
+/* ══ ERREURS SYMFONY ══ */
+.symfony-errors {
+    background: #fff0f0; border: 2px solid #e74c3c;
+    border-left: 6px solid #c0392b;
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;
+}
+.symfony-errors-title {
+    font-size: 13px; font-weight: 800; color: #c0392b;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.symfony-errors ul { margin: 0; padding-left: 18px; }
+.symfony-errors li { font-size: 12px; font-weight: 600; color: #c0392b; margin-bottom: 4px; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+}
+.shake { animation: shake 0.35s ease; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="new-page">
+
+    {# ══ NAV ══ #}
+    <div class="nav-back">
+        <div>
+            <h1>{% if slug %}Configurer "{{ preset_data.nom }}"{% else %}Nouvel abonnement{% endif %}</h1>
+            <div class="breadcrumb">
+                <a href="{{ path('admin_abonnement_index') }}">Abonnements</a>
+                &rsaquo; <a href="{{ path('admin_abonnement_catalogue') }}">Catalogue</a>
+                &rsaquo; {% if slug %}{{ preset_data.nom }}{% else %}Nouveau{% endif %}
+            </div>
+        </div>
+        <a href="{{ path('admin_abonnement_catalogue') }}" class="btn-back">
+            <i class="fa fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    {# ══ BANNER ══ #}
+    {% if preset_data %}
+    <div class="service-banner"
+         style="background: linear-gradient(135deg, {{ preset_data.couleur }}ee, {{ preset_data.couleur }}99);">
+        {% if preset_data.logo_domain %}
+        <div style="display:flex;align-items:center;justify-content:center;">
+            <img class="banner-logo"
+                 src="https://logo.clearbit.com/{{ preset_data.logo_domain }}"
+                 alt="{{ preset_data.nom }}"
+                 onerror="this.src='https://www.google.com/s2/favicons?domain={{ preset_data.logo_domain }}&sz=58'; this.style.width='58px'; this.style.height='58px'; this.onerror=function(){ this.style.display='none'; document.getElementById('fallback-banner-{{ preset_data.slug }}').style.display='flex'; };" />
+            <div id="fallback-banner-{{ preset_data.slug }}" class="logo-fallback-initials" style="display:none;width:58px;height:58px;">
+                {{ preset_data.nom|slice(0,2)|upper }}
+            </div>
+        </div>
+        {% else %}
+        <div class="logo-fallback-initials" style="width:58px;height:58px;">{{ preset_data.nom|slice(0,2)|upper }}</div>
+        {% endif %}
+        <div class="banner-content">
+            <div class="banner-name">{{ preset_data.nom }}</div>
+            <div class="banner-desc">{{ preset_data.categorie|capitalize }} · {{ preset_data.tier }}</div>
+        </div>
+        <div class="banner-prix">
+            <div class="banner-prix-val">{{ form.vars.data.prix|number_format(2) }} DT</div>
+            <div class="banner-prix-freq">/ {{ form.vars.data.frequence }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ══ ERREURS SYMFONY après soumission ══ #}
+    {% set allErrors = [] %}
+    {% for field in form %}
+        {% for error in field.vars.errors %}
+            {% set allErrors = allErrors|merge([error.message]) %}
+        {% endfor %}
+    {% endfor %}
+    {% if allErrors|length > 0 %}
+    <div class="symfony-errors shake">
+        <div class="symfony-errors-title">⚠️ Veuillez corriger les erreurs suivantes :</div>
+        <ul>
+            {% for msg in allErrors %}
+                <li>{{ msg }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# ══ FORM ══ #}
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="card-icon">✦</div>
+            <h2>{% if slug %}🎯 Modèle pré-rempli — ajustez les détails{% else %}Création{% endif %}</h2>
+        </div>
+        <div class="form-card-body">
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'abo-form'}}) }}
+
+            {# ══ TARIFICATION ══ #}
+            <div class="section-block">
+                <div class="section-title">Tarification</div>
+                <div class="grid-2" style="margin-bottom:14px;">
+
+                    {# Prix marché — lecture seule #}
+                    <div style="display:none">{{ form_row(form.prix_marche) }}</div>
+                    <div class="field">
+                        <label>Prix marché (DT)</label>
+                        <div class="prix-auto-badge">✅ Détecté automatiquement</div>
+                        <div class="prix-wrap" style="margin-top:6px;">
+                            <input type="number"
+                                   id="prix-marche"
+                                   class="form-control"
+                                   value="{{ prix_marche is not null ? prix_marche|number_format(2,'.','') : (form.vars.data.getPrixMarche() ?? 0)|number_format(2,'.','') }}"
+                                   readonly tabindex="-1" step="0.01">
+                            <input type="hidden"
+                                   name="{{ form.prix_marche.vars.full_name }}"
+                                   id="prix-marche-hidden"
+                                   value="{{ prix_marche is not null ? prix_marche|number_format(2,'.','') : (form.vars.data.getPrixMarche() ?? 0)|number_format(2,'.','') }}">
+                            <span class="prix-unit">DT</span>
+                        </div>
+                        <div class="field-hint">Prix officiel du service (non modifiable)</div>
+                    </div>
+
+                    {# Prix Dinari — obligatoire #}
+                    <div class="field{% if form.prix.vars.errors|length > 0 %} has-error{% endif %}">
+                        {{ form_label(form.prix) }}
+                        <div class="prix-wrap">
+                            {{ form_widget(form.prix, {'attr': {
+                                'class': 'form-control',
+                                'id': 'prix-dinari',
+                                'placeholder': '13.99',
+                                'min': '0.01',
+                                'step': '0.01'
+                            }}) }}
+                            <span class="prix-unit">DT</span>
+                        </div>
+                        <div class="field-hint">Ce que paie le client — doit être inférieur au prix marché</div>
+                        {% for error in form.prix.vars.errors %}
+                            <div class="field-error-msg">{{ error.message }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {# Badge économie #}
+                <div class="economie-wrap">
+                    <span class="economie-badge hidden" id="economie-badge">
+                        🎉 Économie de <strong id="economie-val">0%</strong> par rapport au prix marché
+                    </span>
+                </div>
+
+                {# Description auto #}
+                <div style="margin-top:20px;">
+                    <label style="font-size:13px;font-weight:700;color:#162d4a;">
+                        Description
+                        <span style="font-size:11px;color:#6b7f96;font-weight:500;">(générée automatiquement)</span>
+                    </label>
+                    <div class="desc-preview{% if form.vars.data.getDescription() %} visible{% endif %}" id="desc-preview">
+                        <div class="desc-preview-label">✨ Aperçu de la description</div>
+                        <div id="desc-preview-text">{{ form.vars.data.getDescription()|default('') }}</div>
+                    </div>
+                    <div style="display:none">{{ form_row(form.description) }}</div>
+                    <input type="hidden" id="description-hidden"
+                           name="{{ form.description.vars.full_name }}"
+                           value="{{ form.vars.data.getDescription()|default('') }}">
+                </div>
+
+                {# Essai + Date fin #}
+                <div class="grid-2" style="margin-top:20px;">
+                    <div class="field{% if form.essai_gratuit.vars.errors|length > 0 %} has-error{% endif %}">
+                        {{ form_label(form.essai_gratuit) }}
+                        {{ form_widget(form.essai_gratuit, {'attr': {
+                            'class': 'form-control', 'min': 0, 'max': 365,
+                            'placeholder': '0', 'id': 'essai-gratuit'
+                        }}) }}
+                        <div class="field-hint">0 = pas d'essai (max 365 jours)</div>
+                        {% for error in form.essai_gratuit.vars.errors %}
+                            <div class="field-error-msg">{{ error.message }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="field{% if form.date_fin_offre.vars.errors|length > 0 %} has-error{% endif %}">
+                        {{ form_label(form.date_fin_offre) }}
+                        {{ form_widget(form.date_fin_offre, {'attr': {
+                            'class': 'form-control', 'id': 'date-fin-offre'
+                        }}) }}
+                        <div class="field-hint">Laisser vide = offre permanente</div>
+                        {% for error in form.date_fin_offre.vars.errors %}
+                            <div class="field-error-msg">{{ error.message }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-sep">
+
+            {# ══ BADGE ══ #}
+            <div class="section-block">
+                <div class="section-title">Badge / Étiquette</div>
+                <div style="display:none">{{ form_row(form.badge) }}</div>
+                <input type="hidden" id="badge-hidden"
+                       name="{{ form.badge.vars.full_name }}"
+                       value="{{ form.vars.data.getBadge()|default('') }}">
+                <div class="badge-options">
+                    <div class="badge-option badge-option-none">
+                        <input type="radio" name="badge_choice" id="badge-none" value=""
+                               {% if not form.vars.data.getBadge() %}checked{% endif %}>
+                        <label for="badge-none">🚫 Aucun</label>
+                    </div>
+                    <div class="badge-option">
+                        <input type="radio" name="badge_choice" id="badge-populaire" value="Populaire"
+                               {% if form.vars.data.getBadge() == 'Populaire' %}checked{% endif %}>
+                        <label for="badge-populaire">🔥 Populaire</label>
+                    </div>
+                    <div class="badge-option">
+                        <input type="radio" name="badge_choice" id="badge-nouveau" value="Nouveau"
+                               {% if form.vars.data.getBadge() == 'Nouveau' %}checked{% endif %}>
+                        <label for="badge-nouveau">✨ Nouveau</label>
+                    </div>
+                    <div class="badge-option">
+                        <input type="radio" name="badge_choice" id="badge-promo" value="Promo"
+                               {% if form.vars.data.getBadge() == 'Promo' %}checked{% endif %}>
+                        <label for="badge-promo">🏷️ Promo</label>
+                    </div>
+                    <div class="badge-option">
+                        <input type="radio" name="badge_choice" id="badge-recommande" value="Recommandé"
+                               {% if form.vars.data.getBadge() == 'Recommandé' %}checked{% endif %}>
+                        <label for="badge-recommande">⭐ Recommandé</label>
+                    </div>
+                    <div class="badge-option">
+                        <input type="radio" name="badge_choice" id="badge-exclusif" value="Exclusif"
+                               {% if form.vars.data.getBadge() == 'Exclusif' %}checked{% endif %}>
+                        <label for="badge-exclusif">💎 Exclusif</label>
+                    </div>
+                    <div class="badge-option">
+                        <input type="radio" name="badge_choice" id="badge-limite" value="Offre limitée"
+                               {% if form.vars.data.getBadge() == 'Offre limitée' %}checked{% endif %}>
+                        <label for="badge-limite">⏳ Offre limitée</label>
+                    </div>
+                </div>
+                <div class="badge-section-hint">Sélectionnez un badge à afficher sur la carte d'abonnement</div>
+            </div>
+
+            <hr class="section-sep">
+
+            {# ══ PROMOTIONS ══ #}
+            <div class="section-block">
+                <div class="section-title">Promotions</div>
+                <div class="promo-list"
+                     id="promotions-wrapper"
+                     data-prototype="{{ form_widget(form.promotions.vars.prototype)|e('html_attr') }}"
+                     data-index="{{ form.promotions|length }}">
+
+                    {% for promotion in form.promotions %}
+                    <div class="promo-card">
+                        <div class="promo-header">
+                            <span class="promo-num">Promotion {{ loop.index }}</span>
+                            <button type="button" class="promo-remove" onclick="removePromotion(this)">
+                                <i class="fa fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                        <div class="grid-2" style="margin-bottom:14px;">
+                            <div class="field">
+                                {{ form_label(promotion.type) }}
+                                {{ form_widget(promotion.type, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(promotion.type) }}
+                            </div>
+                            <div class="field">
+                                {{ form_label(promotion.reduction_pct) }}
+                                <div class="prix-wrap">
+                                    {{ form_widget(promotion.reduction_pct, {'attr': {'class': 'form-control', 'placeholder': '30', 'min': '1', 'max': '100'}}) }}
+                                    <span class="prix-unit">%</span>
+                                </div>
+                                {{ form_errors(promotion.reduction_pct) }}
+                            </div>
+                        </div>
+                        <div class="field" style="margin-bottom:14px;">
+                            {{ form_label(promotion.conditions) }}
+                            {{ form_widget(promotion.conditions, {'attr': {'class': 'form-control', 'rows': 1, 'placeholder': 'Ex: email .edu requis'}}) }}
+                            {{ form_errors(promotion.conditions) }}
+                        </div>
+                        <div class="grid-2">
+                            <div class="field">
+                                {{ form_label(promotion.date_debut) }}
+                                {{ form_widget(promotion.date_debut, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(promotion.date_debut) }}
+                            </div>
+                            <div class="field">
+                                {{ form_label(promotion.date_fin) }}
+                                {{ form_widget(promotion.date_fin, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(promotion.date_fin) }}
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="promo-empty" id="promo-empty-msg">
+                        📭 Aucune promotion pour le moment.<br>
+                        Ajoutez-en une pour proposer des tarifs spéciaux (étudiant, famille, offre limitée…)
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn-add-promo" onclick="addPromotion()">
+                    <i class="fa fa-plus-circle"></i> Ajouter une promotion
+                </button>
+            </div>
+
+            {# ══ ACTIONS ══ #}
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <i class="fa fa-rocket"></i> Enregistrer l'abonnement
+                </button>
+                <a href="{{ path('admin_abonnement_catalogue') }}" class="btn-cancel">Annuler</a>
+            </div>
+
+            {# Champs cachés restants #}
+            <div style="display:none" aria-hidden="true">
+                {{ form_rest(form) }}
+            </div>
+            {{ form_end(form, {'render_rest': false}) }}
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const PRESET_PRIX_DINARI = {{ prix_dinari is not null ? prix_dinari : 'null' }};
+    const PRESET_PRIX_MARCHE = {{ prix_marche is not null ? prix_marche : 'null' }};
+    const PRESET = {
+        nom:  "{{ preset_data.nom|default('')|e('js') }}",
+        tier: "{{ preset_data.tier|default('Normal')|e('js') }}",
+    };
+
+    const elD       = document.getElementById('prix-dinari');
+    const elM       = document.getElementById('prix-marche');
+    const elMhidden = document.getElementById('prix-marche-hidden');
+    const elDescHid = document.getElementById('description-hidden');
+    const descPreview = document.getElementById('desc-preview');
+    const descText    = document.getElementById('desc-preview-text');
+    const econBadge   = document.getElementById('economie-badge');
+    const econVal     = document.getElementById('economie-val');
+
+    // ── INIT valeurs depuis PHP ──────────────────────────────────────────
+    if (PRESET_PRIX_MARCHE !== null && elM) {
+        elM.value = parseFloat(PRESET_PRIX_MARCHE).toFixed(2);
+        if (elMhidden) elMhidden.value = elM.value;
+    }
+    if (PRESET_PRIX_DINARI !== null && elD && (!elD.value || parseFloat(elD.value) === 0)) {
+        elD.value = parseFloat(PRESET_PRIX_DINARI).toFixed(2);
+    }
+
+    // ── Génération description ───────────────────────────────────────────
+    function generateDescription(prix, prixMarche) {
+        if (!prix || prix <= 0) return '';
+        const savings = (prixMarche > prix && prixMarche > 0)
+            ? Math.round(((prixMarche - prix) / prixMarche) * 100) : null;
+        const niveau = prix <= 5   ? {l:'essentiel',    e:'🌱'}
+                     : prix <= 10  ? {l:'standard',     e:'⚡'}
+                     : prix <= 20  ? {l:'premium',      e:'🚀'}
+                     : prix <= 40  ? {l:'professionnel',e:'💼'}
+                     :               {l:'complet',      e:'💎'};
+        const tierBonus = {
+            Gold:     ' — Accès Gold prioritaire inclus.',
+            Platinum: ' — Avantages Platinum exclusifs.',
+            Silver:   ' — Niveau Silver avancé.',
+        };
+        const nom = PRESET.nom || 'ce service';
+        return `${niveau.e} Accès ${niveau.l} à ${nom} pour seulement ${prix.toFixed(2)} DT/mois. `
+             + `Profitez de toutes les fonctionnalités incluses${tierBonus[PRESET.tier] || '.'}${savings ? ' Économisez '+savings+'% vs prix marché.' : ''}`;
+    }
+
+    // ── Mise à jour dynamique ────────────────────────────────────────────
+    function updateDynamic() {
+        const m = parseFloat(elM?.value) || 0;
+        const d = parseFloat(elD?.value) || 0;
+
+        // Badge économie
+        if (m > 0 && d > 0 && d < m) {
+            econVal.textContent = Math.round(((m - d) / m) * 100) + '%';
+            econBadge.classList.remove('hidden');
+        } else {
+            econBadge.classList.add('hidden');
+        }
+
+        // Description preview
+        const desc = generateDescription(d, m);
+        if (desc) {
+            descText.textContent = desc;
+            if (elDescHid) elDescHid.value = desc;
+            descPreview.classList.add('visible');
+        } else {
+            descPreview.classList.remove('visible');
+            if (elDescHid) elDescHid.value = '';
+        }
+    }
+
+    if (elD) elD.addEventListener('input', updateDynamic);
+    updateDynamic();
+
+    // ── Badge radio → hidden ─────────────────────────────────────────────
+    const badgeHidden = document.getElementById('badge-hidden');
+    document.querySelectorAll('input[name="badge_choice"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (badgeHidden) badgeHidden.value = this.value;
+        });
+    });
+
+    // ── Ajouter / Supprimer promotions ───────────────────────────────────
+    window.addPromotion = function () {
+        const wrapper   = document.getElementById('promotions-wrapper');
+        const prototype = wrapper.dataset.prototype;
+        const index     = parseInt(wrapper.dataset.index || 0, 10);
+        document.getElementById('promo-empty-msg')?.remove();
+
+        const html = prototype.replace(/__name__/g, index);
+        const card = document.createElement('div');
+        card.className = 'promo-card';
+        card.innerHTML =
+            `<div class="promo-header">
+                <span class="promo-num">Promotion ${index + 1}</span>
+                <button type="button" class="promo-remove" onclick="removePromotion(this)">
+                    <i class="fa fa-trash"></i> Supprimer
+                </button>
+            </div>` + html;
+        card.querySelectorAll('input:not([type=hidden]), select, textarea')
+            .forEach(el => el.classList.add('form-control'));
+        wrapper.appendChild(card);
+        wrapper.dataset.index = index + 1;
+    };
+
+    window.removePromotion = function (btn) {
+        btn.closest('.promo-card').remove();
+    };
+
+}); // end DOMContentLoaded
+</script>
+{% endblock %}

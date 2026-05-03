@@ -1,0 +1,1190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ abo.nom }} — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+* { box-sizing: border-box; }
+:root {
+  --teal: #00b4c6; --teal-deep: #007f8c;
+  --ink: #0d1b2a; --muted: #64748b;
+  --border: #e2eaf0; --bg: #f0f7fa;
+}
+body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--ink); margin: 0; }
+h1,h2,h3,h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.feat-item{opacity:0;transform:translateY(20px);transition:opacity .45s ease,transform .45s ease}
+.feat-item.visible{opacity:1;transform:translateY(0)}
+.feat-item:nth-child(1){transition-delay:.05s}
+.feat-item:nth-child(2){transition-delay:.12s}
+.feat-item:nth-child(3){transition-delay:.19s}
+.feat-item:nth-child(4){transition-delay:.26s}
+
+.breadcrumb{max-width:1200px;margin:0 auto;padding:18px 40px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);font-weight:500}
+.breadcrumb a{color:var(--teal-deep);text-decoration:none;font-weight:600;display:flex;align-items:center;gap:5px}
+.breadcrumb a:hover{text-decoration:underline}
+
+.hero-split{position:relative;min-height:72vh;display:grid;grid-template-columns:1fr 420px;align-items:start;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(to right,rgba(224,242,247,0.96) 0%,rgba(240,247,250,0.92) 55%,rgba(240,247,250,0.75) 100%),url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1600&q=80') center/cover no-repeat}
+
+.hero-left{position:relative;z-index:2;padding:52px 48px}
+.hero-badges{display:flex;align-items:center;gap:10px;margin-bottom:26px;flex-wrap:wrap;animation:fadeUp .5s ease .1s both}
+.svc-logo-box{width:68px;height:68px;background:#fff;border-radius:18px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;box-shadow:0 4px 16px rgba(0,0,0,.07);flex-shrink:0}
+.svc-logo-box img{width:100%;height:100%;object-fit:contain}
+.logo-fb{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:900;color:var(--teal-deep)}
+.badge{display:inline-flex;align-items:center;padding:5px 14px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1.5px solid}
+.badge-cat{background:rgba(0,127,140,.08);color:var(--teal-deep);border-color:rgba(0,127,140,.25)}
+.badge-plat{background:#f5f3ff;color:#7c3aed;border-color:#c4b5fd}
+.badge-gold{background:#fffbeb;color:#d97706;border-color:#fcd34d}
+.badge-silv{background:#f8fafc;color:#64748b;border-color:#cbd5e1}
+.badge-basic{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+
+.big-title{font-size:clamp(48px,6.5vw,82px);font-weight:900;line-height:.93;letter-spacing:-0.04em;color:var(--ink);margin:0 0 20px;animation:fadeUp .55s ease .2s both}
+.big-title span{color:var(--teal)}
+.hero-desc{font-size:17px;color:var(--muted);line-height:1.75;max-width:480px;margin-bottom:28px;animation:fadeUp .55s ease .3s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+.price-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:28px;animation:fadeUp .55s ease .4s both}
+.price-strike{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;color:#94a3b8;text-decoration:line-through}
+.price-main{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(36px,5vw,56px);font-weight:900;line-height:1;color:var(--teal-deep)}
+.price-main.promo-color{color:#1a7a47}
+.price-freq{font-size:16px;color:var(--muted);font-weight:500;margin-bottom:5px}
+
+.plans-switch-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;animation:fadeUp .5s ease .35s both;display:block;}
+.plans-switch{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;animation:fadeUp .5s ease .4s both;align-items:stretch;}
+.plan-switch-card{border:2px solid var(--border);border-radius:16px;cursor:pointer;background:#fff;transition:border-color .2s,transform .2s,box-shadow .2s;min-width:140px;text-decoration:none;display:flex;flex-direction:column;overflow:hidden;padding:0;}
+.plan-switch-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,180,198,.12);}
+.plan-switch-card.active{border-color:var(--teal);background:#f0fbfc;box-shadow:0 0 0 3px rgba(0,180,198,.15);}
+.switch-badge{display:block;width:100%;padding:6px 14px 5px;font-size:11px;font-weight:900;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:.02em;border-radius:0;margin:0;}
+.switch-badge-0{background:#ffb3d1;color:#8b124a}
+.switch-badge-1{background:#c4b5fd;color:#4a1d8f}
+.switch-badge-2{background:#fcd34d;color:#7c4a00}
+.switch-badge-3{background:#00b4c6;color:#fff}
+.switch-badge-4{background:#93c5fd;color:#1a3a6e}
+.switch-card-body{padding:11px 14px 13px;display:flex;flex-direction:column;gap:2px;flex:1;}
+.switch-plan-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;margin:0 0 2px;}
+.switch-plan-name-0{color:#db2777}
+.switch-plan-name-1{color:#7c3aed}
+.switch-plan-name-2{color:#d97706}
+.switch-plan-name-3{color:var(--teal-deep)}
+.switch-plan-name-4{color:#1d4ed8}
+.switch-plan-price{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:900;color:var(--ink);line-height:1.1;}
+.switch-plan-freq{font-size:11px;color:var(--muted);margin-top:1px}
+
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.feat-item{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.75);border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;transition:border-color .2s,transform .2s}
+.feat-item:hover{border-color:var(--teal);transform:translateY(-2px)}
+.feat-icon{width:30px;height:30px;border-radius:9px;background:rgba(0,180,198,.1);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.feat-title{font-size:13px;font-weight:600;color:var(--ink)}
+.feat-sub{font-size:11px;color:var(--muted);margin-top:1px}
+
+.hero-right{position:relative;z-index:2;padding:52px 36px 52px 0}
+.cta-card{background:#fff;border:2px solid var(--border);border-radius:24px;box-shadow:0 20px 56px rgba(0,127,140,.14);padding:30px;position:sticky;top:24px;animation:fadeUp .55s ease .2s both}
+.promo-banner{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1.5px solid #6ee7b7;border-radius:12px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.promo-banner-left{display:flex;align-items:center;gap:9px}
+.promo-label-txt{font-size:13px;font-weight:700;color:#1a7a47}
+.promo-sub-txt{font-size:11px;color:#2e7d52;margin-top:1px}
+.promo-change{font-size:12px;font-weight:700;color:#1a6fc4;text-decoration:none;padding:5px 12px;border:1.5px solid #90bdf0;border-radius:8px;background:#eef5ff;white-space:nowrap}
+.promo-change:hover{background:#dbeafe}
+.cta-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.cta-price{font-family:'Plus Jakarta Sans',sans-serif;font-size:34px;font-weight:900;color:var(--teal-deep);line-height:1.1;margin-bottom:4px}
+.cta-price.promo{color:#1a7a47}
+.cta-price-freq{font-size:14px;font-weight:500;color:var(--muted)}
+.cta-original{font-size:13px;color:#94a3b8;text-decoration:line-through;margin-bottom:20px}
+
+.payment-options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.pay-option-btn{width:100%;padding:15px 20px;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;border:2px solid transparent;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .25s cubic-bezier(.34,1.56,.64,1);text-align:left;}
+.pay-option-btn .pay-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pay-option-btn .pay-text{flex:1;}
+.pay-option-btn .pay-title{display:block;font-size:14px;font-weight:800;line-height:1.2;}
+.pay-option-btn .pay-sub{display:block;font-size:11px;font-weight:500;opacity:.7;margin-top:2px;}
+.pay-card-btn{background:linear-gradient(135deg,var(--teal-deep),var(--teal));color:#fff;box-shadow:0 8px 24px rgba(0,127,140,.30);}
+.pay-card-btn .pay-icon{background:rgba(255,255,255,.2);}
+.pay-card-btn:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,127,140,.42);}
+.pay-agency-btn{background:#fff;color:var(--ink);border-color:var(--border);box-shadow:0 4px 12px rgba(0,0,0,.06);}
+.pay-agency-btn .pay-icon{background:rgba(0,127,140,.08);color:var(--teal-deep);}
+.pay-agency-btn:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,127,140,.15);}
+
+.cta-promo-link{display:block;text-align:center;margin-top:12px;font-size:13px;font-weight:700;color:#d97706;text-decoration:none}
+.cta-promo-link:hover{text-decoration:underline}
+.cta-security{display:flex;align-items:center;gap:8px;margin-top:16px;padding:11px 14px;background:#f8fafc;border-radius:10px;font-size:12px;color:var(--muted);line-height:1.5}
+
+.diff-section{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:72px 40px}
+.diff-inner{max-width:900px;margin:0 auto}
+.diff-title{font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-0.03em;color:var(--ink);text-align:center;margin-bottom:8px}
+.diff-sub{text-align:center;color:var(--muted);font-size:15px;max-width:520px;margin:0 auto 40px;line-height:1.65}
+.diff-table{width:100%;border-collapse:collapse}
+.diff-table th{font-size:13px;font-weight:700;color:var(--muted);padding:12px 16px;text-align:left;border-bottom:2px solid var(--border)}
+.diff-table th:not(:first-child){text-align:center}
+.diff-table td{padding:13px 16px;font-size:15px;color:var(--muted);border-bottom:1px solid var(--border)}
+.diff-table tr:last-child td{border-bottom:none}
+.diff-table tr:hover td{background:#f8fffe}
+.diff-table td:not(:first-child){text-align:center}
+.check{font-size:20px;color:var(--teal)}
+.dash{font-size:18px;color:#cbd5e1}
+
+.faq-section{max-width:860px;margin:0 auto;padding:72px 40px}
+.faq-big-title{font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-0.03em;color:var(--ink);text-align:center;margin-bottom:6px}
+.faq-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:4px}
+.faq-link{text-align:center;font-size:13px;margin-bottom:40px}
+.faq-link a{color:var(--teal-deep);font-weight:600;text-decoration:underline}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{width:100%;background:transparent;border:none;color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;text-align:left;padding:20px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:color .2s}
+.faq-q:hover{color:var(--teal-deep)}
+.faq-icon{flex-shrink:0;width:26px;height:26px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);transition:transform .3s,border-color .3s}
+.faq-item.open .faq-icon{transform:rotate(45deg);border-color:var(--teal);color:var(--teal)}
+.faq-a{display:none;padding:0 0 18px;font-size:14px;color:var(--muted);line-height:1.75}
+.faq-item.open .faq-a{display:block}
+
+.site-footer{background:var(--ink);color:rgba(255,255,255,.5);padding:30px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:900;color:#fff}
+.footer-logo span{color:var(--teal)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{font-size:13px;color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:#fff}
+
+/* CHECKOUT MODAL */
+#checkoutModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;padding:20px}
+.modal-inner{background:#fff;border-radius:24px;width:100%;max-width:900px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.2);display:grid;grid-template-columns:320px 1fr;max-height:92vh;overflow-y:auto}
+.modal-left{background:linear-gradient(160deg,#e8f8fa,#f0f4ff);padding:36px 28px;display:flex;flex-direction:column;gap:18px}
+.modal-right{padding:36px 32px;position:relative}
+.modal-close{position:absolute;top:18px;right:18px;background:#f1f5f9;border:none;width:34px;height:34px;border-radius:50%;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.modal-close:hover{background:#e2e8f0}
+.order-row{display:flex;justify-content:space-between;align-items:center}
+.order-total{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:900;color:var(--teal-deep)}
+#payment-element{margin-bottom:20px}
+#payment-message{display:none;color:#ef4444;background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;margin-bottom:16px}
+#submit-stripe{width:100%;padding:16px;border-radius:999px;background:linear-gradient(135deg,var(--teal-deep),var(--teal));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;border:none;cursor:pointer;transition:all .25s;box-shadow:0 8px 24px rgba(0,127,140,.28);display:flex;align-items:center;justify-content:center;gap:10px}
+#submit-stripe:hover:not(:disabled){transform:translateY(-2px)}
+#submit-stripe:disabled{opacity:.7;cursor:not-allowed}
+.stripe-badge{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:10px;background:#f8fafc;border-radius:10px;font-size:12px;color:#94a3b8}
+.test-cards{margin-top:16px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;padding:14px}
+.tc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.tc-row:last-of-type{margin-bottom:0}
+.tc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px}
+.tc-ok{background:#dcfce7;color:#16a34a}.tc-err{background:#fee2e2;color:#dc2626}.tc-warn{background:#fef3c7;color:#d97706}
+
+/* AGENCY MODAL */
+#agencyModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;padding:20px}
+.agency-modal-inner{background:#fff;border-radius:24px;width:100%;max-width:1100px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.25);display:grid;grid-template-columns:360px 1fr;max-height:90vh;position:relative;}
+.agency-modal-left{overflow-y:auto;background:#f8fafc;border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.agency-modal-header{padding:24px 24px 16px;background:linear-gradient(135deg,#0d1b2a,#007f8c);position:sticky;top:0;z-index:5;}
+.agency-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:#fff;margin-bottom:4px}
+.agency-modal-sub{font-size:12px;color:rgba(255,255,255,.6)}
+.agency-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;width:32px;height:32px;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:10;}
+.agency-close:hover{background:rgba(255,255,255,.3)}
+#agency-map{width:100%;height:100%;min-height:500px}
+
+.agency-card{margin:10px;border-radius:14px;border:1.5px solid var(--border);background:#fff;padding:14px;cursor:pointer;transition:all .2s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;}
+.agency-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal-deep);border-radius:3px 0 0 3px;transform:scaleY(0);transition:transform .2s;}
+.agency-card:hover,.agency-card.active{border-color:var(--teal);box-shadow:0 6px 16px rgba(0,127,140,.12);}
+.agency-card:hover::before,.agency-card.active::before{transform:scaleY(1)}
+.agency-card.active{background:#f0fbfc}
+.agency-card-nom{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px}
+.agency-card-ville{font-size:11px;color:var(--teal-deep);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.agency-card-addr{font-size:12px;color:var(--muted);margin-bottom:8px}
+.agency-card-footer{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+.status-open{color:#16a34a;font-weight:700}
+
+.btn-rdv-agence{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:10px;width:100%;
+  padding:9px 14px;
+  background:linear-gradient(135deg,var(--teal-deep),var(--teal));
+  color:#fff;border:none;border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:12px;font-weight:800;cursor:pointer;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+}
+.btn-rdv-agence:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,127,140,.35);}
+.btn-itineraire{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  margin-top:6px;font-size:11px;font-weight:700;color:var(--teal-deep);
+  text-decoration:none;background:rgba(0,127,140,.07);
+  border:1px solid rgba(0,127,140,.2);border-radius:8px;
+  padding:6px 10px;width:100%;transition:background .2s;
+}
+.btn-itineraire:hover{background:rgba(0,127,140,.14);}
+
+.mapboxgl-popup-content{border-radius:14px !important;padding:16px !important;box-shadow:0 12px 40px rgba(0,0,0,.15) !important;min-width:200px;}
+.mapboxgl-popup-close-button{font-size:16px;right:8px;top:6px;}
+.custom-marker{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--teal-deep),var(--teal));border:3px solid #fff;box-shadow:0 4px 12px rgba(0,127,140,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:transform .2s;}
+.custom-marker:hover,.custom-marker.active{transform:scale(1.2);}
+
+/* RDV MODAL */
+#rdvModal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(14px);
+  z-index:99999;align-items:center;justify-content:center;padding:20px;
+}
+.rdv-inner{
+  background:#fff;border-radius:24px;width:100%;max-width:560px;
+  box-shadow:0 40px 100px rgba(0,0,0,.25);
+  overflow:hidden;max-height:92vh;overflow-y:auto;
+}
+.rdv-header{
+  background:linear-gradient(135deg,#0d1b2a,#007f8c);
+  padding:28px 28px 22px;position:relative;
+}
+.rdv-header-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:900;color:#fff;margin:0 0 4px;}
+.rdv-header-sub{font-size:13px;color:rgba(255,255,255,.65);margin:0;}
+.rdv-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;width:32px;height:32px;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.rdv-close:hover{background:rgba(255,255,255,.3);}
+.rdv-steps{display:flex;align-items:center;gap:0;padding:20px 28px 0;border-bottom:1px solid var(--border);margin-bottom:0;}
+.rdv-step{display:flex;align-items:center;gap:8px;padding-bottom:14px;flex:1;position:relative;}
+.rdv-step:not(:last-child)::after{content:'';position:absolute;right:0;top:14px;width:50%;height:2px;background:var(--border);transform:translateX(50%);}
+.rdv-step.done::after,.rdv-step.active::after{background:var(--teal-deep);}
+.rdv-step-num{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--muted);background:#fff;flex-shrink:0;transition:all .3s;z-index:1;}
+.rdv-step.active .rdv-step-num{border-color:var(--teal-deep);background:var(--teal-deep);color:#fff;}
+.rdv-step.done .rdv-step-num{border-color:var(--teal-deep);background:var(--teal-deep);color:#fff;}
+.rdv-step-label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;}
+.rdv-step.active .rdv-step-label,.rdv-step.done .rdv-step-label{color:var(--teal-deep);}
+.rdv-body{padding:24px 28px 28px;}
+.rdv-panel{display:none;}
+.rdv-panel.active{display:block;}
+.rdv-agency-recap{
+  display:flex;align-items:center;gap:12px;
+  background:#f0fbfc;border:1.5px solid rgba(0,127,140,.2);
+  border-radius:12px;padding:12px 16px;margin-bottom:20px;
+}
+.rdv-agency-emoji{font-size:24px;flex-shrink:0;}
+.rdv-agency-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--ink);}
+.rdv-agency-addr{font-size:12px;color:var(--muted);margin-top:2px;}
+.rdv-label{font-size:12px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block;}
+.rdv-date-input{
+  width:100%;padding:12px 16px;border:2px solid var(--border);
+  border-radius:12px;font-size:14px;font-weight:600;
+  font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);
+  background:#fff;transition:border-color .2s;margin-bottom:20px;
+}
+.rdv-date-input:focus{outline:none;border-color:var(--teal-deep);box-shadow:0 0 0 3px rgba(0,127,140,.1);}
+.slots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.slot-btn{
+  padding:10px 6px;border:2px solid var(--border);border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;
+  color:var(--ink);background:#fff;cursor:pointer;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);text-align:center;
+}
+.slot-btn:hover{border-color:var(--teal);color:var(--teal-deep);transform:translateY(-2px);}
+.slot-btn.selected{background:var(--teal-deep);border-color:var(--teal-deep);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,127,140,.3);}
+.slot-btn.unavailable{opacity:.35;cursor:not-allowed;pointer-events:none;background:#f8fafc;}
+.rdv-form-group{margin-bottom:16px;}
+.rdv-input{
+  width:100%;padding:12px 16px;border:2px solid var(--border);
+  border-radius:12px;font-size:14px;font-weight:500;
+  font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);
+  background:#fff;transition:border-color .2s;
+}
+.rdv-input:focus{outline:none;border-color:var(--teal-deep);box-shadow:0 0 0 3px rgba(0,127,140,.1);}
+.rdv-input::placeholder{color:#94a3b8;}
+.rdv-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rdv-nav{display:flex;gap:10px;margin-top:24px;}
+.rdv-btn-back{
+  padding:13px 24px;background:#f0f4fa;border:2px solid var(--border);
+  border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.rdv-btn-back:hover{background:#e4eaf5;color:var(--ink);}
+.rdv-btn-next{
+  flex:1;padding:14px;
+  background:linear-gradient(135deg,var(--teal-deep),var(--teal));
+  color:#fff;border:none;border-radius:12px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;transition:all .25s;box-shadow:0 6px 20px rgba(0,127,140,.3);
+}
+.rdv-btn-next:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,127,140,.42);}
+.rdv-btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.rdv-confirm-box{
+  text-align:center;padding:16px 0 8px;
+}
+.rdv-confirm-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,#ecfdf5,#d1fae5);
+  border:3px solid #6ee7b7;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;margin:0 auto 20px;
+}
+.rdv-confirm-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:900;color:var(--ink);margin-bottom:8px;}
+.rdv-confirm-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px;}
+.rdv-confirm-card{
+  background:#f8fafc;border:1.5px solid var(--border);
+  border-radius:14px;padding:16px 20px;text-align:left;margin-bottom:20px;
+}
+.rdv-confirm-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;color:var(--ink);}
+.rdv-confirm-row:not(:last-child){border-bottom:1px solid var(--border);}
+.rdv-confirm-row strong{font-weight:700;min-width:80px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+
+@media(max-width:900px){
+  .hero-split{grid-template-columns:1fr}
+  .hero-right{padding:0 24px 40px}
+  .features-grid{grid-template-columns:repeat(2, 1fr)}
+  .plans-switch{flex-direction:column}
+  .modal-inner{grid-template-columns:1fr}
+  .modal-left{display:none}
+  .agency-modal-inner{grid-template-columns:1fr;grid-template-rows:300px 1fr}
+  .agency-modal-left{max-height:300px}
+  #agency-map{min-height:300px}
+  .slots-grid{grid-template-columns:repeat(3,1fr)}
+  .rdv-row{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .features-grid{grid-template-columns:1fr}
+  .slots-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="breadcrumb">
+  <a href="{{ path('app_client_abonnements') }}">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Abonnements
+  </a>
+  <span style="color:#cbd5e1">›</span>
+  <span style="color:var(--ink);font-weight:600">{{ abo.nom }}</span>
+</div>
+
+<section style="position:relative;overflow:hidden;">
+  <div class="hero-bg"></div>
+  <div class="hero-split" style="max-width:1200px;margin:0 auto;position:relative;z-index:2;">
+
+    <div class="hero-left">
+      <div class="hero-badges">
+        <div class="svc-logo-box">
+          {% if abo.logoDomain %}
+            <img src="https://logo.clearbit.com/{{ abo.logoDomain }}" alt="{{ abo.nom }}"
+                 onerror="this.src='https://www.google.com/s2/favicons?domain={{ abo.logoDomain }}&sz=68'; this.style.width='68px'; this.style.height='68px'; this.onerror=function(){ this.style.display='none'; document.getElementById('logo-fb-h').style.display='flex'; };"/>
+          {% endif %}
+          <div id="logo-fb-h" class="logo-fb"
+               style="{% if abo.logoDomain %}display:none{% else %}display:flex{% endif %};width:100%;height:100%;align-items:center;justify-content:center;">
+            {{ abo.nom|slice(0,2)|upper }}
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="badge badge-cat">{{ abo.categorie|capitalize }}</span>
+          {% if abo.tier == 'Platinum' %}<span class="badge badge-plat">{{ abo.tier }}</span>
+          {% elseif abo.tier == 'Gold' %}<span class="badge badge-gold">{{ abo.tier }}</span>
+          {% elseif abo.tier == 'Silver' %}<span class="badge badge-silv">{{ abo.tier }}</span>
+          {% else %}<span class="badge badge-basic">{{ abo.tier }}</span>{% endif %}
+        </div>
+      </div>
+
+      {% set titleParts = abo.nom|split(' ') %}
+      <h1 class="big-title">{{ titleParts|first }} <span>{{ titleParts|slice(1)|join(' ') }}</span></h1>
+      <p class="hero-desc">{{ abo.description }}</p>
+
+      <div class="price-row">
+        {% if promo_active is defined and promo_active %}
+          <span class="price-strike">{{ abo.prix|number_format(2) }} DT</span>
+          <span class="price-main promo-color">{{ promo_prix|number_format(2) }} DT</span>
+          <span class="price-freq">/ {{ abo.frequence }}</span>
+        {% else %}
+          {% if abo.prixMarche and abo.prixMarche > abo.prix %}
+            <span class="price-strike">{{ abo.prixMarche|number_format(2) }} DT</span>
+          {% endif %}
+          <span class="price-main">{{ abo.prix|number_format(2) }} DT</span>
+          <span class="price-freq">/ {{ abo.frequence }}</span>
+        {% endif %}
+      </div>
+
+      {% if autresPlans is defined and autresPlans|length > 0 %}
+        <span class="plans-switch-label">Choisissez votre plan</span>
+        <div class="plans-switch">
+          {% for plan in autresPlans %}
+            {% set ci = loop.index0 % 5 %}
+            <a href="{{ path('app_client_abonnement_offre', {id: plan.id}) }}"
+               class="plan-switch-card {% if plan.id == abo.id %}active{% endif %}">
+              <span class="switch-badge switch-badge-{{ ci }}">
+                {{ plan.badgeLabel ?? (plan.prix|number_format(2) ~ ' DT / ' ~ plan.frequence) }}
+              </span>
+              <div class="switch-card-body">
+                <div class="switch-plan-name switch-plan-name-{{ ci }}">{{ plan.nomPlan }}</div>
+                <div class="switch-plan-price">{{ plan.prix|number_format(2) }} DT</div>
+                <div class="switch-plan-freq">/ {{ plan.frequence }}</div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="features-grid">
+        <div class="feat-item"><div class="feat-icon">🚫</div><div><div class="feat-title">Zéro publicité</div><div class="feat-sub">Expérience continue</div></div></div>
+        <div class="feat-item"><div class="feat-icon">📥</div><div><div class="feat-title">Mode hors-ligne</div><div class="feat-sub">Disponible partout</div></div></div>
+        <div class="feat-item"><div class="feat-icon">⭐</div><div><div class="feat-title">Qualité HD</div><div class="feat-sub">Résolution maximale</div></div></div>
+        <div class="feat-item"><div class="feat-icon">🔄</div><div><div class="feat-title">Annulable</div><div class="feat-sub">À tout moment</div></div></div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="cta-card">
+
+        {% if promo_active is defined and promo_active %}
+        <div class="promo-banner">
+          <div class="promo-banner-left">
+            <span style="font-size:20px">🎉</span>
+            <div>
+              <div class="promo-label-txt">{{ promo_label }} appliquée</div>
+              <div class="promo-sub-txt">−{{ promo_active.reductionPct }}% sur le prix standard</div>
+            </div>
+          </div>
+          <a href="{{ path('app_client_abonnement_offre', {id: abo.id}) }}" class="promo-change">Changer →</a>
+        </div>
+        {% endif %}
+
+        <p class="cta-label">Votre prix</p>
+
+        {% if promo_active is defined and promo_active %}
+          <p class="cta-price promo">{{ promo_prix|number_format(2) }} DT <span class="cta-price-freq">/ {{ abo.frequence }}</span></p>
+          <p class="cta-original">Prix standard : {{ abo.prix|number_format(2) }} DT</p>
+        {% else %}
+          <p class="cta-price">{{ abo.prix|number_format(2) }} DT <span class="cta-price-freq">/ {{ abo.frequence }}</span></p>
+          <div style="height:8px"></div>
+        {% endif %}
+
+        <p style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">
+          Comment souhaitez-vous payer ?
+        </p>
+
+        <div class="payment-options">
+          <button onclick="openCheckout()" class="pay-option-btn pay-card-btn">
+            <div class="pay-icon">💳</div>
+            <div class="pay-text">
+              <span class="pay-title">Payer par carte</span>
+              <span class="pay-sub">Visa, Mastercard · Paiement immédiat</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="stroke:rgba(255,255,255,.7);stroke-width:2.5;stroke-linecap:round;flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          <button onclick="openAgencyModal()" class="pay-option-btn pay-agency-btn">
+            <div class="pay-icon">🏢</div>
+            <div class="pay-text">
+              <span class="pay-title">Payer en agence</span>
+              <span class="pay-sub">Tunis · Sousse · Nabeul · Prendre RDV</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="stroke:var(--muted);stroke-width:2.5;stroke-linecap:round;flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        {% if not (promo_active is defined and promo_active) %}
+          <a href="{{ path('app_client_abonnement_offre', {id: abo.id}) }}" class="cta-promo-link">🏷️ Voir les offres promotionnelles</a>
+        {% endif %}
+
+        <div class="cta-security">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 1C5.03 1 1 5.03 1 10s4.03 9 9 9 9-4.03 9-9S14.97 1 10 1zm3.96 6.54L9.41 11.5 6.5 8.59" stroke="var(--teal-deep)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          Paiement 100% sécurisé · Annulable à tout moment
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="diff-section">
+  <div class="diff-inner">
+    <h2 class="diff-title reveal">Vivez la différence</h2>
+    <p class="diff-sub reveal">Passez à Premium et bénéficiez d'un contrôle total. Annulez à tout moment.</p>
+    <table class="diff-table reveal">
+      <thead>
+        <tr>
+          <th style="width:48%">Vos avantages</th>
+          <th>Sans abonnement</th>
+          <th>{{ abo.nom }} Premium</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in ['Service sans publicité','Qualité supérieure (HD/4K)','Téléchargement hors-ligne','Support client prioritaire','Accès aux offres exclusives','Annulable à tout moment'] %}
+        <tr>
+          <td>{{ row }}</td
+          <td><span class="dash">—</span></td
+          <td><span class="check">✓</span></td
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="faq-section">
+  <h2 class="faq-big-title reveal">Des questions ?</h2>
+  <p class="faq-sub reveal">Nous avons les réponses.</p>
+  <p class="faq-link reveal">Plus de réponses sur notre <a href="#">site d'aide</a>.</p>
+
+  {% set faqs = [
+    {q: "Comment fonctionne la période d'essai ?", a: "Si vous êtes éligible, vous pouvez profiter d'une offre d'essai à prix réduit pendant une période limitée. À la fin, nous facturons le tarif standard mensuel de l'abonnement sélectionné."},
+    {q: "Comment annuler mon abonnement ?", a: "Vous pouvez annuler à tout moment depuis votre espace client. Votre abonnement reste actif jusqu'à la fin de la période de facturation."},
+    {q: "Comment fonctionnent les offres promotionnelles ?", a: "Les promotions peuvent être de type étudiant, famille, fidélité ou limitée. Certaines nécessitent une vérification par email universitaire."},
+    {q: "Quels modes de paiement sont acceptés ?", a: "Nous acceptons Visa, Mastercard, Orange Money et virements bancaires. Tous les paiements sont sécurisés par Stripe. Vous pouvez également payer directement dans l'une de nos agences après avoir pris un rendez-vous."},
+    {q: "Comment prendre un rendez-vous en agence ?", a: "Cliquez sur 'Payer en agence', choisissez l'agence sur la carte, puis cliquez sur 'Prendre un RDV'. Choisissez votre date et créneau horaire. Vous recevrez une confirmation par email avec tous les détails."},
+    {q: "Mes données sont-elles sécurisées ?", a: "Oui. Vos informations de paiement sont chiffrées par Stripe. Nous ne stockons jamais vos données de carte bancaire."},
+  ] %}
+
+  {% for faq in faqs %}
+    <div class="faq-item reveal" id="faq{{ loop.index }}">
+      <button class="faq-q" onclick="toggleFaq('faq{{ loop.index }}')">
+        {{ faq.q }}<span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">{{ faq.a }}</div>
+    </div>
+  {% endfor %}
+</div>
+
+<footer class="site-footer">
+  <div class="footer-logo">Din<span>ari</span></div>
+  <div class="footer-links">
+    <a href="#">Mentions légales</a>
+    <a href="#">Confidentialité</a>
+    <a href="#">Assistance</a>
+  </div>
+  <div style="font-size:12px;">© {{ "now"|date("Y") }} Dinari.</div>
+</footer>
+
+{# CHECKOUT MODAL #}
+<div id="checkoutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div class="modal-inner">
+    <div class="modal-left">
+      <p style="font-size:11px;font-weight:700;color:var(--teal-deep);text-transform:uppercase;letter-spacing:.08em;margin:0;">Plan sélectionné</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:50px;height:50px;background:#fff;border-radius:13px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px;flex-shrink:0;">
+          {% if abo.logoDomain %}
+            <img src="https://logo.clearbit.com/{{ abo.logoDomain }}" alt="{{ abo.nom }}" style="width:100%;height:100%;object-fit:contain;"/>
+          {% else %}
+            <div style="font-size:14px;font-weight:800;color:var(--teal-deep);">{{ abo.nom|slice(0,2)|upper }}</div>
+          {% endif %}
+        </div>
+        <div>
+          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:var(--ink);margin:0 0 2px;">{{ abo.nom }}</h3>
+          <p style="font-size:12px;color:var(--muted);margin:0;">{{ abo.tier }} · {{ abo.frequence|capitalize }}</p>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1.5px solid rgba(0,127,140,.15);">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="order-row">
+          <span style="font-size:15px;color:var(--muted);">Abonnement</span>
+          {% if promo_active is defined and promo_active %}
+            <div style="text-align:right;">
+              <span style="font-size:12px;color:#94a3b8;text-decoration:line-through;">{{ abo.prix|number_format(2) }} DT</span><br>
+              <span style="font-size:14px;font-weight:700;color:#1a7a47;">{{ promo_prix|number_format(2) }} DT</span>
+            </div>
+          {% else %}
+            <span style="font-size:15px;font-weight:600;color:var(--ink);">{{ abo.prix|number_format(2) }} DT</span>
+          {% endif %}
+        </div>
+        {% if promo_active is defined and promo_active %}
+          <div class="order-row"><span style="font-size:15px;color:var(--muted);">{{ promo_label }}</span><span style="font-size:15px;font-weight:600;color:#1a7a47;">−{{ promo_active.reductionPct }}%</span></div>
+        {% endif %}
+        <div class="order-row"><span style="font-size:15px;color:var(--muted);">Frais de service</span><span style="font-size:15px;font-weight:600;color:#16a34a;">Gratuit</span></div>
+        <hr style="border:none;border-top:1.5px solid rgba(0,127,140,.15);">
+        <div class="order-row" style="align-items:flex-end;">
+          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:var(--ink);">Total</span>
+          {% set prixFinal = (promo_active is defined and promo_active and promo_prix) ? promo_prix : abo.prix %}
+          <div style="text-align:right;">
+            <div class="order-total">{{ prixFinal|number_format(2) }} DT</div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">/ {{ abo.frequence }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-right">
+      <button type="button" onclick="closeCheckout()" class="modal-close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin:0 0 6px;">Paiement sécurisé</h2>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 24px;">Vos informations sont chiffrées et sécurisées par Stripe.</p>
+      <div id="payment-message"></div>
+      <form id="stripe-form">
+        <div id="payment-element"></div>
+        <button id="submit-stripe" type="submit" style="margin-top:20px;">
+          <span id="btn-text">
+            {% set prixFinal = (promo_active is defined and promo_active and promo_prix) ? promo_prix : abo.prix %}
+            Payer {{ prixFinal|number_format(2) }} DT →
+          </span>
+          <span id="btn-spinner" style="display:none;">⏳ Traitement en cours…</span>
+        </button>
+      </form>
+      <div class="stripe-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="stroke:#94a3b8;stroke-width:2;stroke-linecap:round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Sécurisé par <strong style="color:#635bff;">stripe</strong></span>
+      </div>
+      <div class="test-cards">
+        <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px;">🧪 Cartes de test</p>
+        <div class="tc-row"><code style="font-size:13px;font-family:monospace">4242 4242 4242 4242</code><span class="tc-badge tc-ok">✓ Succès</span></div>
+        <div class="tc-row"><code style="font-size:13px;font-family:monospace">4000 0000 0000 0002</code><span class="tc-badge tc-err">✗ Refusée</span></div>
+        <div class="tc-row" style="margin-bottom:0"><code style="font-size:13px;font-family:monospace">4000 0025 0000 3155</code><span class="tc-badge tc-warn">⚠ 3D Secure</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# AGENCY MODAL #}
+<div id="agencyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div class="agency-modal-inner">
+    <button onclick="closeAgencyModal()" class="agency-close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="agency-modal-left">
+      <div class="agency-modal-header">
+        <div class="agency-modal-title">🏢 Nos agences</div>
+        <div class="agency-modal-sub">Choisissez l'agence, puis prenez votre RDV</div>
+      </div>
+      <div style="padding:8px 0 16px;">
+        <div class="agency-card active" id="ag-card-0" onclick="focusAgency(0)">
+          <div class="agency-card-nom">Dinari Tunis Centre</div>
+          <div class="agency-card-ville">Tunis</div>
+          <div class="agency-card-addr">📍 Avenue Habib Bourguiba, Tunis 1001</div>
+          <div class="agency-card-footer">
+            <span>🕐 Lun–Sam : 08h–18h</span>
+            <span class="status-open">● Ouvert</span>
+          </div>
+          <button class="btn-rdv-agence" onclick="event.stopPropagation(); openRdv(0)">
+            📅 Prendre un rendez-vous
+          </button>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=36.8190,10.1657" target="_blank"
+             onclick="event.stopPropagation()" class="btn-itineraire">🧭 Itinéraire</a>
+        </div>
+        <div class="agency-card" id="ag-card-1" onclick="focusAgency(1)">
+          <div class="agency-card-nom">Dinari Sousse</div>
+          <div class="agency-card-ville">Sousse</div>
+          <div class="agency-card-addr">📍 Avenue Mohamed V, Sousse 4000</div>
+          <div class="agency-card-footer">
+            <span>🕐 Lun–Sam : 08h30–17h30</span>
+            <span class="status-open">● Ouvert</span>
+          </div>
+          <button class="btn-rdv-agence" onclick="event.stopPropagation(); openRdv(1)">
+            📅 Prendre un rendez-vous
+          </button>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=35.8245,10.6346" target="_blank"
+             onclick="event.stopPropagation()" class="btn-itineraire">🧭 Itinéraire</a>
+        </div>
+        <div class="agency-card" id="ag-card-2" onclick="focusAgency(2)">
+          <div class="agency-card-nom">Dinari Nabeul</div>
+          <div class="agency-card-ville">Nabeul</div>
+          <div class="agency-card-addr">📍 Avenue Habib Thameur, Nabeul 8000</div>
+          <div class="agency-card-footer">
+            <span>🕐 Lun–Sam : 08h–17h</span>
+            <span class="status-open">● Ouvert</span>
+          </div>
+          <button class="btn-rdv-agence" onclick="event.stopPropagation(); openRdv(2)">
+            📅 Prendre un rendez-vous
+          </button>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=36.4537,10.7352" target="_blank"
+             onclick="event.stopPropagation()" class="btn-itineraire">🧭 Itinéraire</a>
+        </div>
+        <div style="margin:10px;padding:14px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:12px;border:1.5px solid #6ee7b7;">
+          <p style="font-size:12px;font-weight:700;color:#1a7a47;margin:0 0 6px;">💡 Comment ça marche ?</p>
+          <p style="font-size:11px;color:#2e7d52;margin:0;line-height:1.6;">
+            Choisissez votre agence, cliquez sur <strong>Prendre un RDV</strong>,
+            sélectionnez votre créneau et complétez vos informations.
+            Vous recevrez une confirmation par email.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="agency-map"></div>
+  </div>
+</div>
+
+{# RDV MODAL #}
+<div id="rdvModal">
+  <div class="rdv-inner">
+    <div class="rdv-header">
+      <button class="rdv-close" onclick="closeRdv()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="rdv-header-title">📅 Prendre un rendez-vous</div>
+      <div class="rdv-header-sub" id="rdv-header-agency-name">Agence sélectionnée</div>
+    </div>
+    <div class="rdv-steps">
+      <div class="rdv-step active" id="step-ind-0">
+        <div class="rdv-step-num" id="step-num-0">1</div>
+        <div class="rdv-step-label">Date & heure</div>
+      </div>
+      <div class="rdv-step" id="step-ind-1">
+        <div class="rdv-step-num" id="step-num-1">2</div>
+        <div class="rdv-step-label">Vos infos</div>
+      </div>
+      <div class="rdv-step" id="step-ind-2">
+        <div class="rdv-step-num" id="step-num-2">3</div>
+        <div class="rdv-step-label">Confirmation</div>
+      </div>
+    </div>
+    <div class="rdv-body">
+      <div class="rdv-panel active" id="rdv-panel-0">
+        <div class="rdv-agency-recap" id="rdv-agency-recap">
+          <div class="rdv-agency-emoji" id="rdv-agency-emoji">🏢</div>
+          <div>
+            <div class="rdv-agency-name" id="rdv-agency-name-display">—</div>
+            <div class="rdv-agency-addr" id="rdv-agency-addr-display">—</div>
+          </div>
+        </div>
+        <label class="rdv-label">Choisissez une date</label>
+        <input type="date" class="rdv-date-input" id="rdv-date" onchange="loadSlots()" />
+        <label class="rdv-label">Créneaux disponibles</label>
+        <div class="slots-grid" id="slots-grid">
+          <div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">
+            Sélectionnez une date pour voir les créneaux disponibles
+          </div>
+        </div>
+        <div class="rdv-nav">
+          <button class="rdv-btn-back" onclick="closeRdv()">Annuler</button>
+          <button class="rdv-btn-next" id="rdv-next-1" onclick="goToStep(1)" disabled>
+            Continuer →
+          </button>
+        </div>
+      </div>
+      <div class="rdv-panel" id="rdv-panel-1">
+        <div style="background:#f0fbfc;border:1.5px solid rgba(0,127,140,.2);border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--ink);">
+          <strong>📅</strong> <span id="rdv-recap-date-slot">—</span>
+          <span style="color:var(--muted);margin:0 6px;">·</span>
+          <strong>🏢</strong> <span id="rdv-recap-agency">—</span>
+        </div>
+        <div class="rdv-row">
+          <div class="rdv-form-group">
+            <label class="rdv-label">Prénom *</label>
+            <input type="text" class="rdv-input" id="rdv-prenom" placeholder="Votre prénom" oninput="validateStep2()"/>
+          </div>
+          <div class="rdv-form-group">
+            <label class="rdv-label">Nom *</label>
+            <input type="text" class="rdv-input" id="rdv-nom" placeholder="Votre nom" oninput="validateStep2()"/>
+          </div>
+        </div>
+        <div class="rdv-row">
+          <div class="rdv-form-group">
+            <label class="rdv-label">CIN *</label>
+            <input type="text" class="rdv-input" id="rdv-cin" placeholder="Numéro CIN (8 chiffres ou identifiant)" oninput="validateStep2()"/>
+          </div>
+          <div class="rdv-form-group">
+            <label class="rdv-label">Téléphone *</label>
+            <input type="tel" class="rdv-input" id="rdv-tel" placeholder="+216 XX XXX XXX" oninput="validateStep2()"/>
+          </div>
+        </div>
+        <div class="rdv-form-group">
+          <label class="rdv-label">Email *</label>
+          <input type="email" class="rdv-input" id="rdv-email" placeholder="votre@email.com" oninput="validateStep2()"/>
+        </div>
+        <div class="rdv-form-group">
+          <label class="rdv-label">Message (optionnel)</label>
+          <input type="text" class="rdv-input" id="rdv-message" placeholder="Questions ou précisions…"/>
+        </div>
+        <div class="rdv-nav">
+          <button class="rdv-btn-back" onclick="goToStep(0)">← Retour</button>
+          <button class="rdv-btn-next" id="rdv-next-2" onclick="submitRdv()" disabled>
+            Confirmer le RDV →
+          </button>
+        </div>
+      </div>
+      <div class="rdv-panel" id="rdv-panel-2">
+        <div class="rdv-confirm-box">
+          <div class="rdv-confirm-icon">✅</div>
+          <div class="rdv-confirm-title">Rendez-vous confirmé !</div>
+          <div class="rdv-confirm-sub">
+            Un email de confirmation a été envoyé à <strong id="confirm-email-display">—</strong>.<br>
+            Présentez-vous à l'agence à l'heure indiquée avec une pièce d'identité.
+          </div>
+          <div class="rdv-confirm-card">
+            <div class="rdv-confirm-row"><strong>Agence</strong><span id="confirm-agency">—</span></div>
+            <div class="rdv-confirm-row"><strong>Date</strong><span id="confirm-date">—</span></div>
+            <div class="rdv-confirm-row"><strong>Heure</strong><span id="confirm-slot">—</span></div>
+            <div class="rdv-confirm-row"><strong>Plan</strong><span>{{ abo.nom }}</span></div>
+            <div class="rdv-confirm-row"><strong>Montant</strong><span>{{ ((promo_active is defined and promo_active and promo_prix) ? promo_prix : abo.prix)|number_format(2) }} DT / {{ abo.frequence }}</span></div>
+          </div>
+          <button onclick="closeRdvAndAgency()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--teal-deep),var(--teal));color:#fff;border:none;border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(0,127,140,.3);">
+            Parfait, j'ai compris 👍
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ SMART POPUP IA RECOMMANDATION ══ #}
+<div id="promoPopup" style="display:none; position:fixed; bottom:24px; right:24px; z-index:100000; width:420px; background:linear-gradient(135deg,#1a1a2e,#16213e); border-radius:24px; box-shadow:0 25px 50px rgba(0,0,0,0.4); overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
+    <div style="padding:20px;">
+        <!-- Badge IA -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:30px;">
+                <span style="font-size:14px;">🧠</span>
+                <span style="font-size:11px; font-weight:600; color:#a0a0a0;">IA RECOMMANDATION</span>
+            </div>
+            <button onclick="closeSmartPopup()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:28px; height:28px; color:white; cursor:pointer;">✕</button>
+        </div>
+        
+        <!-- Contenu principal -->
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="font-size:48px; margin-bottom:8px;">💡</div>
+            <p style="color:white; font-weight:800; font-size:18px; margin:0 0 5px;" id="smartTitle">Meilleure alternative trouvée</p>
+            <p style="color:rgba(255,255,255,0.6); font-size:12px; margin:0;">Basé sur votre profil et 5000+ analyses</p>
+        </div>
+        
+        <!-- Comparaison intelligente -->
+        <div id="smartComparison" style="background:rgba(255,255,255,0.05); border-radius:16px; padding:16px; margin-bottom:16px;"></div>
+        
+        <!-- Économies -->
+        <div id="smartSavings" style="text-align:center; margin-bottom:20px;"></div>
+        
+        <!-- Actions -->
+        <div style="display:flex; gap:12px;">
+            <button onclick="closeSmartPopup()" style="flex:1; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:14px; padding:12px; font-weight:600; color:white; cursor:pointer;">Plus tard</button>
+            <button onclick="acceptSmartRecommendation()" style="flex:1; background:linear-gradient(135deg,#00b4c6,#007f8c); border:none; border-radius:14px; padding:12px; font-weight:800; color:white; cursor:pointer;">🎯 Découvrir</button>
+        </div>
+        
+        <!-- Confidence score IA -->
+        <div style="margin-top:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span style="font-size:10px; color:rgba(255,255,255,0.4);">Confiance IA</span>
+                <span style="font-size:10px; color:rgba(255,255,255,0.6);" id="confidenceScore">98%</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.1); border-radius:10px; height:4px; overflow:hidden;">
+                <div id="confidenceBar" style="width:98%; background:linear-gradient(90deg,#00b4c6,#6ee7b7); height:100%; border-radius:10px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes smartSlideIn {
+    from { opacity:0; transform:translateX(150px) scale(0.9); }
+    to { opacity:1; transform:translateX(0) scale(1); }
+}
+#promoPopup {
+    animation: smartSlideIn 0.4s cubic-bezier(0.34,1.2,0.64,1) forwards;
+}
+</style>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+
+<script>
+var abonnementId = {{ abo.id }};
+
+// ══ STRIPE ══
+const stripe = Stripe('{{ publishableKey }}');
+const elements = stripe.elements({
+  clientSecret: '{{ clientSecret }}',
+  appearance: { theme: 'stripe', variables: { colorPrimary: '#007f8c', colorBackground: '#ffffff', colorText: '#0d1b2a', colorDanger: '#ef4444', fontFamily: 'Inter, sans-serif', borderRadius: '10px' } }
+});
+const paymentElement = elements.create('payment', { wallets: { applePay: 'never', googlePay: 'never' } });
+paymentElement.mount('#payment-element');
+
+function openCheckout(){ document.getElementById('checkoutModal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeCheckout(){ document.getElementById('checkoutModal').style.display='none'; document.body.style.overflow=''; }
+document.getElementById('checkoutModal').addEventListener('click', function(e){ if(e.target===this) closeCheckout(); });
+
+// Formulaire Stripe SANS fraude
+document.getElementById('stripe-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // Récupérer les informations client depuis le formulaire
+  const nom = document.getElementById('client_nom')?.value || '';
+  const prenom = document.getElementById('client_prenom')?.value || '';
+  const email = document.getElementById('client_email')?.value || '';
+  const cin = document.getElementById('client_cin')?.value || '';
+  
+  // Sauvegarder les infos client en session
+  try {
+    await fetch('{{ path("app_client_paiement_session") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nom, prenom, email, cin })
+    });
+  } catch(e) {
+    console.error('Erreur sauvegarde session:', e);
+  }
+  
+  setLoading(true);
+  const { error } = await stripe.confirmPayment({
+    elements,
+    confirmParams: { return_url: '{{ url("app_client_stripe_return") }}' }
+  });
+  if (error) {
+    showMessage('❌ ' + error.message);
+    setLoading(false);
+  }
+});
+
+function setLoading(b) {
+  document.getElementById('submit-stripe').disabled = b;
+  document.getElementById('btn-text').style.display = b ? 'none' : 'flex';
+  document.getElementById('btn-spinner').style.display = b ? 'inline' : 'none';
+}
+function showMessage(msg) { const el = document.getElementById('payment-message'); el.textContent = msg; el.style.display = 'block'; }
+// ══ MAPBOX ══
+mapboxgl.accessToken = '{{ mapboxToken }}';
+const agencesData = [
+  { id: 0, nom: 'Dinari Tunis Centre', ville: 'Tunis', adresse: 'Av. Habib Bourguiba, Tunis 1001', horaire: 'Lun–Sam : 08h–18h', emoji: '🏢', coords: [10.1657, 36.8190] },
+  { id: 1, nom: 'Dinari Sousse',       ville: 'Sousse', adresse: 'Av. Mohamed V, Sousse 4000',     horaire: 'Lun–Sam : 08h30–17h30', emoji: '🏪', coords: [10.6346, 35.8245] },
+  { id: 2, nom: 'Dinari Nabeul',       ville: 'Nabeul', adresse: 'Av. Habib Thameur, Nabeul 8000', horaire: 'Lun–Sam : 08h–17h',    emoji: '🏬', coords: [10.7352, 36.4537] },
+];
+let agencyMap = null, agencyMarkers = [];
+
+function openAgencyModal() {
+  document.getElementById('agencyModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  if (!agencyMap) {
+    setTimeout(() => {
+      agencyMap = new mapboxgl.Map({ container: 'agency-map', style: 'mapbox://styles/mapbox/light-v11', center: [10.4, 36.3], zoom: 7, attributionControl: false });
+      agencyMap.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+      agencesData.forEach((a, i) => {
+        const el = document.createElement('div');
+        el.className = 'custom-marker' + (i === 0 ? ' active' : '');
+        el.innerHTML = a.emoji;
+        el.onclick = () => focusAgency(i);
+        const popup = new mapboxgl.Popup({ offset: 25, closeButton: true, maxWidth: '220px' })
+          .setHTML(`<div style="font-family:'Plus Jakarta Sans',sans-serif;">
+            <div style="font-weight:800;font-size:14px;color:#0d1b2a;margin-bottom:4px;">${a.emoji} ${a.nom}</div>
+            <div style="font-size:11px;color:#007f8c;font-weight:700;text-transform:uppercase;margin-bottom:8px;">${a.ville}</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:4px;">📍 ${a.adresse}</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:8px;">🕐 ${a.horaire}</div>
+            <button onclick="openRdv(${i})" class="btn-rdv-agence">📅 Prendre un RDV</button>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${a.coords[1]},${a.coords[0]}" target="_blank" class="btn-itineraire">🧭 Itinéraire</a>
+          </div>`);
+        const marker = new mapboxgl.Marker(el).setLngLat(a.coords).setPopup(popup).addTo(agencyMap);
+        agencyMarkers.push({ marker, el, popup });
+      });
+      setTimeout(() => agencyMarkers[0]?.marker.togglePopup(), 600);
+    }, 100);
+  }
+}
+function closeAgencyModal() { document.getElementById('agencyModal').style.display = 'none'; document.body.style.overflow = ''; }
+function focusAgency(index) {
+  if (!agencyMap) return;
+  agencyMarkers.forEach((m, i) => { m.el.classList.toggle('active', i === index); m.popup.remove(); });
+  document.querySelectorAll('.agency-card').forEach((c, i) => c.classList.toggle('active', i === index));
+  agencyMap.flyTo({ center: agencesData[index].coords, zoom: 13, duration: 1000 });
+  setTimeout(() => agencyMarkers[index].marker.togglePopup(), 800);
+}
+document.getElementById('agencyModal').addEventListener('click', function(e){ if(e.target === this) closeAgencyModal(); });
+
+// ══ RDV FLOW ══
+let rdvState = { agencyIndex: 0, date: '', slot: '', prenom: '', nom: '', email: '', tel: '', message: '' };
+let currentRdvStep = 0;
+const ALL_SLOTS = ['08:30','09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+const UNAVAILABLE = ['09:00','10:30','14:30'];
+
+function openRdv(agencyIndex) {
+  rdvState = { agencyIndex, date: '', slot: '', prenom: '', nom: '', email: '', tel: '', message: '' };
+  currentRdvStep = 0;
+  const ag = agencesData[agencyIndex];
+  document.getElementById('rdv-header-agency-name').textContent = ag.nom + ' — ' + ag.ville;
+  document.getElementById('rdv-agency-name-display').textContent = ag.nom;
+  document.getElementById('rdv-agency-addr-display').textContent = ag.adresse;
+  document.getElementById('rdv-agency-emoji').textContent = ag.emoji;
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('rdv-date').min = tomorrow.toISOString().split('T')[0];
+  document.getElementById('rdv-date').value = '';
+  document.getElementById('slots-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">Sélectionnez une date pour voir les créneaux disponibles</div>';
+  document.getElementById('rdv-next-1').disabled = true;
+  showRdvStep(0);
+  document.getElementById('rdvModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeRdv() { document.getElementById('rdvModal').style.display = 'none'; document.body.style.overflow = ''; }
+function closeRdvAndAgency() { closeRdv(); closeAgencyModal(); }
+function showRdvStep(step) {
+  currentRdvStep = step;
+  document.querySelectorAll('.rdv-panel').forEach((p, i) => p.classList.toggle('active', i === step));
+  document.querySelectorAll('.rdv-step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < step) s.classList.add('done');
+    if (i === step) s.classList.add('active');
+    if (i < step) document.getElementById('step-num-' + i).textContent = '✓';
+    else document.getElementById('step-num-' + i).textContent = i + 1;
+  });
+}
+function goToStep(step) { showRdvStep(step); }
+function loadSlots() {
+  const dateVal = document.getElementById('rdv-date').value;
+  if (!dateVal) return;
+  rdvState.date = dateVal; rdvState.slot = '';
+  document.getElementById('rdv-next-1').disabled = true;
+  const d = new Date(dateVal); const day = d.getDay();
+  const grid = document.getElementById('slots-grid');
+  if (day === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#ef4444;font-size:13px;padding:16px 0;">❌ Fermé le dimanche.</div>'; return; }
+  const slots = ALL_SLOTS.filter(s => { if (rdvState.agencyIndex === 1) return s >= '08:30'; return true; });
+  grid.innerHTML = slots.map(s => `<button class="slot-btn${UNAVAILABLE.includes(s) ? ' unavailable' : ''}" onclick="selectSlot('${s}', this)">${s}</button>`).join('');
+}
+function selectSlot(slot, btn) {
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected'); rdvState.slot = slot;
+  document.getElementById('rdv-next-1').disabled = false;
+}
+function validateStep2() {
+  const ok = document.getElementById('rdv-prenom').value.trim() && document.getElementById('rdv-nom').value.trim() && document.getElementById('rdv-cin').value.trim() && document.getElementById('rdv-email').value.includes('@') && document.getElementById('rdv-tel').value.trim().length >= 8;
+  document.getElementById('rdv-next-2').disabled = !ok;
+  const dateObj = new Date(rdvState.date);
+  document.getElementById('rdv-recap-date-slot').textContent = dateObj.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' à ' + rdvState.slot;
+  document.getElementById('rdv-recap-agency').textContent = agencesData[rdvState.agencyIndex].nom;
+}
+async function submitRdv() {
+  rdvState.prenom = document.getElementById('rdv-prenom').value.trim();
+  rdvState.nom = document.getElementById('rdv-nom').value.trim();
+  rdvState.cin = document.getElementById('rdv-cin').value.trim();
+  rdvState.email = document.getElementById('rdv-email').value.trim();
+  rdvState.tel = document.getElementById('rdv-tel').value.trim();
+  rdvState.message = document.getElementById('rdv-message').value.trim();
+  const btn = document.getElementById('rdv-next-2');
+  btn.textContent = '⏳ Envoi…'; btn.disabled = true;
+  try {
+    const payload = { agence: agencesData[rdvState.agencyIndex].nom, agenceVille: agencesData[rdvState.agencyIndex].ville, date: rdvState.date, slot: rdvState.slot, prenom: rdvState.prenom, nom: rdvState.nom, cin: rdvState.cin, email: rdvState.email, tel: rdvState.tel, message: rdvState.message, planNom: '{{ abo.nom|e('js') }}', planPrix: '{{ ((promo_active is defined and promo_active and promo_prix) ? promo_prix : abo.prix)|number_format(2) }} DT / {{ abo.frequence }}' };
+    const res = await fetch('/client/rdv/confirmer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      const dateStr = new Date(rdvState.date).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+      document.getElementById('confirm-email-display').textContent = rdvState.email;
+      document.getElementById('confirm-agency').textContent = agencesData[rdvState.agencyIndex].nom + ' — ' + agencesData[rdvState.agencyIndex].ville;
+      document.getElementById('confirm-date').textContent = dateStr;
+      document.getElementById('confirm-slot').textContent = rdvState.slot;
+      showRdvStep(2);
+    } else { alert('❌ ' + (data.error || 'Erreur')); btn.textContent = 'Confirmer le RDV →'; btn.disabled = false; }
+  } catch(err) { alert('❌ Erreur réseau'); btn.textContent = 'Confirmer le RDV →'; btn.disabled = false; }
+}
+document.getElementById('rdvModal')?.addEventListener('click', function(e){ if(e.target === this) closeRdv(); });
+
+function toggleFaq(id){
+  const item = document.getElementById(id);
+  const open = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if(!open) item.classList.add('open');
+}
+
+(function(){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, {threshold: 0.1});
+  document.querySelectorAll('.reveal,.feat-item').forEach(el => io.observe(el));
+})();
+
+// ══ SMART POPUP IA FUNCTIONS ══
+function closeSmartPopup() {
+    document.getElementById('promoPopup').style.display = 'none';
+}
+
+function acceptSmartRecommendation() {
+    var popup = document.getElementById('promoPopup');
+    var service = popup.getAttribute('data-service');
+    if (service) {
+        alert('🎉 Découvrez ' + service + ' !\n\nUne excellente alternative pour vous.');
+    }
+    closeSmartPopup();
+}
+
+function showSmartRecommendation(data) {
+    var popup = document.getElementById('promoPopup');
+    var comparisonDiv = document.getElementById('smartComparison');
+    var savingsDiv = document.getElementById('smartSavings');
+    var confidenceSpan = document.getElementById('confidenceScore');
+    var confidenceBar = document.getElementById('confidenceBar');
+    
+    if (!popup) return;
+    
+    // CAS 1: Félicitations (déjà le meilleur prix)
+    if (data.type === 'congratulation') {
+        comparisonDiv.innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <div style="font-size:64px; margin-bottom:15px;">🏆</div>
+                <div style="font-size:16px; font-weight:800; color:#6ee7b7; margin-bottom:10px;">${data.message}</div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.7);">${data.current?.nom} à ${data.current?.prix} DT/mois</div>
+            </div>
+        `;
+        savingsDiv.innerHTML = `
+            <div style="background:linear-gradient(135deg,#1a7a47,#2e7d52); border-radius:12px; padding:12px;">
+                <div style="font-size:11px; color:rgba(255,255,255,0.7);">⭐ VOUS AVEZ FAIT LE BON CHOIX ⭐</div>
+                <div style="font-size:14px; color:#6ee7b7; margin-top:5px;">Vous bénéficiez déjà du meilleur tarif !</div>
+            </div>
+        `;
+        popup.style.display = 'block';
+        return;
+    }
+    
+    // CAS 2: Recommandation
+    if (data.recommendation) {
+        popup.setAttribute('data-service', data.recommendation);
+        popup.setAttribute('data-price', data.recommendation_price);
+        popup.setAttribute('data-reduction', data.recommendation_reduction);
+        
+        var ancienPrix = data.current?.prix || 15.99;
+        var nouveauPrix = data.recommendation_price || 9.99;
+        var economies = (ancienPrix - nouveauPrix).toFixed(2);
+        var economiesAnnuelles = (economies * 12).toFixed(0);
+        var pourcentage = data.recommendation_reduction || Math.round((economies / ancienPrix) * 100);
+        var scoreConfiance = Math.min(99, Math.round((data.score || 0.85) * 100));
+        
+        confidenceSpan.textContent = scoreConfiance + '%';
+        confidenceBar.style.width = scoreConfiance + '%';
+        
+        comparisonDiv.innerHTML = `
+            <div style="display:flex; justify-content:space-between; gap:12px;">
+                <div style="flex:1; text-align:center;">
+                    <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:5px;">Votre abonnement</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.7);">${data.current?.nom}</div>
+                    <div style="font-size:24px; font-weight:800; color:rgba(255,255,255,0.5); text-decoration:line-through;">${ancienPrix} DT</div>
+                </div>
+                <div style="flex:0; color:#00b4c6; font-size:20px;">→</div>
+                <div style="flex:1; text-align:center; background:linear-gradient(135deg,rgba(0,180,198,0.2),rgba(110,231,183,0.1)); border-radius:12px; padding:8px;">
+                    <div style="font-size:12px; color:#6ee7b7; margin-bottom:5px;">✨ Recommandé</div>
+                    <div style="font-size:13px; font-weight:700; color:white;">${data.recommendation}</div>
+                    <div style="font-size:28px; font-weight:900; color:#6ee7b7;">${nouveauPrix} DT</div>
+                    <div style="font-size:10px; color:rgba(255,255,255,0.5);">au lieu de ${ancienPrix} DT</div>
+                </div>
+            </div>
+            <div style="margin-top:12px; padding:8px; background:rgba(0,180,198,0.15); border-radius:10px;">
+                <div style="font-size:11px; color:#6ee7b7; text-align:center;">💡 ${data.recommendation_reason || 'Meilleur rapport qualité/prix'}</div>
+            </div>
+        `;
+        
+        savingsDiv.innerHTML = `
+            <div style="background:linear-gradient(135deg,#1a7a47,#2e7d52); border-radius:12px; padding:12px;">
+                <div style="font-size:11px; color:rgba(255,255,255,0.7);">💰 VOUS ÉCONOMISEZ</div>
+                <div style="font-size:32px; font-weight:900; color:#6ee7b7;">${economies} DT</div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.7);">par mois | ${economiesAnnuelles} DT/an</div>
+                <div style="margin-top:8px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                    <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:20px; font-size:10px;">📉 -${pourcentage}%</span>
+                    <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:20px; font-size:10px;">⭐ Top recommandé</span>
+                    <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:20px; font-size:10px;">🧠 IA certifiée</span>
+                </div>
+            </div>
+        `;
+        
+        popup.style.display = 'block';
+        console.log('✅ SMART POPUP IA AFFICHÉ !');
+    }
+}
+
+// ══ RECOMMANDATION ML ══
+(function() {
+    console.log('🚀 Système de recommandation IA chargé - Abo ID:', abonnementId);
+
+    setTimeout(function() {
+        var url = '/client/check-promo/' + abonnementId + '?categorie={{ abo.categorie|e('js') }}';
+        console.log('📡 Appel API:', url);
+
+        fetch(url)
+            .then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(function(data) {
+                console.log('📨 Réponse API:', data);
+                if (data.afficher === true) {
+                    showSmartRecommendation(data);
+                } else {
+                    console.log('ℹ️ Pas de recommandation - score:', data.score);
+                }
+            })
+            .catch(function(err) {
+                console.error('❌ Erreur fetch:', err);
+            });
+    }, 2000);
+})();
+</script>
+{% endblock %}

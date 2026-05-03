@@ -1,0 +1,307 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Modifier Abonnement — Admin Dinari{% endblock %}
+{% block page_title %}Modifier l'Abonnement{% endblock %}
+
+{% block stylesheets %}
+<style>
+.form-group-d {
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px;
+}
+.form-group-d label {
+    font-weight: 600; color: #1e2d40; font-size: 14px;
+}
+.form-group-d .help-text {
+    font-size: 12px; color: #8a9bb5; font-weight: 500;
+}
+.form-group-d input[required]::after,
+.form-group-d select[required]::after,
+.form-group-d textarea[required]::after {
+    content: ' *'; color: #e74c3c;
+}
+input.form-control, textarea.form-control, select.form-control {
+    border: 1.5px solid #d9e2ed; border-radius: 8px;
+    padding: 10px 12px; font-size: 13px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: border-color 0.2s;
+}
+input.form-control:focus, textarea.form-control:focus, select.form-control:focus {
+    outline: none; border-color: #1a6fc4; box-shadow: 0 0 0 3px rgba(26,111,196,0.1);
+}
+input.form-control:invalid, textarea.form-control:invalid, select.form-control:invalid {
+    border-color: #e74c3c;
+}
+input.form-control:valid, textarea.form-control:valid, select.form-control:valid {
+    border-color: #27ae60;
+}
+
+input[readonly], textarea[readonly] {
+    background-color: #f5f7fa !important;
+    color: #64748b;
+    cursor: not-allowed;
+    border-color: #cbd5e1 !important;
+}
+
+.error-message {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(231,76,60,0.08); color: #c0392b;
+    padding: 10px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    border-left: 3px solid #e74c3c;
+}
+.error-message i { font-size: 14px; }
+
+.success-message {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(39,174,96,0.08); color: #27ae60;
+    padding: 10px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    border-left: 3px solid #27ae60;
+}
+
+.checkbox-group { display: flex; align-items: center; gap: 10px; padding-top: 8px; }
+.checkbox-group input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+.checkbox-group label { margin: 0; font-weight: 500; cursor: pointer; }
+
+.promo-section {
+    background: #f8f9fc; padding: 16px; border-radius: 8px; margin-top: 20px;
+    border: 1px solid #e4e9f2;
+}
+.promo-section h3 { margin: 0 0 12px; font-size: 14px; color: #1e2d40; font-weight: 700; }
+.promo-section .btn-add-promo {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 12px; background: #1a6fc4; color: #fff;
+    border: none; border-radius: 6px; font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.promo-section .btn-add-promo:hover { background: #1558a0; }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+    <div>
+        <h1>Modifier : {{ abonnement.nom }}</h1>
+        <div class="breadcrumb-d">
+            <a href="{{ path('admin_abonnement_index') }}">Abonnements</a> → Modifier
+        </div>
+    </div>
+    <a href="{{ path('admin_abonnement_index') }}" class="btn-dinari btn-secondary-d">
+        <i class="fa fa-arrow-left"></i> Retour
+    </a>
+</div>
+
+<div class="card-dinari" style="max-width:700px;">
+    <div class="card-header-dinari">
+        <span class="card-title">Modifier le plan #{{ abonnement.id }}</span>
+        {% if abonnement.actif %}
+            <span class="badge-dinari badge-success">Actif</span>
+        {% else %}
+            <span class="badge-dinari badge-danger">Inactif</span>
+        {% endif %}
+    </div>
+
+    {# Erreurs globales du formulaire #}
+    {% if form.vars.errors|length > 0 %}
+        <div style="margin-bottom: 18px;">
+            {% for error in form.vars.errors %}
+                <div class="error-message">
+                    <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {{ form_start(form, {'attr': {'novalidate': false, 'enctype': 'multipart/form-data', 'class': 'form-admin'}}) }}
+
+    {# ── DESCRIPTION ──────────────────────────────────────────────────── #}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div class="form-group-d" style="grid-column: 1 / -1;">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description, {'attr': {'maxlength': '500'}}) }}
+            {% if form.description.vars.errors|length > 0 %}
+                {% for error in form.description.vars.errors %}
+                    <div class="error-message">
+                        <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.description.vars.help %}
+                <div class="help-text">{{ form.description.vars.help }}</div>
+            {% endif %}
+        </div>
+
+        {# ── TARIFICATION ──────────────────────────────────────────────── #}
+        <div class="form-group-d">
+            {{ form_label(form.prix_marche) }}
+            {{ form_widget(form.prix_marche, {'attr': {'placeholder': '22.99', 'step': '0.01', 'min': '0', 'readonly': 'readonly'}}) }}
+            {% if form.prix_marche.vars.errors|length > 0 %}
+                {% for error in form.prix_marche.vars.errors %}
+                    <div class="error-message">
+                        <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.prix_marche.vars.help %}
+                <div class="help-text">{{ form.prix_marche.vars.help }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group-d">
+            {{ form_label(form.prix) }}
+            {{ form_widget(form.prix, {'attr': {'placeholder': '13.99', 'step': '0.01', 'min': '0.01', 'required': 'required'}}) }}
+            {% if form.prix.vars.errors|length > 0 %}
+                {% for error in form.prix.vars.errors %}
+                    <div class="error-message">
+                        <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.prix.vars.help %}
+                <div class="help-text">{{ form.prix.vars.help }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group-d">
+            {{ form_label(form.essai_gratuit) }}
+            {{ form_widget(form.essai_gratuit, {'attr': {'min': '0', 'max': '365'}}) }}
+            {% if form.essai_gratuit.vars.errors|length > 0 %}
+                {% for error in form.essai_gratuit.vars.errors %}
+                    <div class="error-message">
+                        <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.essai_gratuit.vars.help %}
+                <div class="help-text">{{ form.essai_gratuit.vars.help }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group-d">
+            {{ form_label(form.badge) }}
+            {{ form_widget(form.badge, {'attr': {'maxlength': '50', 'placeholder': 'ex: Populaire, Nouveau...'}}) }}
+            {% if form.badge.vars.errors|length > 0 %}
+                {% for error in form.badge.vars.errors %}
+                    <div class="error-message">
+                        <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.badge.vars.help %}
+                <div class="help-text">{{ form.badge.vars.help }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group-d">
+            {{ form_label(form.date_fin_offre) }}
+            {{ form_widget(form.date_fin_offre) }}
+            {% if form.date_fin_offre.vars.errors|length > 0 %}
+                {% for error in form.date_fin_offre.vars.errors %}
+                    <div class="error-message">
+                        <i class="fa fa-exclamation-circle"></i> {{ error.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if form.date_fin_offre.vars.help %}
+                <div class="help-text">{{ form.date_fin_offre.vars.help }}</div>
+            {% endif %}
+        </div>
+
+        {# ── STATUT & OPTIONS ──────────────────────────────────────────── #}
+        <div class="checkbox-group">
+            {{ form_widget(form.actif) }}
+            {{ form_label(form.actif) }}
+        </div>
+
+        <div class="checkbox-group">
+            {{ form_widget(form.mis_en_avant) }}
+            {{ form_label(form.mis_en_avant) }}
+        </div>
+    </div>
+
+    {# ── PROMOTIONS ────────────────────────────────────────────────────── #}
+    <div class="promo-section">
+        <h3><i class="fa fa-tag"></i> Promotions</h3>
+        <div id="promotions-container" style="margin-bottom: 12px;">
+            {{ form_widget(form.promotions) }}
+        </div>
+        <button type="button" class="btn-add-promo" onclick="addPromoRow()">
+            <i class="fa fa-plus"></i> Ajouter une promotion
+        </button>
+    </div>
+
+    {# ── BOUTONS ─────────────────────────────────────────────────────── #}
+    <div style="margin-top:24px;display:flex;gap:12px;">
+        <button type="submit" class="btn-dinari btn-primary-d" onclick="validateForm()">
+            <i class="fa fa-save"></i> Sauvegarder
+        </button>
+        <a href="{{ path('admin_abonnement_index') }}" class="btn-dinari btn-secondary-d">
+            Annuler
+        </a>
+    </div>
+
+    {# Si le champ frequence existe (pas possible car supprimé en contrôleur), le cacher #}
+    {# form_rest affiche uniquement les champs non rendus (ici juste le CSRF token) #}
+    {{ form_rest(form) }}
+    {{ form_end(form, {'render_rest': false}) }}
+</div>
+
+<script>
+// Validation côté client
+function validateForm() {
+    const form = document.querySelector('.form-admin');
+    
+    // Validation HTML5 native
+    if (!form.checkValidity()) {
+        event.preventDefault();
+        form.reportValidity();
+        return false;
+    }
+
+    // Validations personnalisées
+    const prix = parseFloat(document.querySelector('[name="abonnement[prix]"]').value);
+    const prixMarche = parseFloat(document.querySelector('[name="abonnement[prix_marche]"]').value || 0);
+
+    if (prix <= 0) {
+        alert('❌ Le prix doit être supérieur à 0');
+        return false;
+    }
+
+    if (prixMarche > 0 && prix > prixMarche) {
+        alert('⚠️ Le prix Dinari ne doit pas dépasser le prix marché');
+        return false;
+    }
+
+    return true;
+}
+
+// Ajouter une ligne promotion
+function addPromoRow() {
+    const container = document.getElementById('promotions-container');
+    const prototype = container.getAttribute('data-prototype') || 
+        document.querySelector('[data-prototype]')?.getAttribute('data-prototype');
+    
+    if (prototype) {
+        const newForm = prototype.replace(/__name__/g, Date.now());
+        const div = document.createElement('div');
+        div.innerHTML = newForm;
+        container.appendChild(div);
+    } else {
+        alert('Impossible d\'ajouter une promotion. Veuillez rafraîchir la page.');
+    }
+}
+
+// Validation en temps réel
+document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => {
+    input.addEventListener('input', function() {
+        if (!this.checkValidity() && this.value) {
+            this.style.borderColor = '#e74c3c';
+        } else {
+            this.style.borderColor = '#d9e2ed';
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,313 @@
+abonnement_id,nom,categorie,tier,prix,frequence,a_promo,mois,annee,numero_mois,nb_ventes,tentatives,taux_conversion,prix_marche,economie_pct
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-01,2024,1,21,22,0.95,11.04,9.5
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-01,2024,1,14,17,0.82,19.52,13.0
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-01,2024,1,9,11,0.82,18.7,19.8
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-01,2024,1,6,11,0.55,22.34,10.5
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-01,2024,1,4,8,0.5,14.37,9.6
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-01,2024,1,5,6,0.83,26.29,12.6
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-01,2024,1,12,17,0.71,14.63,18.0
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-01,2024,1,2,7,0.29,56.98,12.3
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-01,2024,1,12,17,0.71,9.46,15.5
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-01,2024,1,4,8,0.5,66.97,17.9
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-01,2024,1,12,13,0.92,11.25,20.1
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-01,2024,1,13,15,0.87,8.66,19.3
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-01,2024,1,7,10,0.7,16.17,13.5
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-02,2024,2,25,27,0.93,12.9,22.6
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-02,2024,2,5,8,0.62,19.04,10.8
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-02,2024,2,9,13,0.69,16.78,10.7
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-02,2024,2,6,9,0.67,24.4,18.1
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-02,2024,2,3,4,0.75,16.18,19.7
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-02,2024,2,6,11,0.55,25.86,11.1
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-02,2024,2,14,18,0.78,13.38,10.4
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-02,2024,2,1,4,0.25,63.28,21.0
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-02,2024,2,11,16,0.69,10.2,21.7
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-02,2024,2,4,7,0.57,66.84,17.7
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-02,2024,2,8,9,0.89,9.97,9.8
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-02,2024,2,12,14,0.86,8.77,20.3
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-02,2024,2,5,6,0.83,17.78,21.3
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-03,2024,3,16,17,0.94,11.75,15.0
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-03,2024,3,14,18,0.78,20.85,18.5
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-03,2024,3,15,18,0.83,16.98,11.7
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-03,2024,3,6,9,0.67,22.83,12.4
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-03,2024,3,8,11,0.73,16.11,19.4
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-03,2024,3,3,4,0.75,28.09,18.2
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-03,2024,3,9,11,0.82,14.47,17.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-03,2024,3,1,3,0.33,56.62,11.7
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-03,2024,3,11,15,0.73,9.22,13.3
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-03,2024,3,2,7,0.29,62.9,12.6
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-03,2024,3,8,11,0.73,11.4,21.1
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-03,2024,3,17,18,0.94,8.01,12.7
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-03,2024,3,3,4,0.75,17.64,20.7
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-04,2024,4,13,17,0.76,11.52,13.3
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-04,2024,4,10,12,0.83,21.79,22.0
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-04,2024,4,10,15,0.67,19.12,21.6
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-04,2024,4,10,13,0.77,22.84,12.5
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-04,2024,4,4,8,0.5,15.32,15.2
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-04,2024,4,2,6,0.33,25.95,11.4
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-04,2024,4,6,8,0.75,13.78,13.0
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-04,2024,4,2,7,0.29,60.38,17.2
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-04,2024,4,15,20,0.75,9.47,15.6
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-04,2024,4,2,7,0.29,64.88,15.2
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-04,2024,4,8,10,0.8,11.68,23.0
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-04,2024,4,20,22,0.91,8.4,16.8
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-04,2024,4,7,8,0.88,17.5,20.1
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-05,2024,5,17,18,0.94,11.29,11.5
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-05,2024,5,11,13,0.85,21.38,20.5
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-05,2024,5,10,14,0.71,18.28,18.0
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-05,2024,5,12,16,0.75,23.51,15.0
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-05,2024,5,7,11,0.64,15.66,17.0
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-05,2024,5,2,7,0.29,29.25,21.4
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-05,2024,5,4,5,0.8,14.82,19.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-05,2024,5,2,3,0.67,61.8,19.1
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-05,2024,5,12,17,0.71,9.99,20.0
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-05,2024,5,0,3,0.0,61.72,10.9
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-05,2024,5,5,9,0.56,10.17,11.6
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-05,2024,5,13,14,0.93,9.02,22.5
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-05,2024,5,4,7,0.57,18.11,22.7
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-06,2024,6,22,24,0.92,12.0,16.8
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-06,2024,6,11,12,0.92,21.65,21.5
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-06,2024,6,8,11,0.73,19.01,21.1
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-06,2024,6,2,7,0.29,24.42,18.1
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-06,2024,6,1,3,0.33,15.26,14.9
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-06,2024,6,6,8,0.75,27.77,17.2
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-06,2024,6,10,15,0.67,15.39,22.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-06,2024,6,2,7,0.29,58.23,14.2
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-06,2024,6,13,14,0.93,8.97,10.9
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-06,2024,6,3,6,0.5,70.15,21.6
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-06,2024,6,7,10,0.7,10.32,12.9
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-06,2024,6,15,17,0.88,8.92,21.6
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-06,2024,6,6,7,0.86,15.63,10.5
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-07,2024,7,23,27,0.85,12.62,20.8
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-07,2024,7,9,14,0.64,21.29,20.2
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-07,2024,7,10,12,0.83,18.47,18.8
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-07,2024,7,13,18,0.72,22.65,11.7
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-07,2024,7,9,14,0.64,16.56,21.6
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-07,2024,7,4,8,0.5,29.72,22.6
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-07,2024,7,20,25,0.8,15.0,20.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-07,2024,7,3,5,0.6,62.12,19.5
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-07,2024,7,18,22,0.82,10.38,23.0
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-07,2024,7,2,5,0.4,65.31,15.8
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-07,2024,7,7,12,0.58,10.7,16.0
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-07,2024,7,21,23,0.91,8.0,12.6
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-07,2024,7,3,6,0.5,15.45,9.4
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-08,2024,8,13,18,0.72,11.45,12.8
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-08,2024,8,9,11,0.82,18.71,9.2
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-08,2024,8,15,16,0.94,17.18,12.7
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-08,2024,8,7,8,0.88,25.43,21.4
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-08,2024,8,3,4,0.75,15.62,16.8
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-08,2024,8,9,12,0.75,28.36,18.9
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-08,2024,8,22,24,0.92,14.48,17.2
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-08,2024,8,3,8,0.38,60.75,17.7
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-08,2024,8,16,18,0.89,10.04,20.4
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-08,2024,8,3,7,0.43,62.58,12.1
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-08,2024,8,10,11,0.91,11.07,18.8
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-08,2024,8,18,21,0.86,8.28,15.6
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-08,2024,8,16,20,0.8,17.81,21.4
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-09,2024,9,14,15,0.93,12.33,19.0
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-09,2024,9,16,17,0.94,18.89,10.1
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-09,2024,9,10,13,0.77,18.89,20.6
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-09,2024,9,8,9,0.89,22.98,13.0
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-09,2024,9,8,10,0.8,15.68,17.2
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-09,2024,9,5,7,0.71,27.23,15.6
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-09,2024,9,9,12,0.75,14.3,16.2
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-09,2024,9,3,4,0.75,59.42,15.9
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-09,2024,9,14,19,0.74,8.95,10.7
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-09,2024,9,4,9,0.44,69.68,21.1
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-09,2024,9,9,10,0.9,11.55,22.2
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-09,2024,9,10,12,0.83,7.92,11.7
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-09,2024,9,4,8,0.5,16.74,16.4
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-10,2024,10,23,27,0.85,12.79,21.9
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-10,2024,10,4,6,0.67,19.98,15.0
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-10,2024,10,8,12,0.67,17.28,13.3
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-10,2024,10,3,7,0.43,23.13,13.6
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-10,2024,10,3,8,0.38,16.01,18.9
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-10,2024,10,5,9,0.56,26.0,11.6
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-10,2024,10,8,11,0.73,13.71,12.5
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-10,2024,10,2,3,0.67,60.78,17.8
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-10,2024,10,11,16,0.69,8.89,10.1
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-10,2024,10,2,5,0.4,61.12,10.0
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-10,2024,10,7,12,0.58,10.75,16.4
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-10,2024,10,14,19,0.74,7.91,11.6
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-10,2024,10,3,8,0.38,15.61,10.4
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-11,2024,11,20,22,0.91,11.13,10.2
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-11,2024,11,9,10,0.9,20.98,19.0
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-11,2024,11,18,20,0.9,17.7,15.3
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-11,2024,11,8,13,0.62,22.97,13.0
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-11,2024,11,8,13,0.62,14.39,9.7
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-11,2024,11,3,4,0.75,27.22,15.5
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-11,2024,11,10,15,0.67,14.54,17.5
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-11,2024,11,2,5,0.4,64.33,22.3
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-11,2024,11,11,13,0.85,9.86,19.0
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-11,2024,11,4,7,0.57,63.11,12.9
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-11,2024,11,11,15,0.73,10.12,11.2
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-11,2024,11,16,19,0.84,8.33,16.1
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-11,2024,11,5,6,0.83,15.42,9.3
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2024-12,2024,12,27,32,0.84,12.98,23.0
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2024-12,2024,12,14,15,0.93,18.94,10.3
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2024-12,2024,12,15,17,0.88,18.01,16.8
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2024-12,2024,12,5,7,0.71,25.72,22.3
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2024-12,2024,12,11,12,0.92,16.57,21.6
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2024-12,2024,12,7,10,0.7,26.6,13.6
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2024-12,2024,12,19,23,0.83,15.19,21.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2024-12,2024,12,1,4,0.25,61.1,18.2
+9,NordVPN,securite,Normal,7.99,mensuel,1,2024-12,2024,12,24,29,0.83,8.8,9.2
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2024-12,2024,12,3,8,0.38,63.78,13.8
+11,Disney+,streaming,Normal,8.99,mensuel,0,2024-12,2024,12,16,17,0.94,11.58,22.4
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2024-12,2024,12,20,22,0.91,8.06,13.3
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2024-12,2024,12,12,13,0.92,17.47,19.9
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-01,2025,1,24,26,0.92,11.53,13.4
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-01,2025,1,16,21,0.76,19.4,12.4
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-01,2025,1,9,12,0.75,17.1,12.3
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-01,2025,1,8,11,0.73,24.01,16.7
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-01,2025,1,5,8,0.62,16.64,21.9
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-01,2025,1,9,10,0.9,25.71,10.6
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-01,2025,1,12,16,0.75,15.18,21.0
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-01,2025,1,3,4,0.75,55.02,9.1
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-01,2025,1,18,20,0.9,9.81,18.6
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-01,2025,1,6,9,0.67,62.27,11.7
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-01,2025,1,11,15,0.73,10.88,17.4
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-01,2025,1,18,22,0.82,8.47,17.5
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-01,2025,1,12,13,0.92,15.6,10.3
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-02,2025,2,15,17,0.88,12.08,17.3
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-02,2025,2,5,8,0.62,20.67,17.8
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-02,2025,2,8,10,0.8,17.78,15.7
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-02,2025,2,4,5,0.8,23.22,13.9
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-02,2025,2,6,7,0.86,16.62,21.8
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-02,2025,2,5,7,0.71,28.43,19.1
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-02,2025,2,11,12,0.92,14.04,14.6
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-02,2025,2,3,8,0.38,63.83,21.7
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-02,2025,2,9,13,0.69,10.35,22.8
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-02,2025,2,2,4,0.5,70.67,22.2
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-02,2025,2,10,12,0.83,11.44,21.4
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-02,2025,2,12,14,0.86,8.92,21.6
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-02,2025,2,2,3,0.67,15.89,12.0
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-03,2025,3,22,25,0.88,12.55,20.4
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-03,2025,3,4,8,0.5,21.41,20.6
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-03,2025,3,7,9,0.78,17.29,13.3
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-03,2025,3,6,7,0.86,23.52,15.0
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-03,2025,3,4,5,0.8,16.52,21.4
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-03,2025,3,2,4,0.5,26.21,12.3
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-03,2025,3,7,11,0.64,14.03,14.5
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-03,2025,3,4,6,0.67,57.22,12.6
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-03,2025,3,13,15,0.87,9.43,15.3
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-03,2025,3,2,5,0.4,70.0,21.4
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-03,2025,3,11,14,0.79,10.52,14.5
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-03,2025,3,13,18,0.72,8.25,15.3
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-03,2025,3,7,12,0.58,16.32,14.3
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-04,2025,4,11,12,0.92,11.22,11.0
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-04,2025,4,6,9,0.67,19.3,12.0
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-04,2025,4,11,14,0.79,16.6,9.7
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-04,2025,4,6,11,0.55,23.73,15.8
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-04,2025,4,3,6,0.5,15.42,15.8
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-04,2025,4,5,10,0.5,25.82,11.0
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-04,2025,4,11,16,0.69,13.64,12.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-04,2025,4,3,4,0.75,62.08,19.5
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-04,2025,4,14,15,0.93,9.62,16.9
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-04,2025,4,2,7,0.29,68.04,19.2
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-04,2025,4,7,9,0.78,10.54,14.7
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-04,2025,4,17,18,0.94,9.02,22.5
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-04,2025,4,4,7,0.57,17.13,18.3
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-05,2025,5,24,25,0.96,12.43,19.6
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-05,2025,5,13,16,0.81,20.41,16.8
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-05,2025,5,14,18,0.78,17.47,14.2
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-05,2025,5,3,6,0.5,24.21,17.4
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-05,2025,5,1,3,0.33,15.38,15.5
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-05,2025,5,4,8,0.5,28.4,19.0
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-05,2025,5,9,11,0.82,14.67,18.3
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-05,2025,5,5,8,0.62,59.05,15.3
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-05,2025,5,15,16,0.94,9.27,13.8
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-05,2025,5,4,6,0.67,65.22,15.7
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-05,2025,5,6,11,0.55,10.98,18.1
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-05,2025,5,11,14,0.79,8.34,16.2
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-05,2025,5,1,5,0.2,17.28,19.0
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-06,2025,6,17,22,0.77,11.93,16.3
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-06,2025,6,11,13,0.85,20.93,18.8
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-06,2025,6,18,21,0.86,18.03,16.9
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-06,2025,6,5,10,0.5,23.33,14.3
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-06,2025,6,7,9,0.78,16.04,19.0
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-06,2025,6,6,8,0.75,29.0,20.7
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-06,2025,6,11,13,0.85,13.25,9.5
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-06,2025,6,1,3,0.33,64.83,22.9
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-06,2025,6,19,24,0.79,10.15,21.3
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-06,2025,6,0,1,0.0,65.5,16.0
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-06,2025,6,12,17,0.71,10.24,12.2
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-06,2025,6,12,16,0.75,8.38,16.6
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-06,2025,6,8,10,0.8,15.8,11.5
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-07,2025,7,25,26,0.96,12.77,21.8
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-07,2025,7,12,13,0.92,21.33,20.3
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-07,2025,7,13,15,0.87,17.02,11.9
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-07,2025,7,5,10,0.5,23.85,16.2
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-07,2025,7,6,11,0.55,14.94,13.1
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-07,2025,7,8,9,0.89,27.39,16.1
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-07,2025,7,15,19,0.79,14.79,18.9
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-07,2025,7,4,9,0.44,60.94,18.0
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-07,2025,7,23,27,0.85,9.77,18.2
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-07,2025,7,0,5,0.0,65.18,15.6
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-07,2025,7,10,15,0.67,10.69,15.9
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-07,2025,7,12,14,0.86,8.73,19.9
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-07,2025,7,1,5,0.2,16.65,16.0
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-08,2025,8,18,20,0.9,12.67,21.2
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-08,2025,8,13,16,0.81,21.29,20.2
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-08,2025,8,11,16,0.69,17.94,16.4
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-08,2025,8,7,9,0.78,23.09,13.4
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-08,2025,8,8,9,0.89,16.14,19.5
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-08,2025,8,6,8,0.75,26.54,13.4
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-08,2025,8,11,14,0.79,15.33,21.8
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-08,2025,8,3,4,0.75,56.37,11.3
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-08,2025,8,17,19,0.89,9.4,15.0
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-08,2025,8,0,2,0.0,68.26,19.4
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-08,2025,8,10,11,0.91,10.63,15.4
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-08,2025,8,18,21,0.86,8.45,17.3
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-08,2025,8,4,8,0.5,15.56,10.1
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-09,2025,9,17,21,0.81,11.77,15.1
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-09,2025,9,8,13,0.62,21.9,22.4
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-09,2025,9,11,12,0.92,19.06,21.4
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-09,2025,9,3,8,0.38,23.51,15.0
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-09,2025,9,3,4,0.75,16.74,22.4
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-09,2025,9,3,6,0.5,28.75,20.0
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-09,2025,9,8,12,0.67,14.48,17.2
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-09,2025,9,1,6,0.17,62.99,20.6
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-09,2025,9,17,19,0.89,9.57,16.5
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-09,2025,9,1,4,0.25,65.28,15.8
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-09,2025,9,15,16,0.94,10.59,15.1
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-09,2025,9,8,12,0.67,8.7,19.7
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-09,2025,9,7,11,0.64,17.96,22.1
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-10,2025,10,17,22,0.77,12.06,17.2
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-10,2025,10,8,12,0.67,20.7,17.9
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-10,2025,10,7,8,0.88,16.74,10.5
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-10,2025,10,7,11,0.64,22.53,11.3
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-10,2025,10,9,13,0.69,14.76,12.0
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-10,2025,10,6,9,0.67,27.03,14.9
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-10,2025,10,15,17,0.88,14.28,16.0
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-10,2025,10,2,5,0.4,62.6,20.1
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-10,2025,10,17,21,0.81,9.23,13.4
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-10,2025,10,2,6,0.33,63.26,13.1
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-10,2025,10,9,10,0.9,10.73,16.2
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-10,2025,10,14,19,0.74,7.76,9.9
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-10,2025,10,3,6,0.5,16.02,12.7
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-11,2025,11,28,29,0.97,12.55,20.4
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-11,2025,11,9,10,0.9,21.25,20.0
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-11,2025,11,15,17,0.88,17.09,12.3
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-11,2025,11,9,10,0.9,24.47,18.3
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-11,2025,11,3,5,0.6,14.62,11.1
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-11,2025,11,5,6,0.83,27.88,17.5
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-11,2025,11,13,15,0.87,14.3,16.2
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-11,2025,11,3,6,0.5,62.66,20.2
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-11,2025,11,26,28,0.93,9.76,18.1
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-11,2025,11,3,4,0.75,69.04,20.4
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-11,2025,11,12,14,0.86,11.62,22.6
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-11,2025,11,21,22,0.95,8.5,17.8
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-11,2025,11,12,15,0.8,17.0,17.7
+1,Spotify Personal,musique,Normal,9.99,mensuel,1,2025-12,2025,12,32,36,0.89,11.78,15.2
+2,Spotify Famille,musique,Gold,16.99,mensuel,1,2025-12,2025,12,15,17,0.88,18.95,10.3
+3,Netflix Standard,streaming,Silver,14.99,mensuel,0,2025-12,2025,12,11,13,0.85,16.79,10.7
+4,Netflix Premium,streaming,Gold,19.99,mensuel,0,2025-12,2025,12,11,14,0.79,25.39,21.3
+5,Office 365 Solo,productivite,Normal,12.99,mensuel,0,2025-12,2025,12,11,16,0.69,16.38,20.7
+6,Office 365 Famille,productivite,Gold,22.99,mensuel,1,2025-12,2025,12,7,12,0.58,28.89,20.4
+7,Xbox Game Pass,gaming,Silver,11.99,mensuel,1,2025-12,2025,12,12,15,0.8,14.47,17.1
+8,Coursera Plus,education,Platinum,49.99,annuel,1,2025-12,2025,12,5,8,0.62,55.68,10.2
+9,NordVPN,securite,Normal,7.99,mensuel,1,2025-12,2025,12,20,23,0.87,8.81,9.3
+10,Adobe Creative,productivite,Platinum,54.99,mensuel,0,2025-12,2025,12,0,4,0.0,69.53,20.9
+11,Disney+,streaming,Normal,8.99,mensuel,0,2025-12,2025,12,10,11,0.91,10.67,15.7
+12,Duolingo Plus,education,Normal,6.99,mensuel,1,2025-12,2025,12,20,23,0.87,8.58,18.5
+13,YouTube Premium,streaming,Silver,13.99,mensuel,0,2025-12,2025,12,8,12,0.67,17.37,19.5

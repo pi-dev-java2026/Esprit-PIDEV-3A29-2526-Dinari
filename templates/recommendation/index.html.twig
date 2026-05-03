@@ -1,0 +1,761 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Assistant IA — Trouvez votre abonnement idéal | Dinari{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* Réutilisation des variables du site */
+:root {
+  --teal: #00b4c6;
+  --teal-deep: #007f8c;
+  --navy: #0d1b2a;
+  --navy2: #112240;
+  --lime: #8cc63f;
+  --ink: #0d1b2a;
+  --muted: #64748b;
+  --border: #e2eaf0;
+}
+
+/* Page spécifique recommandation */
+.rec-hero {
+  background: linear-gradient(135deg, #f0f7fa 0%, #ffffff 100%);
+  padding: 60px 40px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.rec-hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+.rec-hero h1 span {
+  color: var(--teal);
+}
+
+.rec-hero p {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Container principal */
+.rec-container {
+  max-width: 680px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+}
+
+/* Carte du formulaire */
+.rec-card {
+  background: #fff;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: 36px 40px;
+  transition: all 0.3s ease;
+}
+
+/* Progress bar */
+.progress-wrap {
+  margin-bottom: 32px;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.progress-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--lime));
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+/* Steps */
+.step { display: none; }
+.step.active { display: block; animation: fadeUp 0.4s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 28px;
+  line-height: 1.3;
+}
+
+/* Options grid */
+.opts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: left;
+  width: 100%;
+}
+
+.opt:hover {
+  border-color: var(--teal);
+  background: rgba(0, 180, 198, 0.04);
+  transform: translateY(-2px);
+}
+
+.opt.selected {
+  border-color: var(--teal);
+  background: linear-gradient(135deg, rgba(0, 180, 198, 0.08), rgba(140, 198, 63, 0.04));
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.15);
+}
+
+.opt-icon {
+  font-size: 28px;
+  width: 48px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.opt-text strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.opt-text small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Boutons */
+.btn-next {
+  margin-top: 28px;
+  padding: 16px 28px;
+  width: 100%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-deep));
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-next:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 180, 198, 0.3);
+}
+
+.btn-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-restart {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-restart:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Loader */
+#loader {
+  display: none;
+  text-align: center;
+  padding: 48px 0;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loader p {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Error */
+.alert-error {
+  display: none;
+  padding: 14px 18px;
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 12px;
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+/* Results */
+#result-section { display: none; }
+
+.result-header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.result-header small {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal);
+}
+
+.result-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 8px;
+}
+
+.plan-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.plan-card.best {
+  border-color: var(--teal);
+  background: linear-gradient(135deg, rgba(0, 180, 198, 0.04), rgba(140, 198, 63, 0.02));
+  box-shadow: 0 8px 24px rgba(0, 180, 198, 0.12);
+}
+
+.plan-card:last-of-type { margin-bottom: 0; }
+
+.plan-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.badge-best { background: rgba(0, 180, 198, 0.12); color: var(--teal); }
+.badge-alt  { background: #f1f5f9; color: var(--muted); }
+
+.plan-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.plan-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.plan-price {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--teal);
+  white-space: nowrap;
+}
+
+.plan-price sub {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.plan-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.feat-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  color: var(--muted);
+}
+
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.score-line span { font-size: 12px; color: var(--muted); font-weight: 500; }
+.score-line strong { font-size: 13px; color: var(--navy); font-weight: 700; }
+
+.score-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.score-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--lime));
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+.reasoning {
+  margin-top: 24px;
+  padding: 18px;
+  background: #f8fafc;
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  border-left: 3px solid var(--teal);
+}
+
+.reasoning strong { color: var(--navy); font-weight: 700; }
+
+/* Small screen adjustments */
+@media (max-width: 640px) {
+  .rec-card {
+    padding: 24px 20px;
+  }
+  
+  .step-title {
+    font-size: 20px;
+  }
+  
+  .opt {
+    padding: 12px 16px;
+  }
+  
+  .opt-icon {
+    font-size: 24px;
+    width: 40px;
+  }
+  
+  .plan-top {
+    flex-direction: column;
+  }
+  
+  .plan-price {
+    font-size: 24px;
+  }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="rec-hero">
+  <h1>Trouvez l'abonnement <span>parfait</span> pour vous</h1>
+  <p>Répondez à 4 questions simples, notre IA analyse votre profil et vous recommande le meilleur plan selon vos besoins.</p>
+</div>
+
+<div class="rec-container">
+  <div class="rec-card">
+
+    {# Formulaire #}
+    <div id="form-section">
+
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="step-label">Question 1 sur 4</span>
+          <span id="step-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="prog" style="width:0%"></div>
+        </div>
+      </div>
+
+      {# Étape 1 - Budget #}
+      <div id="s0" class="step active">
+        <div class="step-eyebrow">💰 Budget</div>
+        <div class="step-title">Quel est votre budget mensuel ?</div>
+        <div class="opts-grid">
+          <button class="opt" onclick="pick('budget',1,this)">
+            <span class="opt-icon">🪙</span>
+            <div class="opt-text"><strong>Moins de 10 DT</strong><small>Entrée de gamme, essentiel</small></div>
+          </button>
+          <button class="opt" onclick="pick('budget',2,this)">
+            <span class="opt-icon">💳</span>
+            <div class="opt-text"><strong>10 – 30 DT</strong><small>Budget standard, confort</small></div>
+          </button>
+          <button class="opt" onclick="pick('budget',3,this)">
+            <span class="opt-icon">💎</span>
+            <div class="opt-text"><strong>30 – 70 DT</strong><small>Budget premium, tout inclus</small></div>
+          </button>
+          <button class="opt" onclick="pick('budget',4,this)">
+            <span class="opt-icon">👑</span>
+            <div class="opt-text"><strong>Plus de 70 DT</strong><small>Budget illimité, luxe</small></div>
+          </button>
+        </div>
+        <button class="btn-next" id="n0" onclick="next(0)" disabled>Continuer →</button>
+      </div>
+
+      {# Étape 2 - Catégorie #}
+      <div id="s1" class="step">
+        <div class="step-eyebrow">🎭 Centres d'intérêt</div>
+        <div class="step-title">Quel type de contenu vous attire ?</div>
+        <div class="opts-grid">
+          <button class="opt" onclick="pick('category',1,this)">
+            <span class="opt-icon">🎵</span>
+            <div class="opt-text"><strong>Musique & Audio</strong><small>Spotify, Deezer, Apple Music…</small></div>
+          </button>
+          <button class="opt" onclick="pick('category',2,this)">
+            <span class="opt-icon">🎬</span>
+            <div class="opt-text"><strong>Vidéo & Films</strong><small>Netflix, Disney+, Prime Video…</small></div>
+          </button>
+          <button class="opt" onclick="pick('category',3,this)">
+            <span class="opt-icon">💼</span>
+            <div class="opt-text"><strong>Outils Pro & SaaS</strong><small>Adobe, Microsoft 365, Notion…</small></div>
+          </button>
+          <button class="opt" onclick="pick('category',4,this)">
+            <span class="opt-icon">🎮</span>
+            <div class="opt-text"><strong>Gaming & Loisirs</strong><small>Xbox, PlayStation, Steam…</small></div>
+          </button>
+        </div>
+        <button class="btn-next" id="n1" onclick="next(1)" disabled>Continuer →</button>
+      </div>
+
+      {# Étape 3 - Fréquence #}
+      <div id="s2" class="step">
+        <div class="step-eyebrow">⏱️ Fréquence</div>
+        <div class="step-title">À quelle fréquence utilisez-vous ces services ?</div>
+        <div class="opts-grid">
+          <button class="opt" onclick="pick('frequency',1,this)">
+            <span class="opt-icon">🌙</span>
+            <div class="opt-text"><strong>Occasionnel</strong><small>Quelques fois par mois</small></div>
+          </button>
+          <button class="opt" onclick="pick('frequency',2,this)">
+            <span class="opt-icon">📅</span>
+            <div class="opt-text"><strong>Régulier</strong><small>2–3 fois par semaine</small></div>
+          </button>
+          <button class="opt" onclick="pick('frequency',3,this)">
+            <span class="opt-icon">⚡</span>
+            <div class="opt-text"><strong>Quotidien</strong><small>Tous les jours</small></div>
+          </button>
+        </div>
+        <button class="btn-next" id="n2" onclick="next(2)" disabled>Continuer →</button>
+      </div>
+
+      {# Étape 4 - Profil #}
+      <div id="s3" class="step">
+        <div class="step-eyebrow">👥 Profil</div>
+        <div class="step-title">Quel profil vous correspond le mieux ?</div>
+        <div class="opts-grid">
+          <button class="opt" onclick="pick('profile',1,this)">
+            <span class="opt-icon">🧑</span>
+            <div class="opt-text"><strong>Particulier</strong><small>Usage personnel uniquement</small></div>
+          </button>
+          <button class="opt" onclick="pick('profile',2,this)">
+            <span class="opt-icon">👨‍👩‍👧‍👦</span>
+            <div class="opt-text"><strong>Famille</strong><small>Partage entre 2–5 personnes</small></div>
+          </button>
+          <button class="opt" onclick="pick('profile',3,this)">
+            <span class="opt-icon">🏢</span>
+            <div class="opt-text"><strong>Professionnel</strong><small>Usage métier ou équipe</small></div>
+          </button>
+        </div>
+        <button class="btn-next" id="n3" onclick="submitForm()" disabled>🎯 Trouver mon abonnement →</button>
+      </div>
+
+    </div>
+
+    {# Loader #}
+    <div id="loader">
+      <div class="spinner"></div>
+      <p>🧠 Notre IA analyse votre profil...</p>
+    </div>
+
+    {# Erreur #}
+    <div class="alert-error" id="error-box"></div>
+
+    {# Résultats #}
+    <div id="result-section">
+      <div class="result-header">
+        <small>✨ Recommandation personnalisée</small>
+        <h2>Votre plan idéal</h2>
+      </div>
+      <div id="results-list"></div>
+      <div class="reasoning" id="reasoning-box"></div>
+      <button class="btn-restart" onclick="restart()">⟳ Recommencer le test</button>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+const answers = {};
+const steps  = ['budget','category','frequency','profile'];
+const nextIds = ['n0','n1','n2','n3'];
+
+{% if prefill is defined and prefill|length > 0 %}
+window.addEventListener('DOMContentLoaded', () => {
+  const p = {{ prefill|json_encode|raw }};
+  if (p.budget) answers.budget = p.budget;
+  if (p.category) answers.category = p.category;
+  if (p.frequency) answers.frequency = p.frequency;
+  if (p.profile) answers.profile = p.profile;
+  
+  // Vérifier si toutes les réponses sont présentes
+  if (answers.budget && answers.category && answers.frequency && answers.profile) {
+    setTimeout(() => submitForm(), 500);
+  }
+});
+{% endif %}
+
+function pick(key, val, el) {
+  answers[key] = val;
+  const stepIndex = steps.indexOf(key);
+  document.querySelectorAll('#s' + stepIndex + ' .opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById(nextIds[stepIndex]).disabled = false;
+}
+
+function next(i) {
+  document.getElementById('s' + i).classList.remove('active');
+  document.getElementById('s' + (i + 1)).classList.add('active');
+  const pct = ((i + 2) / 5 * 100).toFixed(0);
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('step-pct').textContent = pct + '%';
+  document.getElementById('step-label').textContent = 'Question ' + (i + 2) + ' sur 4';
+}
+
+async function submitForm() {
+  // Vérifier que toutes les réponses sont présentes
+  if (!answers.budget || !answers.category || !answers.frequency || !answers.profile) {
+    showError('Veuillez répondre à toutes les questions.');
+    return;
+  }
+  
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('loader').style.display = 'block';
+  document.getElementById('error-box').style.display = 'none';
+
+  try {
+    const resp = await fetch('{{ path("app_recommendation_get") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(answers)
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok || data.status === 'error') {
+      throw new Error(data.message || 'Erreur inconnue');
+    }
+
+    renderResults(data);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+    showError(err.message || 'Le service de recommandation est temporairement indisponible. Vérifiez que l\'API Flask est lancée sur le port 5001.');
+  }
+}
+
+function showError(message) {
+  const errBox = document.getElementById('error-box');
+  errBox.textContent = message;
+  errBox.style.display = 'block';
+  setTimeout(() => {
+    errBox.style.display = 'none';
+  }, 8000);
+}
+
+function renderResults(data) {
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('result-section').style.display = 'block';
+
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+
+  if (!data.recommendations || data.recommendations.length === 0) {
+    list.innerHTML = '<div class="plan-card" style="text-align:center; padding:40px;">Aucune recommandation disponible pour le moment.</div>';
+    return;
+  }
+
+  data.recommendations.forEach((plan, idx) => {
+    const isBest = idx === 0;
+    const card = document.createElement('div');
+    card.className = 'plan-card' + (isBest ? ' best' : '');
+
+    const featTags = (plan.features || [])
+      .map(f => `<span class="feat-tag">✓ ${f}</span>`)
+      .join('');
+
+    card.innerHTML = `
+      <div class="plan-top">
+        <div>
+          <span class="plan-badge ${isBest ? 'badge-best' : 'badge-alt'}">
+            ${isBest ? '🏆 Recommandé pour vous' : '🔄 Alternative'}
+          </span>
+          <div class="plan-name">${capitalise(plan.plan || plan.plan_name || 'Plan')}</div>
+          <div class="plan-desc">${plan.description || ''}</div>
+        </div>
+        <div class="plan-price">${plan.price || '?'}<sub> DT/mois</sub></div>
+      </div>
+      <div class="plan-features">${featTags}</div>
+      <div class="score-line">
+        <span>🎯 Compatibilité avec votre profil</span>
+        <strong>${plan.score || 0}%</strong>
+      </div>
+      <div class="score-track">
+        <div class="score-bar" data-score="${plan.score || 0}"></div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  // Animer les barres
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.score-bar').forEach(bar => {
+      const score = bar.dataset.score;
+      bar.style.width = score + '%';
+    });
+  });
+
+  // Reasoning
+  const best = data.recommendations[0];
+  const labels = data.labels || {};
+  document.getElementById('reasoning-box').innerHTML = `
+    <strong>🧠 Analyse IA</strong><br>
+    Notre modèle a analysé votre profil : 
+    <strong>${labels.budget || 'Budget : ' + getBudgetLabel(answers.budget)}</strong>,
+    avec un intérêt pour <strong>${labels.category || getCategoryLabel(answers.category)}</strong>,
+    une utilisation <strong>${labels.frequency || getFrequencyLabel(answers.frequency)}</strong>,
+    pour un profil <strong>${labels.profile || getProfileLabel(answers.profile)}</strong>.
+    <br><br>
+    ✨ La recommandation <strong>${capitalise(best.plan)}</strong> présente la meilleure compatibilité (${best.score}%) avec vos critères.
+    Cliquez sur "Voir l'offre" pour découvrir ce plan !
+  `;
+}
+
+function getBudgetLabel(val) {
+  const map = {1: 'Moins de 10 DT', 2: '10-30 DT', 3: '30-70 DT', 4: 'Plus de 70 DT'};
+  return map[val] || '';
+}
+
+function getCategoryLabel(val) {
+  const map = {1: 'Musique & Audio', 2: 'Vidéo & Films', 3: 'Outils Pro', 4: 'Gaming'};
+  return map[val] || '';
+}
+
+function getFrequencyLabel(val) {
+  const map = {1: 'Occasionnel', 2: 'Régulier', 3: 'Quotidien'};
+  return map[val] || '';
+}
+
+function getProfileLabel(val) {
+  const map = {1: 'Particulier', 2: 'Famille', 3: 'Professionnel'};
+  return map[val] || '';
+}
+
+function capitalise(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function restart() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.opt').forEach(b => b.classList.remove('selected'));
+  nextIds.forEach(id => document.getElementById(id).disabled = true);
+  document.getElementById('s0').classList.add('active');
+  document.getElementById('prog').style.width = '0%';
+  document.getElementById('step-label').textContent = 'Question 1 sur 4';
+  document.getElementById('step-pct').textContent = '0%';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('error-box').style.display = 'none';
+}
+</script>
+{% endblock %}

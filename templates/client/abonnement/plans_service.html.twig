@@ -1,0 +1,360 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ nomService }} Premium — Choisissez votre plan — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#00b4c6;--teal-deep:#007f8c;
+  --ink:#0d1b2a;--muted:#64748b;--border:#e2eaf0;--bg:#f0f7fa;
+}
+body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink)}
+
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-card{opacity:0;transform:translateY(44px) scale(.97);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
+.reveal-card.visible{opacity:1;transform:translateY(0) scale(1)}
+.reveal-card:nth-child(1){transition-delay:.05s}
+.reveal-card:nth-child(2){transition-delay:.15s}
+.reveal-card:nth-child(3){transition-delay:.25s}
+.reveal-card:nth-child(4){transition-delay:.35s}
+.reveal-card:nth-child(5){transition-delay:.42s}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#0d1b2a 0%,#1a3a6b 60%,#007f8c 100%);padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 120%,rgba(0,180,198,.18),transparent)}
+.hero-logo{width:100px;height:100px;border-radius:20px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:12px;margin:0 auto 24px;position:relative;z-index:1;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) .1s both;box-shadow:0 12px 32px rgba(0,0,0,.15)}
+@keyframes popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.hero-logo img{width:100%;height:100%;object-fit:contain;filter:brightness(1.1) contrast(1.05)}
+.hero-logo-fb{font-size:32px;font-weight:900;color:#fff}
+.hero-eyebrow{font-size:13px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);margin-bottom:16px;position:relative;z-index:1;animation:fadeUp .5s ease .25s both}
+.hero h1{font-size:clamp(32px,5vw,64px);font-weight:900;letter-spacing:-0.04em;color:#fff;margin-bottom:18px;line-height:.98;position:relative;z-index:1;animation:fadeUp .5s ease .35s both}
+.hero h1 span{color:var(--teal)}
+.hero-sub{font-size:16px;color:rgba(255,255,255,.65);max-width:480px;margin:0 auto;line-height:1.8;position:relative;z-index:1;animation:fadeUp .5s ease .45s both;font-weight:500}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ PLANS SECTION ══ */
+.plans-section{background:#fff;padding:64px 24px 72px}
+.plans-section h2{font-size:clamp(26px,3.5vw,36px);font-weight:900;letter-spacing:-0.02em;color:var(--ink);text-align:center;margin-bottom:12px}
+.plans-sub{text-align:center;font-size:15px;color:var(--muted);max-width:540px;margin:0 auto 48px;line-height:1.8;font-weight:500}
+
+.plans-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:28px;
+  max-width:1180px;
+  margin:0 auto;
+  align-items:stretch;
+}
+
+/* ══ FIX : pcard est maintenant un DIV, plus un A ══ */
+.pcard{
+  border-radius:16px;
+  overflow:hidden;
+  border:1.5px solid var(--border);
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  cursor:pointer;
+  color:inherit;
+  transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s,border-color .3s;
+  position:relative;
+}
+.pcard:hover{transform:translateY(-8px);box-shadow:0 28px 64px rgba(0,127,140,.18);border-color:var(--teal-deep)}
+.pcard.featured{border-color:var(--teal-deep);border-width:2px;box-shadow:0 12px 32px rgba(0,127,140,.14);z-index:2}
+
+.pcard-strip{
+  display:block;
+  width:100%;
+  padding:11px 20px 10px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.02em;
+  flex-shrink:0;
+  border-radius:0;
+}
+
+.pcard-body{
+  padding:24px 24px 28px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  flex:1;
+}
+
+.popular-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;background:#e8f8fa;color:var(--teal-deep);border:1px solid rgba(0,127,140,.25);width:fit-content;margin-bottom:4px}
+.pcard-service{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.pcard-sicon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0}
+.pcard-name{font-size:clamp(28px,3.5vw,40px);font-weight:900;letter-spacing:-0.03em;line-height:.95;margin-top:4px}
+.pcard-price{font-size:20px;font-weight:900;color:var(--ink)}
+.pcard-price-sub{font-size:13px;color:var(--muted);margin-top:4px;font-weight:500}
+.pcard-sep{border:none;border-top:1px solid var(--border);margin:0}
+
+.pcard-feats{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  flex:1;
+}
+.pcard-feats li{display:flex;align-items:flex-start;gap:11px;font-size:13px;color:var(--ink);line-height:1.5;font-weight:500}
+.feat-check{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,rgba(0,127,140,.08),rgba(0,180,198,.08));border:1.5px solid rgba(0,127,140,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.feat-check svg{width:11px;height:11px}
+
+.pcard-cta{
+  display:block;
+  text-align:center;
+  padding:16px 22px;
+  border-radius:12px;
+  font-size:14px;font-weight:800;
+  color:#fff;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:opacity .3s,transform .3s cubic-bezier(.34,1.56,.64,1);
+  width:100%;
+  text-decoration:none;
+  letter-spacing:.02em;
+  flex-shrink:0;
+}
+.pcard-cta:hover{opacity:.92;transform:scale(1.03);color:#fff;text-decoration:none}
+.pcard-try{text-align:center;font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;font-weight:500;flex-shrink:0}
+.pcard-try strong{color:var(--ink);font-weight:700}
+
+/* ══ TABLEAU COMPARATIF ══ */
+.diff-section{background:var(--bg);padding:72px 24px 64px;text-align:center}
+.diff-section h2{font-size:clamp(26px,3.5vw,38px);font-weight:900;letter-spacing:-0.03em;color:var(--ink);margin-bottom:12px}
+.diff-sub{font-size:15px;color:var(--muted);max-width:500px;margin:0 auto 48px;line-height:1.8;font-weight:500}
+.comp-table{max-width:780px;margin:0 auto;border-collapse:collapse;width:100%;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 8px 28px rgba(0,127,140,.08)}
+.comp-table thead tr th{padding:20px 24px;font-size:13px;font-weight:800;color:var(--muted);text-align:center;background:#f8fafc;border-bottom:1.5px solid var(--border);letter-spacing:.05em;text-transform:uppercase}
+.comp-table thead tr th:first-child{text-align:left;color:var(--ink);font-size:14px;text-transform:none}
+.comp-table thead tr th.col-premium{color:var(--teal-deep);font-weight:900}
+.comp-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.comp-table tbody tr:last-child{border-bottom:none}
+.comp-table tbody tr:hover{background:#f8fffe}
+.comp-table tbody tr td{padding:18px 24px;font-size:14px;color:var(--ink);text-align:center;vertical-align:middle}
+.comp-table tbody tr td:first-child{text-align:left;font-weight:600}
+.dash{display:inline-block;width:24px;height:2px;background:#cbd5e1;border-radius:2px}
+.check-circle{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal-deep),#00b4c6);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,127,140,.2)}
+.check-circle svg{width:16px;height:16px}
+
+/* ══ AVANTAGES ══ */
+.avantages-section{background:#fff;padding:72px 24px 68px}
+.av-inner{max-width:1020px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.av-left h2{font-size:clamp(26px,3.5vw,36px);font-weight:900;letter-spacing:-0.03em;color:var(--ink);line-height:1.15;margin-bottom:18px}
+.av-left h2 span{color:var(--teal-deep)}
+.av-left p{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:26px;font-weight:500}
+.pay-icons{display:flex;gap:10px;flex-wrap:wrap}
+.pay-icon{padding:10px 18px;background:#fff;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:800;color:var(--ink);transition:border-color .2s,transform .2s,box-shadow .2s}
+.pay-icon:hover{border-color:var(--teal-deep);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,127,140,.12)}
+.av-right ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.av-right li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--ink);line-height:1.6;font-weight:500}
+.av-check{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,rgba(0,127,140,.08),rgba(0,180,198,.08));border:1.5px solid rgba(0,127,140,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.av-check svg{width:12px;height:12px;stroke:var(--teal-deep)}
+
+/* ══ FOOTER ══ */
+.site-footer{background:var(--ink);color:rgba(255,255,255,.5);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-logo{font-size:18px;font-weight:900;color:#fff}
+.footer-logo span{color:var(--teal)}
+.footer-links{display:flex;gap:18px;flex-wrap:wrap}
+.footer-links a{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:#fff}
+.footer-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:rgba(255,255,255,.45);text-decoration:none;transition:color .2s}
+.footer-back:hover{color:#fff;text-decoration:none}
+
+@media(max-width:1024px){.plans-grid{grid-template-columns:repeat(2,1fr);gap:20px}}
+@media(max-width:700px){
+  .av-inner{grid-template-columns:1fr;gap:48px}
+  .plans-grid{grid-template-columns:1fr;gap:20px}
+  .hero,.plans-section,.diff-section,.avantages-section,.site-footer{padding-left:16px;padding-right:16px}
+  .hero{padding-top:56px;padding-bottom:48px}
+  .plans-section{padding-top:48px;padding-bottom:56px}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── HERO ── #}
+<div class="hero">
+  <div class="hero-logo">
+    {% if logoDomain %}
+      <img src="https://logo.clearbit.com/{{ logoDomain }}?size=200" alt="{{ nomService }}"
+           onerror="this.src='https://www.google.com/s2/favicons?domain={{ logoDomain }}&sz=100'; this.style.width='100px'; this.style.height='100px'; this.onerror=function(){ this.style.display='none'; document.getElementById('fallback-hero').style.display='flex'; };"/>
+      <span id="fallback-hero" class="hero-logo-fb" style="display:none">{{ nomService|slice(0,2)|upper }}</span>
+    {% else %}
+      <span class="hero-logo-fb">{{ nomService|slice(0,2)|upper }}</span>
+    {% endif %}
+  </div>
+  <p class="hero-eyebrow">{{ nomService }} Premium</p>
+  <h1>Choisissez votre<br><span>plan Premium</span></h1>
+  <p class="hero-sub">Paiement sécurisé · Annulable à tout moment · Accès immédiat</p>
+</div>
+
+{# ── PLANS ── #}
+<div class="plans-section">
+  <h2 class="reveal">Des abonnements pour chaque situation</h2>
+  <p class="plans-sub reveal">Choisissez un abonnement Premium et profitez d'un accès complet. Payez de différentes manières. Annulez à tout moment.</p>
+
+  <div class="plans-grid">
+    {% for plan in plans %}
+      {% set ci         = loop.index0 % 5 %}
+      {% set colors     = ['#ff5ea3','#a78bfa','#fbbf24','#00b4c6','#60a5fa'] %}
+      {% set darkColors = ['#c9185b','#7c3aed','#d97706','#007f8c','#1d4ed8'] %}
+      {% set stripTxt   = ['#fff','#fff','#78350f','#fff','#fff'] %}
+      {% set color      = colors[ci] %}
+      {% set darkColor  = darkColors[ci] %}
+      {% set txtColor   = stripTxt[ci] %}
+      {% set planLabel  = plan.nom|split(' ')|last %}
+      {% set prixAff    = plan.prix|number_format(2) %}
+      {% set freqLabel  = plan.frequence == 'annuel' ? '1 an' : plan.frequence == 'trimestriel' ? '3 mois' : '1 mois' %}
+
+      {# ══ FIX : DIV au lieu de A pour éviter les liens imbriqués ══ #}
+      <div class="pcard reveal-card {{ loop.index == 2 ? 'featured' : '' }}"
+           onclick="window.location='{{ path('app_client_abonnement_show', {id: plan.id}) }}'">
+
+        <div class="pcard-strip" style="background:{{ color }};color:{{ txtColor }}">
+          {{ plan.badge ?? (prixAff ~ ' DT pour ' ~ freqLabel) }}
+        </div>
+
+        <div class="pcard-body">
+
+          {% if loop.index == 2 %}<div class="popular-badge">⭐ Populaire</div>{% endif %}
+
+          <div class="pcard-service">
+            {% if plan.logoDomain %}
+              <img src="https://logo.clearbit.com/{{ plan.logoDomain }}?size=100" alt="{{ nomService }}"
+                   style="width:28px;height:28px;object-fit:contain;border-radius:6px;opacity:.85;"
+                   onerror="this.style.display='none';"/>
+            {% else %}
+              <div class="pcard-sicon" style="background:{{ color }}">{{ nomService|slice(0,2)|upper }}</div>
+            {% endif %}
+            PREMIUM
+          </div>
+
+          <div class="pcard-name" style="color:{{ darkColor }}">{{ planLabel }}</div>
+
+          <div>
+            <div class="pcard-price">{{ prixAff }} DT pour {{ freqLabel }}</div>
+            <div class="pcard-price-sub">
+              {% if plan.prixMarche and plan.prixMarche > plan.prix %}
+                {{ plan.prixMarche|number_format(2) }} DT/mois ensuite
+              {% else %}
+                {{ prixAff }} DT/mois ensuite
+              {% endif %}
+            </div>
+          </div>
+
+          <hr class="pcard-sep">
+
+          <ul class="pcard-feats">
+            {% if plan.description %}
+              {% for feat in plan.description|split(' · ') %}
+                <li>
+                  <div class="feat-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  {{ feat }}
+                </li>
+              {% endfor %}
+            {% else %}
+              <li><div class="feat-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>1 compte Premium</li>
+              <li><div class="feat-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Annulez à tout moment</li>
+              <li><div class="feat-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Abonnement {{ plan.frequence }} renouvelable</li>
+            {% endif %}
+            {% for promo in plan.promotions %}
+              {% if promo.type == 'etudiant' %}
+                <li><div class="feat-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Réduction étudiants éligibles</li>
+              {% elseif promo.type == 'famille' %}
+                <li><div class="feat-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Jusqu'à 6 comptes</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+
+          {# ══ CTA : reste un vrai lien <a> — seul lien dans la carte ══ #}
+          <a href="{{ path('app_client_abonnement_show', {id: plan.id}) }}"
+             class="pcard-cta"
+             style="background:{{ darkColor }}"
+             onclick="event.stopPropagation()">
+            Essayez {{ freqLabel }} pour {{ prixAff }} DT
+          </a>
+
+          <div class="pcard-try">
+            {{ prixAff }} DT pour {{ freqLabel }}, puis
+            <strong>{{ plan.prixMarche is not null and plan.prixMarche > 0 ? plan.prixMarche|number_format(2) : prixAff }} DT/mois</strong>.<br>
+            Offre soumise à conditions.
+          </div>
+
+        </div>
+      </div>{# ══ fin pcard DIV ══ #}
+
+    {% endfor %}
+  </div>
+</div>
+
+{# ── TABLEAU COMPARATIF ── #}
+<div class="diff-section">
+  <h2 class="reveal">Vivez la différence</h2>
+  <p class="diff-sub reveal">Passez à Premium et bénéficiez d'un contrôle total. Annulez à tout moment.</p>
+  <table class="comp-table reveal">
+    <thead>
+      <tr>
+        <th>Vos avantages</th>
+        <th>{{ nomService }} sans abonnement</th>
+        <th class="col-premium">{{ nomService }} Premium</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in ['Sans publicité','Téléchargement hors connexion','Qualité HD supérieure','Accès multi-appareils','Annulation à tout moment','Support client prioritaire'] %}
+      <tr>
+        <td>{{ row }}</td>
+        <td><span class="dash"></span></td>
+        <td><div class="check-circle"><svg viewBox="0 0 14 14" fill="none"><polyline points="2.5,7 5.5,10 11.5,4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{# ── AVANTAGES ── #}
+<div class="avantages-section">
+  <div class="av-inner">
+    <div class="av-left reveal">
+      <h2>Avantages inclus dans tous les abonnements <span>Premium</span></h2>
+      <p>Payez de différentes manières, sur tous vos appareils. Annulez à tout moment.</p>
+      <div class="pay-icons">
+        <div class="pay-icon" style="color:#1a1f71;font-weight:900">VISA</div>
+        <div class="pay-icon">Mastercard</div>
+        <div class="pay-icon" style="color:#f60">Orange Money</div>
+      </div>
+    </div>
+    <div class="av-right reveal">
+      <ul>
+        {% for av in ['Accès sans publicité — expérience fluide et continue','Téléchargement pour utilisation hors connexion','Qualité HD — profitez du meilleur rendu disponible','Compatible tous appareils (mobile, TV, PC)','Paiement sécurisé — annulation en 1 clic','Assistance Dinari disponible 7j/7'] %}
+        <li>
+          <div class="av-check"><svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#007f8c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          {{ av }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+{# ── FOOTER ── #}
+<footer class="site-footer">
+  <div class="footer-logo">Din<span>ari</span></div>
+  <div class="footer-links">
+    <a href="#">Mentions légales</a>
+    <a href="#">Confidentialité</a>
+    <a href="#">Assistance</a>
+  </div>
+  <a href="{{ path('app_client_abonnements') }}" class="footer-back">← Tous les abonnements</a>
+</footer>
+
+<script>
+(function(){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, {threshold:0.1});
+  document.querySelectorAll('.reveal,.reveal-card').forEach(el => io.observe(el));
+})();
+</script>
+{% endblock %}

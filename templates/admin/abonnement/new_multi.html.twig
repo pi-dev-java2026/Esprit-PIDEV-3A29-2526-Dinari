@@ -1,0 +1,542 @@
+{% extends 'admin/layout.html.twig' %}
+{% block title %}Créer les plans — {{ service.nom }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box}
+
+.multi-page{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  max-width:960px;margin:0 auto;padding-bottom:80px;
+}
+
+/* ── NAV ── */
+.nav-back{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.nav-back h1{font-size:24px;font-weight:800;color:#0d1f35;margin:0 0 5px}
+.nav-back .bc{font-size:13px;color:#6b7f96}
+.nav-back .bc a{color:#1a6fc4;text-decoration:none;font-weight:600}
+.btn-back{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#fff;border:1.5px solid #d4dbe8;border-radius:9px;color:#2d4460;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s}
+.btn-back:hover{border-color:#1a6fc4;color:#1a6fc4;text-decoration:none}
+
+/* ── BANNER ── */
+.service-banner{border-radius:18px;padding:22px 26px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
+.banner-logo{width:58px;height:58px;border-radius:14px;object-fit:contain;background:rgba(255,255,255,.25);padding:5px;border:2px solid rgba(255,255,255,.4);flex-shrink:0}
+.logo-fallback-initials{width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;background:rgba(255,255,255,.25);flex-shrink:0;letter-spacing:-1px}
+.banner-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:3px}
+.banner-desc{font-size:13px;color:rgba(255,255,255,.8)}
+.banner-right{margin-left:auto;text-align:right}
+.banner-count{font-size:28px;font-weight:900;color:#fff}
+.banner-count-lbl{font-size:12px;color:rgba(255,255,255,.7);font-weight:600}
+
+/* ── AI BAR ── */
+.ai-bar{background:#fff;border:1.5px solid #e4e9f2;border-radius:16px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:16px}
+.ai-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ai-text h3{font-size:15px;font-weight:800;color:#0d1f35;margin:0 0 3px}
+.ai-text p{font-size:13px;color:#64748b;margin:0}
+.btn-ai{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.btn-ai:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(99,102,241,.35)}
+.btn-ai:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.ai-loading{display:none;text-align:center;padding:28px;color:#6366f1;font-weight:700}
+.ai-loading.show{display:block}
+.spinner{display:inline-block;width:28px;height:28px;border:3px solid #e0e7ff;border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── PLANS GRID ── */
+.preview-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#1a6fc4;margin-bottom:12px}
+
+.plans-grid-preview{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+
+/* ── PLAN CARD EDITOR ── */
+.plan-card-edit{
+  background:#fff;border:2px solid #e4e9f2;border-radius:18px;
+  overflow:hidden;transition:border-color .2s;position:relative;
+}
+.plan-card-edit:hover{border-color:#b0c8e8}
+
+.plan-top-badge{
+  position:absolute;top:-1px;left:16px;
+  padding:5px 16px;border-radius:0 0 10px 10px;
+  font-size:12px;font-weight:900;letter-spacing:.01em;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color:#000;
+  transition:all .3s;
+}
+.badge-c0{background:#ffb3d1}
+.badge-c1{background:#c4b5fd}
+.badge-c2{background:#fcd34d}
+.badge-c3{background:#00b4c6;color:#fff}
+.badge-c4{background:#93c5fd}
+
+.plan-card-header{
+  background:linear-gradient(to right,#f6f9fd,#eef3fb);
+  padding:46px 18px 14px;
+  border-bottom:1.5px solid #edf1f9;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.plan-card-header .plan-num{
+  font-size:12px;font-weight:800;color:#1a6fc4;
+  background:#e8f1fd;border:1.5px solid #b8d0f0;
+  padding:4px 12px;border-radius:20px;
+}
+.plan-remove{
+  background:transparent;border:none;color:#dc2626;
+  font-size:12px;font-weight:700;cursor:pointer;
+  padding:4px 10px;border-radius:7px;
+  display:flex;align-items:center;gap:4px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.plan-remove:hover{background:#fde8e8}
+
+.plan-preview-name{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:26px;font-weight:900;letter-spacing:-.02em;
+  padding:14px 18px 0;
+}
+.plan-preview-price{
+  font-size:14px;font-weight:700;padding:4px 18px 14px;
+  color:#007f8c;border-bottom:1px solid #edf1f9;
+}
+
+.plan-fields{padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:800;color:#162d4a;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{
+  padding:9px 12px;border:2px solid #cdd6e4;border-radius:9px;
+  font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;
+  color:#0d1f35;background:#fff;transition:border-color .2s;
+}
+.field input:focus,.field select:focus{outline:none;border-color:#1a6fc4;box-shadow:0 0 0 3px rgba(26,111,196,.1)}
+.field-full{grid-column:1/-1}
+.prix-wrap{position:relative}
+.prix-wrap input{padding-right:38px}
+.prix-unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:#94a3b8;pointer-events:none}
+
+.promos-section{padding:0 18px 16px}
+.promos-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.promo-row{background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:grid;grid-template-columns:1fr 80px 1fr;gap:8px;align-items:center}
+.promo-row input,.promo-row select{padding:7px 10px;border:1.5px solid #c4b5fd;border-radius:8px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;color:#0d1f35;background:#fff}
+.promo-row input:focus,.promo-row select:focus{outline:none;border-color:#7c3aed}
+.promo-remove-row{background:transparent;border:none;color:#7c3aed;font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
+.btn-add-promo-row{width:100%;padding:7px;background:#f5f3ff;border:1.5px dashed #c4b5fd;border-radius:8px;color:#7c3aed;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-add-promo-row:hover{background:#ede9fe;border-color:#7c3aed}
+
+.btn-add-plan{
+  width:100%;padding:16px;background:#eef5ff;
+  border:2px dashed #90bdf0;border-radius:14px;
+  color:#1a6fc4;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:24px;
+}
+.btn-add-plan:hover{background:#dbeafe;border-color:#1a6fc4}
+
+.diff-preview{background:#fff;border:1.5px solid #e4e9f2;border-radius:16px;padding:20px 24px;margin-bottom:24px}
+.diff-preview h3{font-size:14px;font-weight:800;color:#0d1f35;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.diff-table{width:100%;border-collapse:collapse;font-size:13px}
+.diff-table th{color:#6b7f96;font-weight:700;padding:8px 12px;text-align:left;border-bottom:1.5px solid #edf1f9;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.diff-table th:not(:first-child){text-align:center}
+.diff-table td{padding:10px 12px;border-bottom:1px solid #f1f5f9;color:#475569}
+.diff-table tr:last-child td{border-bottom:none}
+.diff-table td:not(:first-child){text-align:center}
+.check{color:#00b4c6;font-size:16px}
+.dash{color:#cbd5e1;font-size:14px}
+
+.faq-preview{background:#fff;border:1.5px solid #e4e9f2;border-radius:16px;padding:20px 24px;margin-bottom:24px}
+.faq-preview h3{font-size:14px;font-weight:800;color:#0d1f35;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.faq-item-p{border-bottom:1px solid #f1f5f9;padding:10px 0;font-size:13px;color:#475569;display:flex;align-items:center;gap:8px}
+.faq-item-p:last-child{border-bottom:none}
+.faq-item-p::before{content:'?';background:#eef5ff;color:#1a6fc4;font-weight:800;font-size:11px;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.form-actions{
+  display:flex;gap:12px;align-items:center;
+  padding-top:24px;border-top:2px solid #edf1f9;margin-top:8px;
+}
+.btn-submit{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:14px 36px;
+  background:linear-gradient(135deg,#1a6fc4,#1254a0);
+  color:#fff;border:none;border-radius:11px;
+  font-size:15px;font-weight:800;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 5px 18px rgba(26,111,196,.35);transition:all .2s;
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,111,196,.45)}
+.btn-cancel{
+  padding:14px 24px;background:#f0f4fa;border:2px solid #cdd6e4;
+  border-radius:11px;color:#2d4460;font-size:14px;font-weight:700;
+  text-decoration:none;transition:all .2s;
+}
+.btn-cancel:hover{background:#e4eaf5;text-decoration:none}
+
+/* ── Erreur ── */
+.ai-error{
+  background:#fff0f0;border:2px solid #e74c3c;border-left:5px solid #c0392b;
+  border-radius:12px;padding:14px 18px;margin-bottom:16px;
+  font-size:13px;font-weight:600;color:#c0392b;
+  display:none;
+}
+.ai-error.show{display:block}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="multi-page">
+
+  {# NAV #}
+  <div class="nav-back">
+    <div>
+      <h1>Plans pour {{ service.nom }}</h1>
+      <div class="bc">
+        <a href="{{ path('admin_abonnement_index') }}">Abonnements</a> ›
+        <a href="{{ path('admin_abonnement_catalogue') }}">Catalogue</a> ›
+        {{ service.nom }}
+      </div>
+    </div>
+    <a href="{{ path('admin_abonnement_catalogue') }}" class="btn-back">← Retour</a>
+  </div>
+
+  {# BANNER #}
+  <div class="service-banner" style="background:linear-gradient(135deg,{{ service.couleur }}ee,{{ service.couleur }}88)">
+    {% if service.logo_domain %}
+    <div style="display:flex;align-items:center;justify-content:center;">
+      <img class="banner-logo"
+           src="https://logo.clearbit.com/{{ service.logo_domain }}"
+           alt="{{ service.nom }}"
+           onerror="this.src='https://www.google.com/s2/favicons?domain={{ service.logo_domain }}&sz=58'; this.style.width='58px'; this.style.height='58px'; this.onerror=function(){ this.style.display='none'; document.getElementById('fallback-multi-banner-{{ service.slug }}').style.display='flex'; };" />
+      <div id="fallback-multi-banner-{{ service.slug }}" class="logo-fallback-initials" style="display:none;width:58px;height:58px;">
+        {{ service.nom|slice(0,2)|upper }}
+      </div>
+    </div>
+    {% else %}
+    <div class="logo-fallback-initials" style="width:58px;height:58px;">{{ service.nom|slice(0,2)|upper }}</div>
+    {% endif %}
+    <div>
+      <div class="banner-name">{{ service.nom }}</div>
+      <div class="banner-desc">{{ service.categorie|capitalize }} · {{ service.tier }}</div>
+    </div>
+    <div class="banner-right">
+      <div class="banner-count" id="plan-count-display">0</div>
+      <div class="banner-count-lbl">plan(s) créé(s)</div>
+    </div>
+  </div>
+
+  {# AI BAR — Groq #}
+  <div class="ai-bar">
+    <div class="ai-icon">🤖</div>
+    <div class="ai-text">
+      <h3>Génération automatique par IA</h3>
+      <p>L'IA génère tous les plans disponibles pour {{ service.nom }} (Personnel, Étudiants, Duo, Famille…)</p>
+    </div>
+    <button class="btn-ai" id="btn-generate" type="button" onclick="generateWithAI()">
+      ✨ Générer les plans
+    </button>
+  </div>
+
+  <div class="ai-loading" id="ai-loading">
+    <div class="spinner"></div>
+    <div>Génération des plans pour {{ service.nom }}…</div>
+  </div>
+
+  <div class="ai-error" id="ai-error"></div>
+
+  {# FORM #}
+  <form method="post" action="{{ path('admin_abonnement_multi_save') }}" id="multi-form">
+    <input type="hidden" name="service_slug"        value="{{ service.slug ?? '' }}">
+    <input type="hidden" name="service_nom"         value="{{ service.nom }}">
+    <input type="hidden" name="service_couleur"     value="{{ service.couleur }}">
+    <input type="hidden" name="service_categorie"   value="{{ service.categorie }}">
+    <input type="hidden" name="service_logo_domain" value="{{ service.logo_domain }}">
+
+    <div class="preview-label">🎵 Plans — affichés côté client (style Spotify)</div>
+
+    <div class="plans-grid-preview" id="plans-container"></div>
+
+    <button type="button" class="btn-add-plan" onclick="addPlanBlock()">
+      + Ajouter un plan manuellement
+    </button>
+
+    {# Aperçu "Vivez la différence" #}
+    <div class="diff-preview">
+      <h3>👁 Aperçu — "Vivez la différence"</h3>
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th style="width:45%">Avantages</th>
+            <th>Sans abonnement</th>
+            <th>{{ service.nom }} Premium</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Service sans publicité</td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+          <tr><td>Qualité supérieure (HD)</td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+          <tr><td>Téléchargement hors-ligne</td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+          <tr><td>Support client prioritaire</td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+          <tr><td>Annulable à tout moment</td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {# Aperçu FAQ #}
+    <div class="faq-preview">
+      <h3>❓ Aperçu — FAQ</h3>
+      <div class="faq-item-p">Comment fonctionne la période d'essai ?</div>
+      <div class="faq-item-p">Comment annuler mon abonnement ?</div>
+      <div class="faq-item-p">Comment fonctionnent les offres promotionnelles ?</div>
+      <div class="faq-item-p">Quels modes de paiement sont acceptés ?</div>
+      <div class="faq-item-p">Est-ce que mes données sont sécurisées ?</div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-submit">🚀 Enregistrer tous les plans</button>
+      <a href="{{ path('admin_abonnement_catalogue') }}" class="btn-cancel">Annuler</a>
+    </div>
+  </form>
+</div>
+
+<script>
+const SERVICE = {{ service|json_encode|raw }};
+const BADGE_CLASSES = ['badge-c0','badge-c1','badge-c2','badge-c3','badge-c4'];
+const PLAN_COLORS   = ['#ff6eb2','#b3a0e0','#f5a623','#00b4c6','#3b82f6'];
+let planCount = 0;
+
+/* ══════════════════════════════════════════════════════
+   GÉNÉRATION IA — via proxy Symfony → Groq
+══════════════════════════════════════════════════════ */
+async function generateWithAI() {
+  const btn     = document.getElementById('btn-generate');
+  const loading = document.getElementById('ai-loading');
+  const errEl   = document.getElementById('ai-error');
+
+  btn.disabled = true;
+  loading.classList.add('show');
+  errEl.classList.remove('show');
+  document.getElementById('plans-container').innerHTML = '';
+  planCount = 0;
+  updateCounter();
+
+  try {
+    // ── Appel vers le proxy Symfony (pas directement l'API IA) ──
+    const response = await fetch('/admin/abonnement/ai/generate-plans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_nom:       SERVICE.nom,
+        service_categorie: SERVICE.categorie,
+        service_tier:      SERVICE.tier,
+        prix_ref:          SERVICE.prix?.mensuel ?? 10,
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `Erreur HTTP ${response.status}`);
+    }
+
+    if (!data.plans || !Array.isArray(data.plans) || data.plans.length === 0) {
+      throw new Error("Aucun plan retourné par l'IA");
+    }
+
+    data.plans.forEach(plan => addPlanBlock(plan));
+
+  } catch (err) {
+    console.error('Erreur IA:', err);
+    errEl.textContent = '⚠️ Erreur IA : ' + err.message + ' — Un plan par défaut a été créé.';
+    errEl.classList.add('show');
+
+    // Fallback : plan par défaut
+    addPlanBlock({
+      nom_plan:    'Personnel',
+      frequence:   'mensuel',
+      prix:        parseFloat(SERVICE.prix?.mensuel ?? 10),
+      prix_marche: parseFloat(SERVICE.prix?.mensuel ?? 10) * 1.25,
+      tier:        SERVICE.tier ?? 'Normal',
+      badge_label: 'Offre mensuelle',
+      description: '1 compte Premium · Annulable à tout moment',
+      promotions:  []
+    });
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('show');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   AJOUTER UN BLOC PLAN
+══════════════════════════════════════════════════════ */
+function addPlanBlock(data = {}) {
+  const idx   = planCount++;
+  const ci    = idx % BADGE_CLASSES.length;
+  const color = PLAN_COLORS[ci];
+  const container = document.getElementById('plans-container');
+
+  const nomPlan    = data.nom_plan    ?? '';
+  const prix       = data.prix        ?? '';
+  const prixMarche = data.prix_marche ?? '';
+  const frequence  = data.frequence   ?? 'mensuel';
+  const tier       = data.tier        ?? (SERVICE.tier ?? 'Normal');
+  const badge      = data.badge_label ?? (prix ? prix + ' DT / ' + frequence : '');
+  const desc       = data.description ?? '';
+  const promos     = data.promotions  ?? [];
+
+  const div = document.createElement('div');
+  div.className = 'plan-card-edit';
+  div.dataset.idx = idx;
+
+  div.innerHTML = `
+    <div class="plan-top-badge ${BADGE_CLASSES[ci]}" id="badge-display-${idx}">${esc(badge) || '…'}</div>
+
+    <div class="plan-card-header">
+      <span class="plan-num">Plan ${idx + 1}</span>
+      <button type="button" class="plan-remove" onclick="removePlan(this)">🗑 Supprimer</button>
+    </div>
+
+    <div class="plan-preview-name" id="name-preview-${idx}" style="color:${color}">
+      ${esc(nomPlan) || '<em style="color:#94a3b8;font-size:18px">Nom du plan</em>'}
+    </div>
+    <div class="plan-preview-price" id="price-preview-${idx}">
+      ${prix ? prix + ' DT / ' + frequence : '<span style="color:#94a3b8">Prix…</span>'}
+    </div>
+
+    <div class="plan-fields">
+      <div class="field">
+        <label>Nom du plan *</label>
+        <input type="text" name="plans[${idx}][nom_plan]"
+               value="${esc(nomPlan)}" placeholder="Personnel, Étudiants, Duo…" required
+               oninput="updatePreview(${idx})">
+      </div>
+      <div class="field">
+        <label>Fréquence *</label>
+        <select name="plans[${idx}][frequence]" onchange="updatePreview(${idx})">
+          <option value="mensuel"     ${frequence==='mensuel'     ?'selected':''}>Mensuel</option>
+          <option value="annuel"      ${frequence==='annuel'      ?'selected':''}>Annuel</option>
+          <option value="trimestriel" ${frequence==='trimestriel' ?'selected':''}>Trimestriel</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Prix Dinari (DT) *</label>
+        <div class="prix-wrap">
+          <input type="number" name="plans[${idx}][prix]"
+                 value="${prix}" step="0.01" min="0.01" required placeholder="9.99"
+                 oninput="updatePreview(${idx})">
+          <span class="prix-unit">DT</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Prix marché (DT)</label>
+        <div class="prix-wrap">
+          <input type="number" name="plans[${idx}][prix_marche]"
+                 value="${prixMarche}" step="0.01" min="0" placeholder="12.99">
+          <span class="prix-unit">DT</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Niveau (tier)</label>
+        <select name="plans[${idx}][tier]">
+          ${['Normal','Silver','Gold','Platinum'].map(t=>`<option value="${t}" ${tier===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field field-full">
+        <label>Badge prix (affiché en haut de la carte)</label>
+        <input type="text" name="plans[${idx}][badge_label]"
+               value="${esc(badge)}" placeholder="ex: 12,50 DT pour 2 mois"
+               oninput="updateBadge(${idx})">
+      </div>
+      <div class="field field-full">
+        <label>Description courte</label>
+        <input type="text" name="plans[${idx}][description]"
+               value="${esc(desc)}" placeholder="ex: 1 compte Premium · Annulez à tout moment">
+      </div>
+    </div>
+
+    <div class="promos-section">
+      <div class="promos-label">🏷 Promotions de ce plan</div>
+      <div id="promos-${idx}">
+        ${promos.map((p,pi) => buildPromoRow(idx, pi, p)).join('')}
+      </div>
+      <button type="button" class="btn-add-promo-row" onclick="addPromoRow(${idx})">
+        + Ajouter une promotion
+      </button>
+    </div>
+  `;
+
+  container.appendChild(div);
+  updateCounter();
+}
+
+/* ── Promo row HTML ── */
+let promoCounters = {};
+function addPromoRow(planIdx) {
+  promoCounters[planIdx] = (promoCounters[planIdx] ?? 0) + 1;
+  const pi = promoCounters[planIdx];
+  const wrap = document.getElementById('promos-' + planIdx);
+  if (!wrap) return;
+  const div = document.createElement('div');
+  div.innerHTML = buildPromoRow(planIdx, pi, {});
+  wrap.appendChild(div.firstElementChild);
+}
+
+function buildPromoRow(planIdx, pi, data = {}) {
+  return `
+    <div class="promo-row">
+      <select name="plans[${planIdx}][promotions][${pi}][type]">
+        <option value="">— Type —</option>
+        <option value="etudiant"  ${(data.type??'')==='etudiant' ?'selected':''}>🎓 Étudiant</option>
+        <option value="famille"   ${(data.type??'')==='famille'  ?'selected':''}>👨‍👩‍👧 Famille</option>
+        <option value="fidelite"  ${(data.type??'')==='fidelite' ?'selected':''}>⭐ Fidélité</option>
+        <option value="limitee"   ${(data.type??'')==='limitee'  ?'selected':''}>⏳ Limitée</option>
+      </select>
+      <div class="prix-wrap" style="position:relative">
+        <input type="number" name="plans[${planIdx}][promotions][${pi}][reduction_pct]"
+               value="${data.reduction_pct??''}" min="1" max="100" step="1" placeholder="30">
+        <span class="prix-unit">%</span>
+      </div>
+      <input type="text" name="plans[${planIdx}][promotions][${pi}][conditions]"
+             value="${esc(data.conditions??'')}" placeholder="Conditions (optionnel)">
+      <button type="button" class="promo-remove-row" onclick="this.closest('.promo-row').remove()">×</button>
+    </div>`;
+}
+
+/* ── Mise à jour aperçu live ── */
+function updatePreview(idx) {
+  const card = document.querySelector(`[data-idx="${idx}"]`);
+  if (!card) return;
+  const nom  = card.querySelector(`input[name="plans[${idx}][nom_plan]"]`)?.value ?? '';
+  const prix = card.querySelector(`input[name="plans[${idx}][prix]"]`)?.value ?? '';
+  const freq = card.querySelector(`select[name="plans[${idx}][frequence]"]`)?.value ?? '';
+
+  const np = document.getElementById('name-preview-' + idx);
+  const pp = document.getElementById('price-preview-' + idx);
+  if (np) np.innerHTML = nom || '<em style="color:#94a3b8;font-size:18px">Nom du plan</em>';
+  if (pp) pp.innerHTML = prix ? `${prix} DT / ${freq}` : '<span style="color:#94a3b8">Prix…</span>';
+}
+
+function updateBadge(idx) {
+  const card  = document.querySelector(`[data-idx="${idx}"]`);
+  const input = card?.querySelector(`input[name="plans[${idx}][badge_label]"]`);
+  const disp  = document.getElementById('badge-display-' + idx);
+  if (disp && input) disp.textContent = input.value || '…';
+}
+
+function removePlan(btn) {
+  btn.closest('.plan-card-edit').remove();
+  updateCounter();
+}
+
+function updateCounter() {
+  const n  = document.querySelectorAll('.plan-card-edit').length;
+  const el = document.getElementById('plan-count-display');
+  if (el) el.textContent = n;
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+{% endblock %}

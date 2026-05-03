@@ -1,0 +1,606 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Catalogue Abonnements — Admin Dinari{% endblock %}
+{% block page_title %}Catalogue des Abonnements{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.cat-page {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f0f2f7;
+    min-height: 100vh;
+    padding: 0 0 60px;
+}
+
+.cat-header {
+    background: linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 60%, #1a6fc4 100%);
+    padding: 40px 48px 48px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 36px;
+}
+.cat-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.cat-header-inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.cat-header h1 {
+    font-size: 28px; font-weight: 800;
+    color: #fff; margin: 0 0 6px;
+    letter-spacing: -0.5px;
+}
+.cat-header p {
+    font-size: 14px; color: rgba(255,255,255,0.65); margin: 0;
+}
+.btn-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: #fff; font-size: 13px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+}
+.btn-back:hover { background: rgba(255,255,255,0.2); color: #fff; text-decoration: none; }
+
+.filter-bar {
+    padding: 0 48px;
+    display: flex; gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+.filter-tab {
+    padding: 9px 18px;
+    border-radius: 50px;
+    border: 1.5px solid #dde3ee;
+    background: #fff;
+    font-size: 13px; font-weight: 600;
+    color: #5a6e84;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.filter-tab:hover { border-color: #1a6fc4; color: #1a6fc4; }
+.filter-tab.active {
+    background: #1a6fc4; border-color: #1a6fc4;
+    color: #fff;
+}
+
+.cat-grid-wrap { padding: 0 48px; }
+.cat-section { margin-bottom: 40px; }
+.cat-section-title {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #8a9bb5;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+}
+.cat-section-title::after {
+    content: '';
+    flex: 1; height: 1px; background: #e4e9f2;
+}
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+}
+
+.service-card {
+    background: #fff;
+    border: 1.5px solid #e4e9f2;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex; flex-direction: column;
+}
+.service-card:hover:not(.disabled) {
+    border-color: #1a6fc4;
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(26,111,196,0.15);
+}
+.service-card.disabled {
+    opacity: 0.5; cursor: not-allowed;
+    filter: grayscale(0.4);
+}
+
+.badge-added {
+    position: absolute; top: 10px; right: 10px;
+    background: #27ae60; color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 50px;
+    letter-spacing: 0.5px;
+}
+
+.tier-dot {
+    position: absolute; top: 10px; left: 10px;
+    width: 8px; height: 8px; border-radius: 50%;
+}
+
+.card-top {
+    padding: 28px 20px 16px;
+    display: flex; flex-direction: column;
+    align-items: center; text-align: center;
+    background: linear-gradient(180deg, #fafbfd 0%, #fff 100%);
+    border-bottom: 1px solid #f0f3f9;
+}
+.service-logo {
+    width: 60px; height: 60px;
+    border-radius: 14px;
+    object-fit: contain;
+    margin-bottom: 12px;
+    background: #f5f7fa;
+    padding: 4px;
+}
+.logo-fallback {
+    width: 60px; height: 60px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+}
+.service-name {
+    font-size: 14px; font-weight: 700;
+    color: #1e2d40;
+    margin-bottom: 4px;
+}
+.service-cat {
+    font-size: 11px; color: #8a9bb5; font-weight: 500;
+}
+
+.card-bottom {
+    padding: 14px 20px;
+    display: flex; flex-direction: column; gap: 8px;
+}
+.price-row {
+    display: flex; justify-content: space-between; align-items: center;
+}
+.freq-label {
+    font-size: 11px; color: #8a9bb5; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.price-val {
+    font-size: 16px; font-weight: 800;
+    color: #1e2d40;
+}
+.price-val span { font-size: 12px; font-weight: 500; color: #8a9bb5; }
+
+.tier-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 50px;
+    font-size: 11px; font-weight: 700;
+}
+.tier-Normal   { background: rgba(52,152,219,0.1);  color: #2980b9; }
+.tier-Silver   { background: rgba(127,140,141,0.1); color: #7f8c8d; }
+.tier-Gold     { background: rgba(243,156,18,0.12); color: #e67e22; }
+.tier-Platinum { background: rgba(155,89,182,0.12); color: #8e44ad; }
+
+.select-btn {
+    margin-top: 4px;
+    width: 100%;
+    padding: 9px;
+    background: #f0f4ff;
+    border: 1.5px solid #d0dcff;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 700;
+    color: #1a6fc4;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.select-btn:hover { background: #1a6fc4; color: #fff; border-color: #1a6fc4; }
+
+/* ══ MODAL ══ */
+.modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10,20,40,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9000;
+    align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+    background: #fff;
+    border-radius: 20px;
+    width: 560px; max-width: 95vw;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+    animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes modalIn {
+    from { transform: scale(0.92) translateY(20px); opacity: 0; }
+    to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+.modal-header {
+    background: linear-gradient(135deg, #0f1f3d, #1a6fc4);
+    padding: 24px 28px;
+    border-radius: 20px 20px 0 0;
+    display: flex; align-items: center; gap: 16px;
+}
+.modal-logo {
+    width: 52px; height: 52px; border-radius: 12px;
+    object-fit: contain; background: rgba(255,255,255,0.15);
+    padding: 4px;
+}
+.modal-logo-fallback {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #fff;
+    background: rgba(255,255,255,0.2);
+}
+.modal-title { color: #fff; font-size: 18px; font-weight: 800; margin: 0 0 3px; }
+.modal-sub   { color: rgba(255,255,255,0.65); font-size: 13px; }
+.modal-close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.15); border: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    color: #fff; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.modal-body { padding: 24px 28px; }
+
+.freq-selector {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 20px;
+}
+.freq-option {
+    border: 2px solid #e4e9f2;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafbfd;
+}
+.freq-option:hover { border-color: #1a6fc4; }
+.freq-option.selected {
+    border-color: #1a6fc4;
+    background: rgba(26,111,196,0.05);
+}
+.freq-option-label { font-size: 13px; font-weight: 700; color: #1e2d40; margin-bottom: 4px; }
+.freq-option-price { font-size: 20px; font-weight: 800; color: #1a6fc4; }
+.freq-option-price span { font-size: 12px; color: #8a9bb5; font-weight: 500; }
+.freq-option-discount {
+    display: inline-block; margin-top: 4px;
+    background: #27ae60; color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px;
+}
+
+.features-list { margin: 16px 0; padding: 0; list-style: none; }
+.features-list li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0;
+    font-size: 13px; color: #3d5166;
+    border-bottom: 1px solid #f0f3f9;
+}
+.features-list li:last-child { border: none; }
+.features-list li::before {
+    content: '✓';
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #27ae60; color: #fff;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ══ CHOIX MODE CRÉATION ══ */
+.creation-mode-label {
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #8a9bb5; margin: 20px 0 12px;
+    display: flex; align-items: center; gap: 10px;
+}
+.creation-mode-label::after { content:''; flex:1; height:1px; background:#e4e9f2; }
+
+.mode-cards {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 8px;
+}
+.mode-card {
+    border: 2px solid #e4e9f2;
+    border-radius: 14px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafbfd;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+.mode-card:hover { text-decoration: none; }
+.mode-card.mode-single:hover {
+    border-color: #1a6fc4;
+    background: #eef5ff;
+    transform: translateY(-2px);
+}
+.mode-card.mode-multi {
+    border-color: #7c3aed;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+}
+.mode-card.mode-multi:hover {
+    border-color: #5b21b6;
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.2);
+}
+.mode-card.mode-multi .mode-badge-new {
+    position: absolute; top: 8px; right: 8px;
+    background: #7c3aed; color: #fff;
+    font-size: 9px; font-weight: 800;
+    padding: 2px 7px; border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+.mode-icon {
+    font-size: 28px; margin-bottom: 8px;
+    display: block;
+}
+.mode-title {
+    font-size: 13px; font-weight: 800;
+    color: #1e2d40; margin-bottom: 4px;
+}
+.mode-card.mode-multi .mode-title { color: #5b21b6; }
+.mode-desc {
+    font-size: 11px; color: #8a9bb5; line-height: 1.4;
+}
+.mode-card.mode-multi .mode-desc { color: #7c3aed; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="cat-page">
+
+    <div class="cat-header">
+        <div class="cat-header-inner">
+            <div>
+                <h1>✨ Créer un abonnement</h1>
+                <p>Choisissez un modèle pour pré-remplir le formulaire automatiquement</p>
+            </div>
+            <a href="{{ path('admin_abonnement_index') }}" class="btn-back">
+                <i class="fa fa-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-tab active" onclick="filterCat('all', this)">Tous</button>
+        <button class="filter-tab" onclick="filterCat('streaming', this)">🎬 Streaming</button>
+        <button class="filter-tab" onclick="filterCat('musique', this)">🎵 Musique</button>
+        <button class="filter-tab" onclick="filterCat('productivite', this)">💼 Productivité</button>
+        <button class="filter-tab" onclick="filterCat('gaming', this)">🎮 Gaming</button>
+        <button class="filter-tab" onclick="filterCat('education', this)">📚 Éducation</button>
+        <button class="filter-tab" onclick="filterCat('securite', this)">🔒 Sécurité</button>
+    </div>
+
+    <div class="cat-grid-wrap">
+        {% for categorie, services in grouped %}
+        <div class="cat-section" data-cat="{{ categorie }}">
+            <div class="cat-section-title">
+                {{ categorie|capitalize }}
+            </div>
+            <div class="services-grid">
+                {% for service in services %}
+                {% set deja = service.nom|lower in noms_existants %}
+                <div class="service-card {% if deja %}disabled{% endif %}"
+                     data-cat="{{ service.categorie }}"
+                     {% if not deja %}onclick="openModal({{ service|json_encode }})"{% endif %}>
+
+                    {% if deja %}
+                        <div class="badge-added">✓ Ajouté</div>
+                    {% endif %}
+
+                    <div class="tier-dot" style="background: {% if service.tier == 'Platinum' %}#9b59b6{% elseif service.tier == 'Gold' %}#f39c12{% elseif service.tier == 'Silver' %}#95a5a6{% else %}#3498db{% endif %};"></div>
+
+                    <div class="card-top">
+                        <img class="service-logo"
+                             src="https://logo.clearbit.com/{{ service.logo_domain }}"
+                             alt="{{ service.nom }}"
+                             onerror="this.src='https://www.google.com/s2/favicons?domain={{ service.logo_domain }}&sz=128'; this.style.width='40px'; this.style.height='40px'; this.onerror=function(){this.style.display='none'; this.nextElementSibling.style.display='flex';};">
+                        <div class="logo-fallback" style="background:{{ service.couleur }};display:none;">
+                            {{ service.nom|slice(0,2)|upper }}
+                        </div>
+                        <div class="service-name">{{ service.nom }}</div>
+                        <div class="service-cat">{{ service.categorie|capitalize }}</div>
+                    </div>
+
+                    <div class="card-bottom">
+                        <div class="price-row">
+                            <span class="freq-label">Mensuel</span>
+                            <span class="price-val">
+                                {{ service.prix.mensuel }} <span>DT/mois</span>
+                            </span>
+                        </div>
+                        {% if service.prix.annuel is defined %}
+                        <div class="price-row">
+                            <span class="freq-label">Annuel</span>
+                            <span class="price-val" style="font-size:13px;color:#27ae60;">
+                                {{ (service.prix.annuel / 12)|number_format(2) }} <span>DT/mois</span>
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span class="tier-badge tier-{{ service.tier }}">{{ service.tier }}</span>
+                        </div>
+
+                        {% if not deja %}
+                        <button class="select-btn">
+                            <i class="fa fa-magic"></i> Utiliser comme modèle
+                        </button>
+                        {% else %}
+                        <button class="select-btn" style="background:#f0f9f4;border-color:#27ae60;color:#27ae60;cursor:not-allowed;">
+                            <i class="fa fa-check"></i> Déjà ajouté
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# ══ MODAL ══ #}
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal-box" id="modal-box">
+        <div class="modal-header">
+            <img id="m-logo" class="modal-logo" src="" alt="">
+            <div id="m-logo-fb" class="modal-logo-fallback" style="display:none;"></div>
+            <div>
+                <div class="modal-title" id="m-title"></div>
+                <div class="modal-sub"  id="m-sub"></div>
+            </div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+
+            {# Fréquence #}
+            <p style="font-size:13px;color:#5a6e84;margin:0 0 12px;">
+                Choisissez la fréquence de facturation :
+            </p>
+            <div class="freq-selector" id="freq-selector"></div>
+
+            {# Features #}
+            <ul class="features-list" id="features-list"></ul>
+
+            {# ══ CHOIX DU MODE DE CRÉATION ══ #}
+            <div class="creation-mode-label">Mode de création</div>
+
+            <div class="mode-cards">
+
+                {# Plan unique #}
+                <div class="mode-card mode-single" id="btn-single" onclick="goSingle()">
+                    <span class="mode-icon">📋</span>
+                    <div class="mode-title">Plan unique</div>
+                    <div class="mode-desc">Un seul abonnement avec prix, badge et promotions</div>
+                </div>
+
+                {# Multi-plans Spotify-style #}
+                <div class="mode-card mode-multi" id="btn-multi" onclick="goMulti()">
+                    <div class="mode-badge-new">✨ NOUVEAU</div>
+                    <span class="mode-icon">🎵</span>
+                    <div class="mode-title">Multi-plans</div>
+                    <div class="mode-desc">Personnel, Étudiants, Duo, Famille — généré par IA</div>
+                </div>
+
+            </div>
+
+            <button class="btn-modal-cancel" onclick="closeModal()" style="width:100%;padding:11px;margin-top:4px;background:#f0f4f8;border:1px solid #e4e9f2;border-radius:10px;color:#5a6e84;font-size:14px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+                Annuler
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+let currentService = null;
+let selectedFreq   = 'mensuel';
+
+function openModal(service) {
+    currentService = service;
+    selectedFreq   = 'mensuel';
+
+    const logoEl = document.getElementById('m-logo');
+    const logoFb = document.getElementById('m-logo-fb');
+    logoEl.style.display = 'block';
+    logoFb.style.display = 'none';
+    logoEl.src = 'https://logo.clearbit.com/' + service.logo_domain;
+    logoEl.onerror = function() {
+        this.src = 'https://www.google.com/s2/favicons?domain=' + service.logo_domain + '&sz=128';
+        this.onerror = function() {
+            this.style.display = 'none';
+            logoFb.style.display = 'flex';
+        };
+    };
+    logoFb.textContent = service.nom.slice(0,2).toUpperCase();
+    logoFb.style.background = service.couleur;
+
+    document.getElementById('m-title').textContent = service.nom;
+    document.getElementById('m-sub').textContent   = service.description;
+
+    // Fréquences
+    const freqSel = document.getElementById('freq-selector');
+    freqSel.innerHTML = '';
+    const freqs = {
+        'mensuel': { label: 'Mensuel', prix: service.prix.mensuel, discount: null },
+        'annuel':  { label: 'Annuel',  prix: service.prix.annuel,
+                     discount: service.prix.annuel
+                         ? 'Économisez ' + Math.round(100 - (service.prix.annuel / (service.prix.mensuel * 12) * 100)) + '%'
+                         : null },
+    };
+    Object.entries(freqs).forEach(([freq, data]) => {
+        if (!data.prix) return;
+        const div = document.createElement('div');
+        div.className = 'freq-option' + (freq === 'mensuel' ? ' selected' : '');
+        div.dataset.freq = freq;
+        const prixMensuel = freq === 'annuel'
+            ? (data.prix / 12).toFixed(2)
+            : parseFloat(data.prix).toFixed(2);
+        div.innerHTML = `
+            <div class="freq-option-label">${data.label}</div>
+            <div class="freq-option-price">${prixMensuel} <span>DT/mois</span></div>
+            ${data.discount ? `<div class="freq-option-discount">${data.discount}</div>` : ''}`;
+        div.onclick = () => {
+            freqSel.querySelectorAll('.freq-option').forEach(o => o.classList.remove('selected'));
+            div.classList.add('selected');
+            selectedFreq = freq;
+        };
+        freqSel.appendChild(div);
+    });
+
+    // Features
+    const featList = document.getElementById('features-list');
+    featList.innerHTML = (service.features || []).map(f => `<li>${f}</li>`).join('');
+
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function closeModalOutside(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ── Plan unique classique ────────────────────────────────────────────────
+function goSingle() {
+    if (!currentService) return;
+    window.location.href = `/admin/abonnement/new/${currentService.slug}?frequence=${selectedFreq}`;
+}
+
+// ── Multi-plans Spotify-style ────────────────────────────────────────────
+function goMulti() {
+    if (!currentService) return;
+    window.location.href = `/admin/abonnement/multi-plans/${currentService.slug}`;
+}
+
+function filterCat(cat, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.cat-section').forEach(section => {
+        section.style.display = (cat === 'all' || section.dataset.cat === cat) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
