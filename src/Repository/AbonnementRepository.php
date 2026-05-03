@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Abonnement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class AbonnementRepository extends ServiceEntityRepository
@@ -17,27 +18,29 @@ class AbonnementRepository extends ServiceEntityRepository
      * @return Abonnement[]
      */
     public function findActifs(): array
-{
-    return $this->createQueryBuilder('a')
-        ->where('a.actif = :actif')
-        ->setParameter('actif', true)
-        ->orderBy('a.created_at', 'DESC')
-        ->setMaxResults(50)
-        ->getQuery()
-        ->getResult();
-}
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.actif = :actif')
+            ->setParameter('actif', true)
+            ->orderBy('a.created_at', 'DESC')
+            ->setMaxResults(50)
+            ->getQuery()
+            ->getResult();
+    }
 
     /**
      * @return Abonnement[]
      */
     public function findForAdmin(): array
-{
-    return $this->createQueryBuilder('a')
-        ->orderBy('a.created_at', 'DESC')
-        ->setMaxResults(200)
-        ->getQuery()
-        ->getResult();
-}
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.promotions', 'promo')
+            ->addSelect('promo')
+            ->orderBy('a.created_at', 'DESC')
+            ->setMaxResults(50);
+
+        return iterator_to_array(new Paginator($qb, fetchJoinCollection: true));
+    }
 
     /**
      * @return Abonnement[]
@@ -87,8 +90,6 @@ class AbonnementRepository extends ServiceEntityRepository
     }
 
     /**
-     * Groupe les abonnements actifs par nom de service.
-     *
      * @return array<string, Abonnement[]>
      */
     public function findGroupedByNom(): array
@@ -102,8 +103,6 @@ class AbonnementRepository extends ServiceEntityRepository
     }
 
     /**
-     * Trouve tous les plans du même service.
-     *
      * @return Abonnement[]
      */
     public function findPlansByService(string $nomService, int $excludeId = 0): array

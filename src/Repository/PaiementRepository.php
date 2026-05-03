@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Paiement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class PaiementRepository extends ServiceEntityRepository
@@ -15,12 +16,15 @@ class PaiementRepository extends ServiceEntityRepository
 
     public function findAllWithAbonnement(): array
     {
-        return $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.abonnement_id', 'a')
             ->addSelect('a')
+            ->leftJoin('a.promotions', 'promo')
+            ->addSelect('promo')
             ->orderBy('p.date_paiement', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults(50);
+
+        return iterator_to_array(new Paginator($qb, fetchJoinCollection: true));
     }
 
     public function findByAbonnementId(int $aboId): array
@@ -31,6 +35,7 @@ class PaiementRepository extends ServiceEntityRepository
             ->andWhere('a.id = :id')
             ->setParameter('id', $aboId)
             ->orderBy('p.date_paiement', 'DESC')
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
