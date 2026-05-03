@@ -1,0 +1,264 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Dépenses — Admin Dinari{% endblock %}
+{% block topbar_title %}Dépenses{% endblock %}
+{% block topbar_sub %}Tableau de bord de gestion des dépenses{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+.main-content, .main-content * { font-family: 'Poppins', sans-serif; }
+
+/* ── Page Header ── */
+.ph-wrap {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 14px;
+}
+.ph-left h1 {
+    font-size: 22px; font-weight: 700; color: #1e293b; margin: 0 0 4px;
+    display: flex; align-items: center; gap: 10px;
+}
+.ph-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, #1a6fc4, #2563eb);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 17px; flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(26,111,196,0.35);
+}
+.ph-breadcrumb { font-size: 12px; color: #94a3b8; }
+.ph-breadcrumb a { color: #1a6fc4; text-decoration: none; font-weight: 500; }
+.ph-breadcrumb a:hover { text-decoration: underline; }
+
+/* ── Stats row ── */
+.dep-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+@media(max-width: 900px) { .dep-stats { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 500px) { .dep-stats { grid-template-columns: 1fr 1fr; } }
+
+.dep-stat {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 3px 16px rgba(30,41,59,0.07);
+    transition: transform 0.25s, box-shadow 0.25s;
+    animation: fadeInUp 0.35s ease both;
+}
+.dep-stat:nth-child(2) { animation-delay: 0.06s; }
+.dep-stat:nth-child(3) { animation-delay: 0.12s; }
+.dep-stat:nth-child(4) { animation-delay: 0.18s; }
+.dep-stat:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(30,41,59,0.11); }
+
+.dep-stat-icon {
+    width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+}
+.dep-stat-val { font-size: 26px; font-weight: 800; color: #1e293b; line-height: 1; }
+.dep-stat-lbl { font-size: 11px; font-weight: 600; color: #64748b; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── Section title ── */
+.section-title {
+    font-size: 15px; font-weight: 700; color: #1e293b;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 18px;
+}
+.section-title i { color: #1a6fc4; font-size: 18px; }
+
+/* ── Action cards grid ── */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+@media(max-width: 700px) { .action-grid { grid-template-columns: 1fr; } }
+
+.action-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 16px;
+    padding: 26px 28px;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 20px;
+    box-shadow: 0 4px 20px rgba(30,41,59,0.07);
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    position: relative; overflow: hidden;
+    animation: fadeInUp 0.38s ease both;
+}
+.action-card:nth-child(2) { animation-delay: 0.07s; }
+.action-card:nth-child(3) { animation-delay: 0.14s; }
+.action-card:nth-child(4) { animation-delay: 0.21s; }
+.action-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    opacity: 0; transition: opacity 0.25s;
+    border-radius: 16px 16px 0 0;
+}
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(30,41,59,0.13);
+    text-decoration: none;
+}
+.action-card:hover::before { opacity: 1; }
+
+/* colour variants */
+.ac-blue  .ac-icon { background: rgba(26,111,196,0.1);  color: #1a6fc4; }
+.ac-blue::before   { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+.ac-blue:hover .ac-icon { background: linear-gradient(135deg,#2563eb,#1a6fc4); color:#fff; box-shadow:0 6px 16px rgba(26,111,196,0.35); }
+
+.ac-amber .ac-icon { background: rgba(245,158,11,0.1);  color: #d97706; }
+.ac-amber::before  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.ac-amber:hover .ac-icon { background: linear-gradient(135deg,#f59e0b,#d97706); color:#fff; box-shadow:0 6px 16px rgba(245,158,11,0.35); }
+
+.ac-green .ac-icon { background: rgba(16,185,129,0.1);  color: #059669; }
+.ac-green::before  { background: linear-gradient(90deg, #10b981, #34d399); }
+.ac-green:hover .ac-icon { background: linear-gradient(135deg,#10b981,#059669); color:#fff; box-shadow:0 6px 16px rgba(16,185,129,0.35); }
+
+.ac-purple .ac-icon { background: rgba(139,92,246,0.1); color: #7c3aed; }
+.ac-purple::before  { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.ac-purple:hover .ac-icon { background: linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; box-shadow:0 6px 16px rgba(139,92,246,0.35); }
+
+.ac-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+    transition: all 0.25s;
+}
+.ac-body { flex: 1; min-width: 0; }
+.ac-title {
+    font-size: 15px; font-weight: 700; color: #1e293b;
+    margin-bottom: 4px;
+}
+.ac-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+.ac-arrow {
+    font-size: 18px; color: #cbd5e1; flex-shrink: 0;
+    transition: transform 0.25s, color 0.25s;
+}
+.action-card:hover .ac-arrow { transform: translateX(5px); color: #94a3b8; }
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── Page Header ── #}
+<div class="ph-wrap">
+    <div class="ph-left">
+        <h1>
+            <span class="ph-icon"><i class="ri-shopping-cart-line"></i></span>
+            Dépenses — Administration
+        </h1>
+        <div class="ph-breadcrumb">
+            <a href="{{ path('admin_index') }}">Dashboard</a>
+            <span style="margin:0 5px;color:#cbd5e1;">›</span>
+            Dépenses
+        </div>
+    </div>
+</div>
+
+{# ── Stats ── #}
+<div class="dep-stats">
+    <div class="dep-stat">
+        <div class="dep-stat-icon" style="background:rgba(231,68,68,0.1);color:#dc2626;">
+            <i class="ri-shopping-cart-line"></i>
+        </div>
+        <div>
+            <div class="dep-stat-val">{{ totalDepenses }}</div>
+            <div class="dep-stat-lbl">Dépenses totales</div>
+        </div>
+    </div>
+    <div class="dep-stat">
+        <div class="dep-stat-icon" style="background:rgba(16,185,129,0.1);color:#059669;">
+            <i class="ri-price-tag-3-line"></i>
+        </div>
+        <div>
+            <div class="dep-stat-val">{{ totalCategories }}</div>
+            <div class="dep-stat-lbl">Catégories</div>
+        </div>
+    </div>
+    <div class="dep-stat">
+        <div class="dep-stat-icon" style="background:rgba(245,158,11,0.1);color:#d97706;">
+            <i class="ri-bank-card-line"></i>
+        </div>
+        <div>
+            <div class="dep-stat-val">{{ totalModesPaiement }}</div>
+            <div class="dep-stat-lbl">Modes paiement</div>
+        </div>
+    </div>
+    <div class="dep-stat">
+        <div class="dep-stat-icon" style="background:rgba(26,111,196,0.1);color:#1a6fc4;">
+            <i class="ri-history-line"></i>
+        </div>
+        <div>
+            <div class="dep-stat-val">{{ totalHistorique }}</div>
+            <div class="dep-stat-lbl">Entrées historique</div>
+        </div>
+    </div>
+</div>
+
+{# ── Action Cards ── #}
+<div class="section-title">
+    <i class="ri-apps-2-line"></i>
+    Gestion des dépenses
+</div>
+
+<div class="action-grid">
+
+    {# Catégories #}
+    <a href="{{ path('admin_categorie_index') }}" class="action-card ac-green">
+        <div class="ac-icon"><i class="ri-price-tag-3-line"></i></div>
+        <div class="ac-body">
+            <div class="ac-title">📂 Catégories</div>
+            <div class="ac-desc">Créer, modifier et supprimer les catégories de dépenses. Chaque catégorie affiche le nombre de dépenses liées.</div>
+        </div>
+        <i class="ri-arrow-right-line ac-arrow"></i>
+    </a>
+
+    {# Modes de Paiement #}
+    <a href="{{ path('admin_mode_paiement_index') }}" class="action-card ac-amber">
+        <div class="ac-icon"><i class="ri-bank-card-line"></i></div>
+        <div class="ac-body">
+            <div class="ac-title">💳 Modes de Paiement</div>
+            <div class="ac-desc">Gérer les modes de règlement disponibles : Espèces, Carte bancaire, Virement, PayPal, etc.</div>
+        </div>
+        <i class="ri-arrow-right-line ac-arrow"></i>
+    </a>
+
+    {# Historique #}
+    <a href="{{ path('admin_historique_index') }}" class="action-card ac-blue">
+        <div class="ac-icon"><i class="ri-history-line"></i></div>
+        <div class="ac-body">
+            <div class="ac-title">📜 Historique</div>
+            <div class="ac-desc">Traçabilité complète de toutes les actions — créations, modifications et suppressions avec données avant/après.</div>
+        </div>
+        <i class="ri-arrow-right-line ac-arrow"></i>
+    </a>
+
+    {# Re-train AI Model #}
+    <a href="{{ path('admin_ai_model') }}" class="action-card ac-purple">
+        <div class="ac-icon"><i class="ri-robot-line"></i></div>
+        <div class="ac-body">
+            <div class="ac-title">🤖 Re-train AI Model</div>
+            <div class="ac-desc">Réentraîner le modèle d'intelligence artificielle à partir des dernières données enregistrées dans la base.</div>
+        </div>
+        <i class="ri-arrow-right-line ac-arrow"></i>
+    </a>
+
+</div>
+
+{% endblock %}

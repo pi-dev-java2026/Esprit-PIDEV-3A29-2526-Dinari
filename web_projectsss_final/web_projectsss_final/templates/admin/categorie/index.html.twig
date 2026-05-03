@@ -51,6 +51,25 @@
 }
 .btn-premium i { font-size: 15px; }
 
+/* ── Back to Dépenses button ── */
+.btn-back-dep {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px; border-radius: 10px;
+    background: #f8fafc; color: #1a6fc4;
+    border: 1.5px solid rgba(26,111,196,0.3);
+    font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.22s ease;
+    font-family: 'Poppins', sans-serif;
+}
+.btn-back-dep:hover {
+    background: linear-gradient(135deg, #1a6fc4 0%, #2563eb 100%);
+    color: #fff; border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(26,111,196,0.35);
+    text-decoration: none;
+}
+.btn-back-dep i { font-size: 14px; }
+
 /* ── Glassmorphism Table Card ── */
 .glass-card {
     background: rgba(255,255,255,0.85);
@@ -207,12 +226,19 @@
         <div class="ph-breadcrumb">
             <a href="{{ path('admin_index') }}">Dashboard</a>
             <span style="margin:0 5px;color:#cbd5e1;">›</span>
+            <a href="{{ path('admin_depenses_dashboard') }}">Dépenses</a>
+            <span style="margin:0 5px;color:#cbd5e1;">›</span>
             Catégories
         </div>
     </div>
-    <a href="{{ path('admin_categorie_new') }}" class="btn-premium">
-        <i class="ri-add-line"></i> Nouvelle catégorie
-    </a>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <a href="{{ path('admin_depenses_dashboard') }}" class="btn-back-dep">
+            <i class="ri-arrow-left-line"></i> Retour aux Dépenses
+        </a>
+        <a href="{{ path('admin_categorie_new') }}" class="btn-premium">
+            <i class="ri-add-line"></i> Nouvelle catégorie
+        </a>
+    </div>
 </div>
 
 {# Table Card #}
