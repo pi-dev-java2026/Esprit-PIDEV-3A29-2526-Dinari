@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/chatbot')]
-class ChatbotController extends AbstractController
+class ChatbotDepenseController extends AbstractController
 {
     private const USER_ID = 1;
 

@@ -17,11 +17,22 @@ class Depense
     #[ORM\Column(name: 'id_depense', type: Types::INTEGER)]
     private ?int $id = null;
 
+    /**
+     * DECIMAL(10,0) — stored as string by Doctrine to preserve precision.
+     * The DB column is NOT NULL, so this is never null after persist.
+     * Use number_format() or bcmath functions when doing arithmetic.
+     */
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 0)]
-    private ?string $montant = null;
+    private string $montant = '0';
 
+    /**
+     * DATE NOT NULL — the DB column does not allow null.
+     * The PHP property is non-nullable after the entity is fully constructed.
+     * Initialised to null only to satisfy PHP before the setter is called
+     * (e.g. during form hydration); Doctrine will reject a flush if null.
+     */
     #[ORM\Column(name: 'date_depense', type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $dateDepense = null;
+    private \DateTimeInterface $dateDepense;
 
     #[ORM\Column(type: Types::STRING, length: 250)]
     private ?string $description = null;
@@ -62,7 +73,7 @@ class Depense
         return $this->id;
     }
 
-    public function getMontant(): ?string
+    public function getMontant(): string
     {
         return $this->montant;
     }
@@ -73,7 +84,7 @@ class Depense
         return $this;
     }
 
-    public function getDateDepense(): ?\DateTimeInterface
+    public function getDateDepense(): \DateTimeInterface
     {
         return $this->dateDepense;
     }
