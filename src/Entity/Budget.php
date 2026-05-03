@@ -15,8 +15,12 @@ class Budget
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
+    /**
+     * DECIMAL(10,2) — stored as string by Doctrine to preserve precision.
+     * The DB column is NOT NULL, so this is never null after persist.
+     */
     #[ORM\Column(name: 'montant_limite', type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $montantLimite = null;
+    private string $montantLimite = '0.00';
 
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $mois = null;
@@ -24,12 +28,16 @@ class Budget
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $annee = null;
 
+    /**
+     * Plain integer — no User entity exists yet. Will become a ManyToOne
+     * association once authentication is implemented.
+     */
     #[ORM\Column(name: 'utilisateur_id', type: Types::INTEGER)]
     private ?int $utilisateurId = null;
 
     public function getId(): ?int { return $this->id; }
 
-    public function getMontantLimite(): ?string { return $this->montantLimite; }
+    public function getMontantLimite(): string { return $this->montantLimite; }
     public function setMontantLimite(string $montantLimite): static { $this->montantLimite = $montantLimite; return $this; }
 
     public function getMois(): ?int { return $this->mois; }

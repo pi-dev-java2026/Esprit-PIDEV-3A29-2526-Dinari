@@ -8,6 +8,13 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+
+        # Timezone consistency: MariaDB is set to +01:00 (Africa/Tunis / Europe/Paris).
+        # This session-level SET ensures every connection uses the same offset,
+        # preventing datetime drift between PHP (Europe/Berlin = UTC+1 in winter,
+        # UTC+2 in summer) and the database.
+        options:
+            1002: "SET time_zone = '+01:00'"   # PDO::MYSQL_ATTR_INIT_COMMAND
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

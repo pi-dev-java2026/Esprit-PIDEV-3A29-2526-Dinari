@@ -41,7 +41,7 @@ public function index(BudgetRepository $repo): Response
     );
 
     return $this->render('budget/index.html.twig', [
-        'budgetsData'   => $budgetsData,
+        'budgetsData'   => $budgetsData, //iportant
         'budgetCourant' => $budgetCourant, // ✅ IMPORTANT
     ]);
 }
