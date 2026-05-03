@@ -12,7 +12,7 @@ class JustificatifDepense
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'idJustificatif', type: Types::INTEGER)]
+    #[ORM\Column(name: 'id_justificatif', type: Types::INTEGER)]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 200)]
@@ -25,20 +25,60 @@ class JustificatifDepense
     private ?\DateTimeInterface $dateajout = null;
 
     #[ORM\ManyToOne(targetEntity: Depense::class, inversedBy: 'justificatifs')]
-    #[ORM\JoinColumn(name: 'idDepense', referencedColumnName: 'id_depense', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(
+        name: 'depense_id',
+        referencedColumnName: 'id_depense',
+        nullable: false,
+        onDelete: 'CASCADE'
+    )]
     private ?Depense $depense = null;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getFilepath(): ?string { return $this->filepath; }
-    public function setFilepath(string $filepath): static { $this->filepath = $filepath; return $this; }
+    public function getFilepath(): ?string
+    {
+        return $this->filepath;
+    }
 
-    public function getTypefichier(): ?string { return $this->typefichier; }
-    public function setTypefichier(string $typefichier): static { $this->typefichier = $typefichier; return $this; }
+    public function setFilepath(string $filepath): static
+    {
+        $this->filepath = $filepath;
+        return $this;
+    }
 
-    public function getDateajout(): ?\DateTimeInterface { return $this->dateajout; }
-    public function setDateajout(\DateTimeInterface $dateajout): static { $this->dateajout = $dateajout; return $this; }
+    public function getTypefichier(): ?string
+    {
+        return $this->typefichier;
+    }
 
-    public function getDepense(): ?Depense { return $this->depense; }
-    public function setDepense(?Depense $depense): static { $this->depense = $depense; return $this; }
+    public function setTypefichier(string $typefichier): static
+    {
+        $this->typefichier = $typefichier;
+        return $this;
+    }
+
+    public function getDateajout(): ?\DateTimeInterface
+    {
+        return $this->dateajout;
+    }
+
+    public function setDateajout(\DateTimeInterface $dateajout): static
+    {
+        $this->dateajout = $dateajout;
+        return $this;
+    }
+
+    public function getDepense(): ?Depense
+    {
+        return $this->depense;
+    }
+
+    public function setDepense(?Depense $depense): static
+    {
+        $this->depense = $depense;
+        return $this;
+    }
 }

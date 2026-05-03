@@ -24,6 +24,10 @@ class Budget
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $annee = null;
 
+    /**
+     * Plain integer — no User entity exists yet. Will become a ManyToOne
+     * association once authentication is implemented.
+     */
     #[ORM\Column(name: 'utilisateur_id', type: Types::INTEGER)]
     private ?int $utilisateurId = null;
 
