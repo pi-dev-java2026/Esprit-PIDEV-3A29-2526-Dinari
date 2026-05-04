@@ -19,7 +19,9 @@ class HistoriqueClientController extends AbstractController
         $userId = 1;
 
         $action = $request->query->get('action');
+        $action = $action !== null ? (string) $action : null;
         $type   = $request->query->get('type');
+        $type   = $type !== null ? (string) $type : null;
 
         $entries = $repo->findForUser($userId, $action ?: null, $type ?: null);
 

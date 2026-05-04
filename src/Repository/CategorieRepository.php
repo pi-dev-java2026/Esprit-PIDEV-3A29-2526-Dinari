@@ -6,6 +6,9 @@ use App\Entity\Categorie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Categorie>
+ */
 class CategorieRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -13,6 +16,7 @@ class CategorieRepository extends ServiceEntityRepository
         parent::__construct($registry, Categorie::class);
     }
 
+    /** @return Categorie[] */
     public function findAllOrderedByLabel(): array
     {
         return $this->createQueryBuilder('c')
@@ -21,7 +25,6 @@ class CategorieRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // Vérifie si le label existe déjà (pour éviter les doublons)
     public function labelExiste(string $label, ?int $excludeId = null): bool
     {
         $qb = $this->createQueryBuilder('c')
@@ -36,7 +39,6 @@ class CategorieRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() > 0;
     }
 
-    // Nombre de dépenses liées à cette catégorie
     public function countDepenses(int $categorieId): int
     {
         return (int) $this->createQueryBuilder('c')

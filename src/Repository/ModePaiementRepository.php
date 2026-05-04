@@ -6,6 +6,9 @@ use App\Entity\ModePaiement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<ModePaiement>
+ */
 class ModePaiementRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -13,6 +16,7 @@ class ModePaiementRepository extends ServiceEntityRepository
         parent::__construct($registry, ModePaiement::class);
     }
 
+    /** @return ModePaiement[] */
     public function findAllOrderedByLabel(): array
     {
         return $this->createQueryBuilder('m')

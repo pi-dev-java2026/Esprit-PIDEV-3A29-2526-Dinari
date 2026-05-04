@@ -16,6 +16,7 @@ class HistoriqueController extends AbstractController
     public function index(Request $request, HistoriqueDepenseRepository $repo): Response
     {
         $action = $request->query->get('action');
+        $action = $action !== null ? (string) $action : null;
         $entries = $repo->findFiltered($action ?: null);
 
         return $this->render('admin/historique/index.html.twig', [

@@ -65,6 +65,23 @@
     box-shadow: 0 10px 22px rgba(108,92,231,0.4);
 }
 
+.btn-back-ai {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px; border-radius: 8px;
+    background: #f8fafc; color: #1a6fc4;
+    border: 1.5px solid rgba(26,111,196,0.3);
+    font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.22s ease;
+    font-family: 'Raleway', sans-serif;
+}
+.btn-back-ai:hover {
+    background: linear-gradient(135deg, #1a6fc4 0%, #2563eb 100%);
+    color: #fff; border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(26,111,196,0.35);
+    text-decoration: none;
+}
+
 </style>
 {% endblock %}
 
@@ -76,6 +93,9 @@
         <h1 class="admin-title">
             🤖 AI Model <span>Management</span>
         </h1>
+        <a href="{{ path('admin_depenses_dashboard') }}" class="btn-back-ai">
+            <i class="ri-arrow-left-line"></i> Retour aux Dépenses
+        </a>
     </div>
 
     <div class="ai-card">

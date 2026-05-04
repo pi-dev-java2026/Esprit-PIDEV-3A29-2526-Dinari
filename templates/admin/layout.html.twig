@@ -301,49 +301,14 @@
         <div class="sidebar-logo-sub">Panneau Admin</div>
     </div>
 
-    <div class="sidebar-section">Tableau de bord</div>
+    <div class="sidebar-section">Administration</div>
     <ul class="sidebar-nav">
         <li>
-            <a href="{{ path('admin_index') }}"
-               class="{{ app.request.get('_route') == 'admin_index' ? 'active' : '' }}">
-                <i class="ri-dashboard-line"></i> Dashboard
+            <a href="{{ path('admin_depenses_dashboard') }}"
+               class="{{ app.request.get('_route') starts with 'admin_depenses' or app.request.get('_route') starts with 'admin_categorie' or app.request.get('_route') starts with 'admin_mode_paiement' or app.request.get('_route') starts with 'admin_historique' or app.request.get('_route') starts with 'admin_ai' ? 'active' : '' }}">
+                <i class="ri-shopping-cart-line"></i> Dépenses
             </a>
         </li>
-    </ul>
-
-    <div class="sidebar-section">Gestion</div>
-    <ul class="sidebar-nav">
-        <li>
-            <a href="{{ path('admin_categorie_index') }}"
-               class="{{ app.request.get('_route') starts with 'admin_categorie' ? 'active' : '' }}">
-                <i class="ri-price-tag-3-line"></i> Catégories
-            </a>
-        </li>
-        <li>
-            <a href="{{ path('admin_mode_paiement_index') }}"
-               class="{{ app.request.get('_route') starts with 'admin_mode_paiement' ? 'active' : '' }}">
-                <i class="ri-bank-card-line"></i> Modes Paiement
-            </a>
-        </li>
-        <li>
-            <a href="{{ path('admin_historique_index') }}"
-               class="{{ app.request.get('_route') starts with 'admin_historique' ? 'active' : '' }}">
-                <i class="ri-history-line"></i> Historique
-            </a>
-        </li>
-        <li>
-         <a href="{{ path('admin_ai_model') }}"
-   class="{{ app.request.get('_route') starts with 'admin_ai' ? 'active' : '' }}">
-    <i class="ri-robot-line"></i> Re-train AI Model
-    </a>
-    </li>
-    </ul>
-
-    <div class="sidebar-section">Autres modules</div>
-    <ul class="sidebar-nav">
-        <li><a href="#"><i class="ri-pie-chart-2-line"></i> Budgets</a></li>
-        <li><a href="#"><i class="ri-shopping-cart-line"></i> Dépenses</a></li>
-        <li><a href="#"><i class="ri-team-line"></i> Utilisateurs</a></li>
     </ul>
 
     <div class="sidebar-footer">

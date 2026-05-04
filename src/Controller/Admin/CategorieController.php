@@ -23,7 +23,7 @@ class CategorieController extends AbstractController
         foreach ($categories as $cat) {
             $data[] = [
                 'categorie'  => $cat,
-                'nbDepenses' => $repo->countDepenses($cat->getId()),
+                'nbDepenses' => $repo->countDepenses((int) $cat->getId()),
             ];
         }
 
@@ -41,7 +41,7 @@ class CategorieController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            if ($repo->labelExiste($categorie->getLabel())) {
+            if ($repo->labelExiste((string) $categorie->getLabel())) {
                 $this->addFlash('error', 'Cette catégorie existe déjà.');
                 return $this->redirectToRoute('admin_categorie_new');
             }
@@ -66,7 +66,7 @@ class CategorieController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            if ($repo->labelExiste($categorie->getLabel(), $categorie->getId())) {
+            if ($repo->labelExiste((string) $categorie->getLabel(), $categorie->getId())) {
                 $this->addFlash('error', 'Cette catégorie existe déjà.');
                 return $this->redirectToRoute('admin_categorie_edit', [
                     'id' => $categorie->getId()
@@ -88,9 +88,11 @@ class CategorieController extends AbstractController
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Categorie $categorie, EntityManagerInterface $em, CategorieRepository $repo): Response
     {
-        if ($this->isCsrfTokenValid('delete_cat' . $categorie->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token');
 
-            if ($repo->countDepenses($categorie->getId()) > 0) {
+        if ($this->isCsrfTokenValid('delete_cat' . $categorie->getId(), $token)) {
+
+            if ($repo->countDepenses((int) $categorie->getId()) > 0) {
                 $this->addFlash('error', 'Impossible de supprimer : catégorie utilisée.');
                 return $this->redirectToRoute('admin_categorie_index');
             }

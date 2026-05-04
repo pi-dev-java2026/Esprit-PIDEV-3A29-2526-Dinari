@@ -6,6 +6,9 @@ use App\Entity\Budget;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Budget>
+ */
 class BudgetRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -13,7 +16,10 @@ class BudgetRepository extends ServiceEntityRepository
         parent::__construct($registry, Budget::class);
     }
 
-    // Tous les budgets d'un utilisateur, triés par année/mois DESC
+    /**
+     * Tous les budgets d'un utilisateur, triés par année/mois DESC.
+     * @return Budget[]
+     */
     public function findByUtilisateur(int $userId): array
     {
         return $this->createQueryBuilder('b')
@@ -25,7 +31,6 @@ class BudgetRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // Budget du mois courant (unique par mois)
     public function findBudgetDuMois(int $userId, int $mois, int $annee): ?Budget
     {
         return $this->createQueryBuilder('b')
@@ -40,7 +45,6 @@ class BudgetRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    // Vérifie si un budget existe déjà pour ce mois/année
     public function existePourMois(int $userId, int $mois, int $annee, ?int $excludeId = null): bool
     {
         $qb = $this->createQueryBuilder('b')
@@ -59,7 +63,6 @@ class BudgetRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() > 0;
     }
 
-    // Total des dépenses pour un mois/année donné (requête native SQL)
     public function getTotalDepenses(int $userId, int $mois, int $annee): float
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -81,11 +84,16 @@ class BudgetRepository extends ServiceEntityRepository
         return (float) $result->fetchOne();
     }
 
-    // Retourne budget + total dépenses + pourcentage pour un mois
+    /**
+     * Retourne budget + total dépenses + pourcentage pour un mois.
+     * @return array<string, mixed>|null
+     */
     public function getBudgetAvecConsommation(int $userId, int $mois, int $annee): ?array
     {
         $budget = $this->findBudgetDuMois($userId, $mois, $annee);
-        if (!$budget) return null;
+        if (!$budget) {
+            return null;
+        }
 
         $totalDepenses = $this->getTotalDepenses($userId, $mois, $annee);
         $limite        = (float) $budget->getMontantLimite();

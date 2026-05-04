@@ -123,7 +123,7 @@ public function new(Request $request, EntityManagerInterface $em): Response
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Depense $depense, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $depense->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $depense->getId(), (string) $request->request->get('_token'))) {
             $em->remove($depense);
             $em->flush();
             $this->addFlash('success', 'Dépense supprimée.');

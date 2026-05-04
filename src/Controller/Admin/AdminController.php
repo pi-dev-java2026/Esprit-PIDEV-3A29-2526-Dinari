@@ -43,4 +43,24 @@ class AdminController extends AbstractController
             'dernieresActivites'  => $dernieresActivites,
         ]);
     }
+
+    /**
+     * Admin Dépenses Dashboard — accessible from the admin sidebar.
+     * Shows admin-only stats and quick-access cards for all management sections.
+     * Does NOT redirect to the client /depense route.
+     */
+    #[Route('/depenses', name: 'admin_depenses_dashboard')]
+    public function depensesDashboard(
+        DepenseRepository      $depenseRepo,
+        CategorieRepository    $categorieRepo,
+        ModePaiementRepository $modePaiementRepo,
+        HistoriqueDepenseRepository $historiqueRepo
+    ): Response {
+        return $this->render('admin/depenses/index.html.twig', [
+            'totalDepenses'      => count($depenseRepo->findAll()),
+            'totalCategories'    => count($categorieRepo->findAll()),
+            'totalModesPaiement' => count($modePaiementRepo->findAll()),
+            'totalHistorique'    => count($historiqueRepo->findAll()),
+        ]);
+    }
 }

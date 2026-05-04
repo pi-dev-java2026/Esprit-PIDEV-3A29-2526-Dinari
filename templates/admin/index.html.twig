@@ -65,24 +65,30 @@
 {# QUICK ACTIONS #}
 <div class="card-dinari">
     <div class="card-header-dinari">
-        <span class="card-title"><i class="ri-flashlight-line" style="color:var(--blue);margin-right:6px;"></i>Actions rapides</span>
+        <span class="card-title">
+            <i class="ri-flashlight-line" style="color:var(--blue);margin-right:6px;"></i>
+            ⚡ Actions rapides
+        </span>
+        <a href="{{ path('depense_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+            <i class="ri-shopping-cart-line"></i> Voir les Dépenses
+        </a>
     </div>
     <div class="quick-actions">
         <a href="{{ path('admin_categorie_new') }}" class="qa-item">
             <i class="ri-price-tag-3-line"></i>
-            Ajouter une catégorie
+            ➕ Ajouter une catégorie
         </a>
         <a href="{{ path('admin_mode_paiement_new') }}" class="qa-item">
             <i class="ri-bank-card-line"></i>
-            Ajouter un mode paiement
+            💳 Ajouter un mode paiement
         </a>
         <a href="{{ path('admin_categorie_index') }}" class="qa-item">
             <i class="ri-list-check-2"></i>
-            Gérer les catégories
+            📊 Gérer les catégories
         </a>
         <a href="{{ path('admin_mode_paiement_index') }}" class="qa-item">
             <i class="ri-settings-3-line"></i>
-            Gérer les modes paiement
+            ⚙️ Gérer les modes paiement
         </a>
     </div>
 </div>

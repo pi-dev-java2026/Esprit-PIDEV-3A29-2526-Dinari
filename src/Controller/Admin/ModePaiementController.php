@@ -23,7 +23,7 @@ class ModePaiementController extends AbstractController
         foreach ($modes as $mode) {
             $data[] = [
                 'mode'       => $mode,
-                'nbDepenses' => $repo->countDepenses($mode->getId()),
+                'nbDepenses' => $repo->countDepenses((int) $mode->getId()),
             ];
         }
 
@@ -41,7 +41,7 @@ class ModePaiementController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            if ($repo->labelExiste($mode->getLabel())) {
+            if ($repo->labelExiste((string) $mode->getLabel())) {
                 $this->addFlash('error', 'Ce mode de paiement existe déjà.');
                 return $this->redirectToRoute('admin_mode_paiement_new');
             }
@@ -66,7 +66,7 @@ class ModePaiementController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            if ($repo->labelExiste($mode->getLabel(), $mode->getId())) {
+            if ($repo->labelExiste((string) $mode->getLabel(), $mode->getId())) {
                 $this->addFlash('error', 'Ce mode de paiement existe déjà.');
                 return $this->redirectToRoute('admin_mode_paiement_edit', [
                     'id' => $mode->getId()
@@ -88,9 +88,11 @@ class ModePaiementController extends AbstractController
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, ModePaiement $mode, EntityManagerInterface $em, ModePaiementRepository $repo): Response
     {
-        if ($this->isCsrfTokenValid('delete_mode' . $mode->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token');
 
-            if ($repo->countDepenses($mode->getId()) > 0) {
+        if ($this->isCsrfTokenValid('delete_mode' . $mode->getId(), $token)) {
+
+            if ($repo->countDepenses((int) $mode->getId()) > 0) {
                 $this->addFlash('error', 'Impossible de supprimer : mode utilisé.');
                 return $this->redirectToRoute('admin_mode_paiement_index');
             }
