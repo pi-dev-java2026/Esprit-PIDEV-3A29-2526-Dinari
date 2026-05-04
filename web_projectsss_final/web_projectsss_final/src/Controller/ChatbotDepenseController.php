@@ -167,7 +167,10 @@ class ChatbotDepenseController extends AbstractController
     //  Helpers
     // ─────────────────────────────────────────────────────────────
 
-    /** Returns true if $msg contains at least one keyword from $keywords */
+    /**
+     * Returns true if $msg contains at least one keyword from $keywords.
+     * @param string[] $keywords
+     */
     private function matches(string $msg, array $keywords): bool
     {
         foreach ($keywords as $kw) {

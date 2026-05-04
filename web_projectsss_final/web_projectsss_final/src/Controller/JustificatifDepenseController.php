@@ -20,10 +20,10 @@ class JustificatifDepenseController extends AbstractController
     #[Route('/depense/{id}', name: 'justificatif_list', methods: ['GET'])]
     public function list(Depense $depense, JustificatifDepenseRepository $repo): Response
     {
-        $justificatifs = $repo->findByDepense($depense->getId());
+        $justificatifs = $repo->findByDepense((int) $depense->getId());
 
         return $this->render('justificatif/list.html.twig', [
-            'depense' => $depense,
+            'depense'       => $depense,
             'justificatifs' => $justificatifs,
         ]);
     }
@@ -43,8 +43,8 @@ class JustificatifDepenseController extends AbstractController
 
             if ($file) {
 
-                $extension = strtolower($file->guessExtension());
-                $allowed = ['pdf', 'png', 'jpg', 'jpeg'];
+                $extension = strtolower((string) $file->guessExtension());
+                $allowed   = ['pdf', 'png', 'jpg', 'jpeg'];
 
                 if (!in_array($extension, $allowed)) {
                     $this->addFlash('error', 'Format non autorisé.');
@@ -53,13 +53,12 @@ class JustificatifDepenseController extends AbstractController
                     ]);
                 }
 
-                $filename = uniqid('justif_') . '.' . $extension;
+                $filename   = uniqid('justif_') . '.' . $extension;
+                $uploadsDir = $this->getParameter('uploads_dir');
+                assert(is_string($uploadsDir));
 
                 try {
-                    $file->move(
-                        $this->getParameter('uploads_dir'),
-                        $filename
-                    );
+                    $file->move($uploadsDir, $filename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur upload fichier.');
                 }
@@ -81,8 +80,8 @@ class JustificatifDepenseController extends AbstractController
         }
 
         return $this->render('justificatif/new.html.twig', [
-            'form' => $form->createView(),
-            'depense' => $depense
+            'form'    => $form->createView(),
+            'depense' => $depense,
         ]);
     }
 
@@ -91,6 +90,9 @@ class JustificatifDepenseController extends AbstractController
     public function edit(Request $request, JustificatifDepense $justificatif, EntityManagerInterface $em): Response
     {
         $depense = $justificatif->getDepense();
+        if ($depense === null) {
+            throw $this->createNotFoundException('Dépense introuvable pour ce justificatif.');
+        }
 
         $form = $this->createForm(JustificatifDepenseType::class, $justificatif);
         $form->handleRequest($request);
@@ -101,15 +103,16 @@ class JustificatifDepenseController extends AbstractController
 
             if ($file) {
 
-                // supprimer ancien fichier
-                $ancienChemin = $this->getParameter('kernel.project_dir') . '/public/' . $justificatif->getFilepath();
+                $projectDir   = $this->getParameter('kernel.project_dir');
+                assert(is_string($projectDir));
+                $ancienChemin = $projectDir . '/public/' . $justificatif->getFilepath();
 
                 if (file_exists($ancienChemin)) {
                     unlink($ancienChemin);
                 }
 
-                $extension = strtolower($file->guessExtension());
-                $allowed = ['pdf', 'png', 'jpg', 'jpeg'];
+                $extension = strtolower((string) $file->guessExtension());
+                $allowed   = ['pdf', 'png', 'jpg', 'jpeg'];
 
                 if (!in_array($extension, $allowed)) {
                     $this->addFlash('error', 'Format non autorisé.');
@@ -118,13 +121,12 @@ class JustificatifDepenseController extends AbstractController
                     ]);
                 }
 
-                $filename = uniqid('justif_') . '.' . $extension;
+                $filename   = uniqid('justif_') . '.' . $extension;
+                $uploadsDir = $this->getParameter('uploads_dir');
+                assert(is_string($uploadsDir));
 
                 try {
-                    $file->move(
-                        $this->getParameter('uploads_dir'),
-                        $filename
-                    );
+                    $file->move($uploadsDir, $filename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur upload fichier.');
                 }
@@ -144,9 +146,9 @@ class JustificatifDepenseController extends AbstractController
         }
 
         return $this->render('justificatif/edit.html.twig', [
-            'form' => $form->createView(),
+            'form'         => $form->createView(),
             'justificatif' => $justificatif,
-            'depense' => $depense
+            'depense'      => $depense,
         ]);
     }
 
@@ -154,11 +156,19 @@ class JustificatifDepenseController extends AbstractController
     #[Route('/{id}/delete', name: 'justificatif_delete', methods: ['POST'])]
     public function delete(Request $request, JustificatifDepense $justificatif, EntityManagerInterface $em): Response
     {
-        $depenseId = $justificatif->getDepense()->getId();
+        $depense = $justificatif->getDepense();
+        if ($depense === null) {
+            throw $this->createNotFoundException('Dépense introuvable pour ce justificatif.');
+        }
+        $depenseId = $depense->getId();
 
-        if ($this->isCsrfTokenValid('delete_justif' . $justificatif->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token');
 
-            $chemin = $this->getParameter('kernel.project_dir') . '/public/' . $justificatif->getFilepath();
+        if ($this->isCsrfTokenValid('delete_justif' . $justificatif->getId(), $token)) {
+
+            $projectDir = $this->getParameter('kernel.project_dir');
+            assert(is_string($projectDir));
+            $chemin = $projectDir . '/public/' . $justificatif->getFilepath();
 
             if (file_exists($chemin)) {
                 unlink($chemin);
@@ -169,9 +179,9 @@ class JustificatifDepenseController extends AbstractController
 
             $this->addFlash('success', 'Justificatif supprimé.');
         }
-        //reponse 
+
         return $this->redirectToRoute('justificatif_list', [
-            'id' => $depenseId
+            'id' => $depenseId,
         ]);
     }
 }

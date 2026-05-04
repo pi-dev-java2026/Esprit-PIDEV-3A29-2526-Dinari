@@ -18,8 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
  *
  *   Similarly, `utilisateur_id` is stored as a plain integer because no
  *   User entity exists in this project yet (auth is hardcoded to userId=1).
- *   Both fields will be converted to proper associations once a User entity
- *   is introduced.
  */
 #[ORM\Entity(repositoryClass: HistoriqueDepenseRepository::class)]
 #[ORM\Table(name: 'historique_depense')]
@@ -38,9 +36,8 @@ class HistoriqueDepense
     private ?int $id = null;
 
     /**
-     * Polymorphic resource ID: references depense.id_depense when
-     * type_ressource = 'depense', or budget.id when type_ressource = 'budget'.
-     * Intentionally stored as a plain integer — see class docblock.
+     * Polymorphic resource ID — intentionally stored as plain integer.
+     * See class docblock.
      */
     #[ORM\Column(name: 'depense_id', type: Types::INTEGER)]
     private int $depenseId;
@@ -48,27 +45,35 @@ class HistoriqueDepense
     #[ORM\Column(type: Types::STRING, length: 20)]
     private string $action;
 
-    /** Type de ressource : depense | budget */
+    /** @var string Type de ressource : depense | budget */
     #[ORM\Column(name: 'type_ressource', type: Types::STRING, length: 20, options: ['default' => 'depense'])]
     private string $typeRessource = self::TYPE_DEPENSE;
 
-    /** Snapshot JSON avant modification/suppression */
+    /**
+     * Snapshot JSON avant modification/suppression.
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(name: 'donnees_avant', type: Types::JSON, nullable: true)]
     private ?array $donneesAvant = null;
 
-    /** Snapshot JSON après création/modification */
+    /**
+     * Snapshot JSON après création/modification.
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(name: 'donnees_apres', type: Types::JSON, nullable: true)]
     private ?array $donneesApres = null;
 
-    /**
-     * Plain integer — no User entity exists yet. See class docblock.
-     */
+    /** Plain integer — no User entity exists yet. See class docblock. */
     #[ORM\Column(name: 'utilisateur_id', type: Types::INTEGER)]
     private int $utilisateurId;
 
     #[ORM\Column(name: 'date_action', type: Types::DATETIME_MUTABLE)]
     private \DateTimeInterface $dateAction;
 
+    /**
+     * @param array<string, mixed>|null $donneesAvant
+     * @param array<string, mixed>|null $donneesApres
+     */
     public function __construct(
         int    $depenseId,
         string $action,
@@ -90,8 +95,13 @@ class HistoriqueDepense
     public function getDepenseId(): int                 { return $this->depenseId; }
     public function getAction(): string                 { return $this->action; }
     public function getTypeRessource(): string          { return $this->typeRessource; }
+
+    /** @return array<string, mixed>|null */
     public function getDonneesAvant(): ?array           { return $this->donneesAvant; }
+
+    /** @return array<string, mixed>|null */
     public function getDonneesApres(): ?array           { return $this->donneesApres; }
+
     public function getUtilisateurId(): int             { return $this->utilisateurId; }
     public function getDateAction(): \DateTimeInterface { return $this->dateAction; }
 }

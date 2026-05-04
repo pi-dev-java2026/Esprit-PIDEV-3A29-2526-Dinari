@@ -26,8 +26,8 @@ public function index(BudgetRepository $repo): Response
     foreach ($budgets as $budget) {
         $budgetsData[] = $repo->getBudgetAvecConsommation(
             $userId,
-            $budget->getMois(),
-            $budget->getAnnee()
+            (int) $budget->getMois(),
+            (int) $budget->getAnnee()
         );
     }
 
@@ -50,7 +50,7 @@ public function index(BudgetRepository $repo): Response
 
 
 #[Route('/budget/send-report', name: 'budget_send_report', methods: ['POST'])]
-public function sendReport(Request $request)
+public function sendReport(Request $request): Response
 {
     $mois = (int)$request->request->get('mois');
     $annee = (int)$request->request->get('annee');
@@ -90,13 +90,13 @@ public function sendReport(Request $request)
 
             $budget = new Budget();
 
-            $budget->setMontantLimite($request->request->get('montant_limite'));
+            $budget->setMontantLimite((string) $request->request->get('montant_limite'));
             $budget->setMois((int) $request->request->get('mois'));
             $budget->setAnnee((int) $request->request->get('annee'));
             $budget->setUtilisateurId($userId);
 
             // check duplicate
-            if ($repo->existePourMois($userId, $budget->getMois(), $budget->getAnnee())) {
+            if ($repo->existePourMois($userId, (int) $budget->getMois(), (int) $budget->getAnnee())) {
                 $this->addFlash('error', 'Un budget existe déjà pour ce mois.');
                 return $this->redirectToRoute('budget_new');
             }

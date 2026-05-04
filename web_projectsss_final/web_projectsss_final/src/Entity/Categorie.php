@@ -20,6 +20,7 @@ class Categorie
     #[ORM\Column(type: Types::STRING, length: 100, unique: true)]
     private ?string $label = null;
 
+    /** @var Collection<int, Depense> */
     #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: Depense::class)]
     private Collection $depenses;
 
@@ -33,6 +34,7 @@ class Categorie
     public function getLabel(): ?string { return $this->label; }
     public function setLabel(string $label): static { $this->label = $label; return $this; }
 
+    /** @return Collection<int, Depense> */
     public function getDepenses(): Collection { return $this->depenses; }
 
     public function __toString(): string { return $this->label ?? ''; }
