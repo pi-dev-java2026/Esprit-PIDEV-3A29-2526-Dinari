@@ -9,7 +9,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use App\Entity\Email;
+
+use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: ExpertComptableRepository::class)]
 #[Vich\Uploadable]
@@ -22,16 +24,16 @@ class ExpertComptable
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
-    private ?string $nom = null;
+    private string $nom = '';
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
-    private ?string $prenom = null;
+    private string $prenom = '';
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Embedded(class: Email::class, columnPrefix: false)]
     #[Assert\NotBlank(message: 'L’email est obligatoire.')]
     #[Assert\Email(message: 'Veuillez saisir une adresse email valide.')]
-    private ?string $email = null;
+    private Email $email;
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank(message: 'Le téléphone est obligatoire.')]
@@ -39,16 +41,16 @@ class ExpertComptable
         pattern: '/^[0-9]{8,15}$/',
         message: 'Le numéro de téléphone doit contenir entre 8 et 15 chiffres.'
     )]
-    private ?string $telephone = null;
+    private string $telephone = '';
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'La spécialité est obligatoire.')]
-    private ?string $specialite = null;
+    private string $specialite = '';
 
     #[ORM\Column]
     #[Assert\NotNull(message: 'L’expérience est obligatoire.')]
     #[Assert\PositiveOrZero(message: 'L’expérience doit être positive ou nulle.')]
-    private ?int $experience = null;
+    private int $experience = 0;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'La description est obligatoire.')]
@@ -56,7 +58,7 @@ class ExpertComptable
         min: 10,
         minMessage: 'La description doit contenir au moins {{ limit }} caractères.'
     )]
-    private ?string $description = null;
+    private string $description = '';
 
     #[Vich\UploadableField(mapping: 'expert_images', fileNameProperty: 'imageName')]
     #[Assert\File(
@@ -75,7 +77,7 @@ class ExpertComptable
     /**
      * @var Collection<int, Offre>
      */
-    #[ORM\OneToMany(targetEntity: Offre::class, mappedBy: 'expertComptable', orphanRemoval: true, cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'expertComptable', targetEntity: Offre::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $offres;
 
     public function __construct()
@@ -88,7 +90,7 @@ class ExpertComptable
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getNom(): string
     {
         return $this->nom;
     }
@@ -99,7 +101,7 @@ class ExpertComptable
         return $this;
     }
 
-    public function getPrenom(): ?string
+    public function getPrenom(): string
     {
         return $this->prenom;
     }
@@ -110,18 +112,18 @@ class ExpertComptable
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
-        return $this->email;
+        return $this->email->getValue();
     }
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email->setValue($email);
         return $this;
     }
 
-    public function getTelephone(): ?string
+    public function getTelephone(): string
     {
         return $this->telephone;
     }
@@ -132,7 +134,7 @@ class ExpertComptable
         return $this;
     }
 
-    public function getSpecialite(): ?string
+    public function getSpecialite(): string
     {
         return $this->specialite;
     }
@@ -143,7 +145,7 @@ class ExpertComptable
         return $this;
     }
 
-    public function getExperience(): ?int
+    public function getExperience(): int
     {
         return $this->experience;
     }
@@ -154,7 +156,7 @@ class ExpertComptable
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -194,7 +196,7 @@ class ExpertComptable
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    protected  function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
         return $this;

@@ -6,6 +6,7 @@ use App\Repository\ReservationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 class Reservation
@@ -17,16 +18,16 @@ class Reservation
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom du client est obligatoire.')]
-    private ?string $nomClient = null;
+    private string $nomClient = '';
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le prénom du client est obligatoire.')]
-    private ?string $prenomClient = null;
+    private string $prenomClient = '';
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'L’email du client est obligatoire.')]
     #[Assert\Email(message: 'Veuillez saisir une adresse email valide.')]
-    private ?string $emailClient = null;
+    private string $emailClient = '';
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank(message: 'Le téléphone du client est obligatoire.')]
@@ -34,19 +35,31 @@ class Reservation
         pattern: '/^[0-9]{8,15}$/',
         message: 'Le numéro de téléphone doit contenir entre 8 et 15 chiffres.'
     )]
-    private ?string $telephoneClient = null;
+    private string $telephoneClient = '';
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $dateReservation = null;
+    private \DateTimeImmutable $dateReservation;
 
     #[ORM\Column(length: 50)]
-    private ?string $statut = null;
+    private string $statut = 'en_attente';
 
     #[ORM\Column(length: 255)]
-    private ?string $token = null;
+    #[Ignore]
+    private string $token = '';
+
+    #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Le mode de réservation est obligatoire.')]
+    #[Assert\Choice(
+        choices: ['en_ligne', 'presentiel'],
+        message: 'Le mode doit être soit "en_ligne" soit "presentiel".'
+    )]
+    private string $mode = '';
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $roomName = null;
 
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -65,7 +78,7 @@ class Reservation
         return $this->id;
     }
 
-    public function getNomClient(): ?string
+    public function getNomClient(): string
     {
         return $this->nomClient;
     }
@@ -77,7 +90,7 @@ class Reservation
         return $this;
     }
 
-    public function getPrenomClient(): ?string
+    public function getPrenomClient(): string
     {
         return $this->prenomClient;
     }
@@ -89,7 +102,7 @@ class Reservation
         return $this;
     }
 
-    public function getEmailClient(): ?string
+    public function getEmailClient(): string
     {
         return $this->emailClient;
     }
@@ -101,7 +114,7 @@ class Reservation
         return $this;
     }
 
-    public function getTelephoneClient(): ?string
+    public function getTelephoneClient(): string
     {
         return $this->telephoneClient;
     }
@@ -125,7 +138,7 @@ class Reservation
         return $this;
     }
 
-    public function getDateReservation(): ?\DateTimeImmutable
+    public function getDateReservation(): \DateTimeImmutable
     {
         return $this->dateReservation;
     }
@@ -137,7 +150,7 @@ class Reservation
         return $this;
     }
 
-    public function getStatut(): ?string
+    public function getStatut(): string
     {
         return $this->statut;
     }
@@ -149,7 +162,7 @@ class Reservation
         return $this;
     }
 
-    public function getToken(): ?string
+    public function getToken(): string
     {
         return $this->token;
     }
@@ -157,6 +170,30 @@ class Reservation
     public function setToken(string $token): static
     {
         $this->token = $token;
+
+        return $this;
+    }
+
+    public function getMode(): string
+    {
+        return $this->mode;
+    }
+
+    public function setMode(string $mode): static
+    {
+        $this->mode = $mode;
+
+        return $this;
+    }
+
+    public function getRoomName(): ?string
+    {
+        return $this->roomName;
+    }
+
+    public function setRoomName(?string $roomName): static
+    {
+        $this->roomName = $roomName;
 
         return $this;
     }

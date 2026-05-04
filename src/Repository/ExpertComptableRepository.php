@@ -15,6 +15,9 @@ class ExpertComptableRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ExpertComptable::class);
     }
+    /**
+    * @return ExpertComptable[]
+    */
 
     public function findByFilters(?string $search, ?string $specialite, ?string $tri): array
     {
@@ -45,6 +48,9 @@ class ExpertComptableRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+    /**
+    * @return ExpertComptable[]
+    */
 
     public function findByAdminFilters(?string $search, ?string $specialite): array
     {
@@ -69,4 +75,32 @@ class ExpertComptableRepository extends ServiceEntityRepository
                   ->getQuery()
                   ->getResult();
     }
+    /**
+    * @return array<int, array<string, mixed>>
+    */
+    public function getExpertsStatistics(): array
+{
+    return $this->createQueryBuilder('e')
+        ->leftJoin('e.offres', 'o')
+        ->leftJoin('App\Entity\Reservation', 'r', 'WITH', 'r.offre = o')
+        ->select('
+            e.id AS id,
+            e.nom AS nom,
+            e.prenom AS prenom,
+            e.email AS email,
+            e.specialite AS specialite,
+            COUNT(DISTINCT o.id) AS nombreOffres,
+            COUNT(r.id) AS nombreReservations,
+            SUM(CASE WHEN r.statut = :confirmee THEN 1 ELSE 0 END) AS reservationsConfirmees,
+            SUM(CASE WHEN r.statut = :enAttente THEN 1 ELSE 0 END) AS reservationsEnAttente,
+            SUM(CASE WHEN r.statut = :refusee THEN 1 ELSE 0 END) AS reservationsRefusees
+        ')
+        ->setParameter('confirmee', 'confirmee')
+        ->setParameter('enAttente', 'en_attente')
+        ->setParameter('refusee', 'refusee')
+        ->groupBy('e.id')
+        ->orderBy('nombreReservations', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
 }

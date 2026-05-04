@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\ExpertComptableRepository;
 use App\Repository\OffreRepository;
+use App\Service\ExpertSpecialityPredictor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,12 +12,33 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ClientController extends AbstractController
 {
-    #[Route('/experts-client', name: 'app_client_experts')]
-    public function experts(Request $request, ExpertComptableRepository $expertComptableRepository): Response
-    {
-        $search = $request->query->get('search');
-        $specialite = $request->query->get('specialite');
-        $tri = $request->query->get('tri');
+    #[Route('/experts-client', name: 'app_client_experts', methods: ['GET', 'POST'])]
+    public function experts(
+        Request $request,
+        ExpertComptableRepository $expertComptableRepository,
+        ExpertSpecialityPredictor $predictor
+    ): Response {
+        $searchValue = $request->query->get('search');
+        $specialiteValue = $request->query->get('specialite');
+        $triValue = $request->query->get('tri');
+
+        $search = is_string($searchValue) ? $searchValue : null;
+        $specialite = is_string($specialiteValue) ? $specialiteValue : null;
+        $tri = is_string($triValue) ? $triValue : null;
+
+        $besoin = '';
+        $specialitePredite = null;
+
+        if ($request->isMethod('POST')) {
+            $besoinValue = $request->request->get('besoin', '');
+            $besoin = is_string($besoinValue) ? trim($besoinValue) : '';
+
+            $specialitePredite = $predictor->predict($besoin);
+
+            if ($specialitePredite !== null) {
+                $specialite = $specialitePredite;
+            }
+        }
 
         $experts = $expertComptableRepository->findByFilters($search, $specialite, $tri);
 
@@ -25,6 +47,8 @@ final class ClientController extends AbstractController
             'search' => $search,
             'specialite' => $specialite,
             'tri' => $tri,
+            'besoin' => $besoin,
+            'specialitePredite' => $specialitePredite,
         ]);
     }
 
@@ -41,10 +65,15 @@ final class ClientController extends AbstractController
             throw $this->createNotFoundException('Expert introuvable.');
         }
 
-        $search = $request->query->get('search');
-        $prixMax = $request->query->get('prixMax');
-        $dureeMax = $request->query->get('dureeMax');
-        $tri = $request->query->get('tri');
+        $searchValue = $request->query->get('search');
+        $prixMaxValue = $request->query->get('prixMax');
+        $dureeMaxValue = $request->query->get('dureeMax');
+        $triValue = $request->query->get('tri');
+
+        $search = is_string($searchValue) ? $searchValue : null;
+        $prixMax = is_string($prixMaxValue) ? $prixMaxValue : null;
+        $dureeMax = is_string($dureeMaxValue) ? $dureeMaxValue : null;
+        $tri = is_string($triValue) ? $triValue : null;
 
         $offres = $offreRepository->findByFilters($expert, $search, $prixMax, $dureeMax, $tri);
 

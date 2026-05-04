@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\Offre;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-
+use App\Entity\ExpertComptable;
 /**
  * @extends ServiceEntityRepository<Offre>
  */
@@ -15,7 +15,10 @@ class OffreRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Offre::class);
     }
-    public function findByFilters($expert, ?string $search, ?string $prixMax, ?string $dureeMax, ?string $tri): array
+    /**
+    * @return Offre[]
+    */
+    public function findByFilters(?ExpertComptable $expert, ?string $search, ?string $prixMax, ?string $dureeMax, ?string $tri): array
 {
     $qb = $this->createQueryBuilder('o')
         ->andWhere('o.expertComptable = :expert')

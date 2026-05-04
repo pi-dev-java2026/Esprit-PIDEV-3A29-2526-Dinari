@@ -19,7 +19,7 @@ class Offre
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
-    private ?string $titre = null;
+    private string $titre = '';
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'La description est obligatoire.')]
@@ -27,17 +27,17 @@ class Offre
         min: 10,
         minMessage: 'La description doit contenir au moins {{ limit }} caractères.'
     )]
-    private ?string $description = null;
+    private string $description = '';
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 0)]
     #[Assert\NotBlank(message: 'Le prix est obligatoire.')]
     #[Assert\Positive(message: 'Le prix doit être strictement positif.')]
-    private ?string $prix = null;
+    private string $prix = '0';
 
     #[ORM\Column]
     #[Assert\NotNull(message: 'La durée est obligatoire.')]
     #[Assert\Positive(message: 'La durée doit être strictement positive.')]
-    private ?int $duree = null;
+    private int $duree = 0;
 
     #[ORM\ManyToOne(targetEntity: ExpertComptable::class, inversedBy: 'offres')]
     #[ORM\JoinColumn(name: 'expert_comptable_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
@@ -47,7 +47,7 @@ class Offre
     /**
      * @var Collection<int, Reservation>
      */
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'offre', orphanRemoval: true, cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'offre', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reservations;
 
     public function __construct()
@@ -60,7 +60,7 @@ class Offre
         return $this->id;
     }
 
-    public function getTitre(): ?string
+    public function getTitre(): string
     {
         return $this->titre;
     }
@@ -72,7 +72,7 @@ class Offre
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -84,7 +84,7 @@ class Offre
         return $this;
     }
 
-    public function getPrix(): ?string
+    public function getPrix(): string
     {
         return $this->prix;
     }
@@ -96,7 +96,7 @@ class Offre
         return $this;
     }
 
-    public function getDuree(): ?int
+    public function getDuree(): int
     {
         return $this->duree;
     }

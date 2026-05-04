@@ -210,7 +210,23 @@
             <div class="form-actions">
                 <button class="btn-form btn-save">Enregistrer</button>
                 <a href="{{ path('app_expert_comptable_index') }}" class="btn-form btn-back">Retour à la liste</a>
+                <a href="{{ path('app_expert_comptable_test_rentabilite') }}" style="
+                    display:inline-block;
+                    background:#1f6fbe;
+                    color:#fff;
+                    text-decoration:none;
+                    padding:12px 20px;
+                    border-radius:12px;
+                    font-weight:700;
+                    box-shadow: 0 8px 18px rgba(26, 111, 196, 0.14);
+                ">
+                    Tester rentabilité avant d’ajouter
+                </a>
             </div>
+
+
+
+            
 
             {{ form_end(form) }}
         </div>

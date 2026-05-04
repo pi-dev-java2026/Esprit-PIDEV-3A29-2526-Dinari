@@ -1,0 +1,13 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    
+    ignoreErrors:
+        -
+            message: '#Property App\\Entity\\.*::\$id .* is never assigned int#'
+        -
+            message: '#Property App\\Entity\\ExpertComptable::\$email is never written, only read#'
+
+    excludePaths:
+        - src/Command/GenerateEntitiesCommand.php

@@ -112,7 +112,10 @@ final class OffreController extends AbstractController
     {
         $expertId = $offre->getExpertComptable()?->getId();
 
-        if ($this->isCsrfTokenValid('delete' . $offre->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        $token = is_string($token) ? $token : null;
+
+        if ($this->isCsrfTokenValid('delete'.$offre->getId(), $token)) {
             $entityManager->remove($offre);
             $entityManager->flush();
         }

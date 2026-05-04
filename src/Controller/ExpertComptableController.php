@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/expert/comptable')]
 final class ExpertComptableController extends AbstractController
@@ -18,7 +19,10 @@ final class ExpertComptableController extends AbstractController
     public function index(Request $request, ExpertComptableRepository $expertComptableRepository): Response
     {
         $search = $request->query->get('search');
+        $search = is_string($search) ? $search : null;
+
         $specialite = $request->query->get('specialite');
+        $specialite = is_string($specialite) ? $specialite : null;
 
         $expertComptables = $expertComptableRepository->findByAdminFilters($search, $specialite);
 
@@ -46,6 +50,51 @@ final class ExpertComptableController extends AbstractController
         return $this->render('expert_comptable/new.html.twig', [
             'expert_comptable' => $expertComptable,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/test-rentabilite', name: 'app_expert_comptable_test_rentabilite', methods: ['GET', 'POST'])]
+    public function testRentabilite(Request $request, HttpClientInterface $client): Response
+    {
+        $result = null;
+        $error = null;
+
+        $data = [
+            'titre' => '',
+            'specialite' => '',
+            'experience' => '',
+            'prix' => '',
+            'duree' => '',
+        ];
+
+        if ($request->isMethod('POST')) {
+            $data['titre'] = $request->request->get('titre', '');
+            $data['specialite'] = $request->request->get('specialite', '');
+            $data['experience'] = $request->request->get('experience', '');
+            $data['prix'] = $request->request->get('prix', '');
+            $data['duree'] = $request->request->get('duree', '');
+
+            try {
+                $response = $client->request('POST', 'http://127.0.0.1:8000/predict', [
+                    'json' => [
+                        'titre' => $data['titre'],
+                        'specialite' => $data['specialite'],
+                        'experience' => (int) $data['experience'],
+                        'prix' => (float) $data['prix'],
+                        'duree' => (int) $data['duree'],
+                    ],
+                ]);
+
+                $result = $response->toArray();
+            } catch (\Throwable $e) {
+                $error = 'Impossible de contacter l’API IA. Vérifiez que FastAPI est bien lancée.';
+            }
+        }
+
+        return $this->render('expert_comptable/test_rentabilite.html.twig', [
+            'result' => $result,
+            'error' => $error,
+            'data' => $data,
         ]);
     }
 
@@ -85,4 +134,5 @@ final class ExpertComptableController extends AbstractController
 
         return $this->redirectToRoute('app_expert_comptable_index', [], Response::HTTP_SEE_OTHER);
     }
+    
 }

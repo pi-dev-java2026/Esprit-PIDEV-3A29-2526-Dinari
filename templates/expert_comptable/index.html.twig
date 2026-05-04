@@ -302,6 +302,24 @@
         display: inline;
         margin: 0;
     }
+    .btn-stats {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: #0f766e;
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.btn-stats:hover {
+    background: #0b5f59;
+    color: white;
+}
+
 
     @media (max-width: 900px) {
         .filters-form {
@@ -325,6 +343,10 @@
         <a href="{{ path('app_expert_comptable_new') }}" class="btn-custom btn-add">
             + Ajouter un Expert
         </a>
+
+        <a href="{{ path('app_admin_expert_stats') }}" class="btn-stats">
+    Voir statistiques
+</a>
     </div>
 
     <div class="filters-bar">
