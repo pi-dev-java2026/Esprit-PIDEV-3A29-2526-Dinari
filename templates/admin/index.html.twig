@@ -1,0 +1,245 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Dashboard — Admin Dinari{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+{% block topbar_sub %}Vue d'ensemble de l'administration{% endblock %}
+
+{% block body %}
+
+{# PAGE HEADER #}
+<div class="page-header">
+    <div>
+        <h1>Tableau de bord</h1>
+        <div class="breadcrumb-d">Bienvenue dans l'espace d'administration <strong>Dinari</strong></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+        <a href="{{ path('admin_categorie_new') }}" class="btn-dinari btn-primary-d">
+            <i class="ri-add-line"></i> Nouvelle catégorie
+        </a>
+        <a href="{{ path('admin_mode_paiement_new') }}" class="btn-dinari btn-secondary-d">
+            <i class="ri-add-line"></i> Nouveau mode paiement
+        </a>
+    </div>
+</div>
+
+{# STATS #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(26,111,196,0.1);">
+            <i class="ri-pie-chart-2-line" style="color:var(--blue);"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ totalBudgets }}</div>
+            <div class="stat-label">Budgets créés</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(231,76,60,0.1);">
+            <i class="ri-shopping-cart-line" style="color:#e74c3c;"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ totalDepenses }}</div>
+            <div class="stat-label">Dépenses enregistrées</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(39,174,96,0.1);">
+            <i class="ri-price-tag-3-line" style="color:#27ae60;"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ totalCategories }}</div>
+            <div class="stat-label">Catégories actives</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(243,156,18,0.1);">
+            <i class="ri-bank-card-line" style="color:#f39c12;"></i>
+        </div>
+        <div>
+            <div class="stat-value">{{ totalModesPaiement }}</div>
+            <div class="stat-label">Modes de paiement</div>
+        </div>
+    </div>
+</div>
+
+{# QUICK ACTIONS #}
+<div class="card-dinari">
+    <div class="card-header-dinari">
+        <span class="card-title">
+            <i class="ri-flashlight-line" style="color:var(--blue);margin-right:6px;"></i>
+            ⚡ Actions rapides
+        </span>
+        <a href="{{ path('depense_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+            <i class="ri-shopping-cart-line"></i> Voir les Dépenses
+        </a>
+    </div>
+    <div class="quick-actions">
+        <a href="{{ path('admin_categorie_new') }}" class="qa-item">
+            <i class="ri-price-tag-3-line"></i>
+            ➕ Ajouter une catégorie
+        </a>
+        <a href="{{ path('admin_mode_paiement_new') }}" class="qa-item">
+            <i class="ri-bank-card-line"></i>
+            💳 Ajouter un mode paiement
+        </a>
+        <a href="{{ path('admin_categorie_index') }}" class="qa-item">
+            <i class="ri-list-check-2"></i>
+            📊 Gérer les catégories
+        </a>
+        <a href="{{ path('admin_mode_paiement_index') }}" class="qa-item">
+            <i class="ri-settings-3-line"></i>
+            ⚙️ Gérer les modes paiement
+        </a>
+    </div>
+</div>
+
+{# TWO COLUMNS #}
+<div class="two-col">
+
+    {# Dernières dépenses #}
+    <div class="card-dinari" style="margin-bottom:0;">
+        <div class="card-header-dinari">
+            <span class="card-title"><i class="ri-history-line" style="color:var(--blue);margin-right:6px;"></i>Dernières dépenses</span>
+            <a href="{{ path('depense_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+                <i class="ri-arrow-right-line"></i> Voir tout
+            </a>
+        </div>
+        {% if dernieresDepenses is empty %}
+            <div style="text-align:center;padding:32px 0;color:var(--muted);">
+                <i class="ri-inbox-line" style="font-size:36px;display:block;margin-bottom:8px;"></i>
+                Aucune dépense enregistrée
+            </div>
+        {% else %}
+            <table class="table-dinari">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Montant</th>
+                        <th>Date</th>
+                        <th>Catégorie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for depense in dernieresDepenses %}
+                    <tr>
+                        <td>{{ depense.description|default('—') }}</td>
+                        <td>
+                            <span class="badge-dinari badge-danger">
+                                {{ depense.montant|number_format(2, ',', ' ') }} DT
+                            </span>
+                        </td>
+                        <td style="color:var(--muted);font-size:12px;">
+                            {{ depense.dateDepense ? depense.dateDepense|date('d/m/Y') : '—' }}
+                        </td>
+                        <td>
+                            {% if depense.categorie %}
+                                <span class="badge-dinari badge-info">{{ depense.categorie.label }}</span>
+                            {% else %}
+                                <span style="color:var(--muted);">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    {# Right column #}
+    <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <div class="card-dinari" style="margin-bottom:0;">
+            <div class="card-header-dinari">
+                <span class="card-title"><i class="ri-price-tag-3-line" style="color:#27ae60;margin-right:6px;"></i>Catégories</span>
+                <a href="{{ path('admin_categorie_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+                    <i class="ri-settings-3-line"></i> Gérer
+                </a>
+            </div>
+            {% if categories is empty %}
+                <p style="color:var(--muted);font-size:13px;">Aucune catégorie.</p>
+            {% else %}
+                <div class="pill-list">
+                    {% for cat in categories %}
+                        <span class="pill"><i class="ri-price-tag-3-line"></i>{{ cat.label }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card-dinari" style="margin-bottom:0;">
+            <div class="card-header-dinari">
+                <span class="card-title"><i class="ri-bank-card-line" style="color:#f39c12;margin-right:6px;"></i>Modes de paiement</span>
+                <a href="{{ path('admin_mode_paiement_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+                    <i class="ri-settings-3-line"></i> Gérer
+                </a>
+            </div>
+            {% if modesPaiement is empty %}
+                <p style="color:var(--muted);font-size:13px;">Aucun mode de paiement.</p>
+            {% else %}
+                <div class="pill-list">
+                    {% for mode in modesPaiement %}
+                        <span class="pill" style="background:rgba(243,156,18,0.1);color:#f39c12;">
+                            <i class="ri-bank-card-line"></i>{{ mode.label }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+{# DERNIÈRES ACTIVITÉS #}
+<div class="card-dinari" style="margin-top:22px;">
+    <div class="card-header-dinari">
+        <span class="card-title">
+            <i class="ri-pulse-line" style="color:var(--blue);margin-right:6px;"></i>
+            Dernières activités
+        </span>
+        <a href="{{ path('admin_historique_index') }}" class="btn-dinari btn-secondary-d btn-sm-d">
+            <i class="ri-arrow-right-line"></i> Voir tout l'historique
+        </a>
+    </div>
+    {% if dernieresActivites is empty %}
+        <div style="text-align:center;padding:28px 0;color:var(--muted);">
+            <i class="ri-history-line" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+            Aucune activité enregistrée
+        </div>
+    {% else %}
+        <div style="display:flex;flex-direction:column;gap:0;">
+            {% for entry in dernieresActivites %}
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 0;
+                        border-bottom:1px solid #f0f4f8;">
+                {# Icône action #}
+                <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;
+                            display:flex;align-items:center;justify-content:center;font-size:16px;
+                            {% if entry.action == 'CRÉÉ' %}background:rgba(39,174,96,0.1);color:#27ae60;
+                            {% elseif entry.action == 'MODIFIÉ' %}background:rgba(243,156,18,0.1);color:#f39c12;
+                            {% else %}background:rgba(231,76,60,0.1);color:#e74c3c;{% endif %}">
+                    {% if entry.action == 'CRÉÉ' %}<i class="ri-add-circle-line"></i>
+                    {% elseif entry.action == 'MODIFIÉ' %}<i class="ri-edit-line"></i>
+                    {% else %}<i class="ri-delete-bin-line"></i>{% endif %}
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text);">
+                        Dépense <strong>#{{ entry.depenseId }}</strong>
+                        {% if entry.action == 'CRÉÉ' %}créée{% elseif entry.action == 'MODIFIÉ' %}modifiée{% else %}supprimée{% endif %}
+                        {% set snap = entry.donneesApres ?? entry.donneesAvant %}
+                        {% if snap and snap.montant is defined %}
+                            — <span style="color:var(--blue);">{{ snap.montant }} DT</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">
+                        <i class="ri-time-line"></i> {{ entry.dateAction|date('d/m/Y à H:i') }}
+                    </div>
+                </div>
+                <span class="badge-dinari {% if entry.action == 'CRÉÉ' %}badge-success{% elseif entry.action == 'MODIFIÉ' %}badge-warning{% else %}badge-danger{% endif %}">
+                    {{ entry.action }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,627 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Dashboard des statistiques{% endblock %}
+
+{% block body %}
+{% set totalExperts = stats|length %}
+{% set totalOffres = 0 %}
+{% set totalReservations = 0 %}
+{% set totalConfirmees = 0 %}
+{% set totalEnAttente = 0 %}
+{% set totalRefusees = 0 %}
+
+{% for item in stats %}
+    {% set totalOffres = totalOffres + item.nombreOffres %}
+    {% set totalReservations = totalReservations + item.nombreReservations %}
+    {% set totalConfirmees = totalConfirmees + (item.reservationsConfirmees ?: 0) %}
+    {% set totalEnAttente = totalEnAttente + (item.reservationsEnAttente ?: 0) %}
+    {% set totalRefusees = totalRefusees + (item.reservationsRefusees ?: 0) %}
+{% endfor %}
+
+{% set specialiteCounts = {} %}
+{% for item in stats %}
+    {% set libelle = item.specialite|replace({
+        'comptabilite_generale': 'Comptabilité générale',
+        'fiscalite': 'Fiscalité',
+        'audit': 'Audit',
+        'gestion_financiere': 'Gestion financière',
+        'conseil_juridique': 'Conseil juridique',
+        'paie_rh': 'Paie et RH',
+        'creation_entreprise': 'Création d’entreprise'
+    }) %}
+    {% set current = specialiteCounts[libelle] ?? 0 %}
+    {% set specialiteCounts = specialiteCounts|merge({ (libelle): current + 1 }) %}
+{% endfor %}
+
+<style>
+    .stats-dashboard-page {
+        padding: 32px;
+        background: #f6f8fc;
+        min-height: 100vh;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .dashboard-title {
+        margin: 0;
+        font-size: 2.3rem;
+        font-weight: 800;
+        color: #1d2b45;
+    }
+
+    .dashboard-subtitle {
+        margin: 8px 0 0;
+        color: #7b8ca5;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .btn-back-dashboard {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 13px 22px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #2877c9, #3e8fe4);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        box-shadow: 0 12px 24px rgba(40, 119, 201, 0.18);
+        transition: 0.2s ease;
+    }
+
+    .btn-back-dashboard:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #1f67b2, #327ecf);
+        color: #fff;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .kpi-card {
+        background: #fff;
+        border: 1px solid #e3eaf4;
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 10px 26px rgba(18, 38, 63, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #2c79cb, #67aaf0);
+    }
+
+    .kpi-label {
+        color: #7d8fa7;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 800;
+        color: #1d2b45;
+    }
+
+    .kpi-note {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #99a7ba;
+    }
+
+    .dashboard-main-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 22px;
+        margin-bottom: 22px;
+    }
+
+    .dashboard-card {
+        background: #fff;
+        border: 1px solid #e3eaf4;
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(18, 38, 63, 0.05);
+    }
+
+    .card-title {
+        margin: 0 0 6px;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #1f2f48;
+    }
+
+    .card-subtitle {
+        margin: 0 0 24px;
+        color: #7e8ea5;
+        font-size: 14px;
+    }
+
+    .card-top-value {
+        font-size: 2.3rem;
+        font-weight: 800;
+        color: #1d2b45;
+        text-align: right;
+        margin-top: -10px;
+        margin-bottom: 18px;
+    }
+
+    .card-top-value small {
+        font-size: 1.1rem;
+        color: #8d9aae;
+        font-weight: 700;
+    }
+
+    .progress-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .progress-row {
+        display: grid;
+        grid-template-columns: 1.2fr 4fr auto;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .progress-label {
+        font-size: 15px;
+        font-weight: 700;
+        color: #283851;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 14px;
+        border-radius: 999px;
+        background: #edf1f6;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 999px;
+    }
+
+    .fill-blue { background: linear-gradient(90deg, #445db4, #576fd0); }
+    .fill-green { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .fill-orange { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .fill-red { background: linear-gradient(90deg, #dc2626, #f87171); }
+    .fill-purple { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+    .fill-gray { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+
+    .progress-value {
+        font-weight: 800;
+        color: #26354d;
+        white-space: nowrap;
+    }
+
+    .side-grid {
+        display: grid;
+        gap: 22px;
+    }
+
+    .specialite-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .specialite-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        color: #2a3a53;
+        font-weight: 700;
+    }
+
+    .specialite-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .dot-blue { background: #445db4; }
+    .dot-gray { background: #94a3b8; }
+    .dot-orange { background: #f59e0b; }
+    .dot-purple { background: #8b5cf6; }
+    .dot-green { background: #22c55e; }
+    .dot-red { background: #ef4444; }
+
+    .indicators-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .indicator-box {
+        background: #f8fafc;
+        border: 1px solid #e5edf5;
+        border-radius: 20px;
+        padding: 22px 20px;
+    }
+
+    .indicator-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1d2b45;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .indicator-label {
+        color: #8c98ab;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .bottom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .expert-ranking-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .expert-ranking-item {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: #f9fbfd;
+        border: 1px solid #e8eef6;
+    }
+
+    .expert-ranking-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 10px;
+    }
+
+    .expert-name-rank {
+        font-weight: 800;
+        color: #22344d;
+        font-size: 15px;
+    }
+
+    .expert-meta-rank {
+        color: #8595ab;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .rank-badge {
+        min-width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #e8f1ff, #d9e9fb);
+        color: #2a76c8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+    }
+
+    .tiny-bar {
+        width: 100%;
+        height: 10px;
+        background: #e9eef4;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .tiny-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #2e7dd1, #65aaf0);
+    }
+
+    @media (max-width: 1400px) {
+        .kpi-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 1100px) {
+        .dashboard-main-grid,
+        .bottom-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .progress-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .stats-dashboard-page {
+            padding: 18px;
+        }
+
+        .kpi-grid,
+        .indicators-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-card {
+            padding: 22px 18px;
+        }
+    }
+</style>
+
+<div class="stats-dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">Dashboard des statistiques</h1>
+            <p class="dashboard-subtitle">
+                Vue analytique des experts, des offres et des réservations avec une présentation moderne.
+            </p>
+        </div>
+
+        <a href="{{ path('app_expert_comptable_index') }}" class="btn-back-dashboard">
+            Retour aux experts
+        </a>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Total experts</div>
+            <div class="kpi-value">{{ totalExperts }}</div>
+            <div class="kpi-note">Experts enregistrés</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Total offres</div>
+            <div class="kpi-value">{{ totalOffres }}</div>
+            <div class="kpi-note">Offres publiées</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Total réservations</div>
+            <div class="kpi-value">{{ totalReservations }}</div>
+            <div class="kpi-note">Toutes les demandes</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Réservations confirmées</div>
+            <div class="kpi-value" style="color:#16a34a;">{{ totalConfirmees }}</div>
+            <div class="kpi-note">Demandes validées</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">En attente</div>
+            <div class="kpi-value" style="color:#d97706;">{{ totalEnAttente }}</div>
+            <div class="kpi-note">Demandes à traiter</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Refusées</div>
+            <div class="kpi-value" style="color:#dc2626;">{{ totalRefusees }}</div>
+            <div class="kpi-note">Demandes rejetées</div>
+        </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+        <div class="dashboard-card">
+            <h2 class="card-title">Experts les plus réservés</h2>
+            <p class="card-subtitle">Classement par volume de réservations</p>
+            <div class="card-top-value">{{ totalReservations }} <small>réservations</small></div>
+
+            <div class="progress-list">
+                {% set maxReservations = stats|length > 0 ? stats[0].nombreReservations : 1 %}
+                {% for item in stats|slice(0, 8) %}
+                    {% set width = maxReservations > 0 ? (item.nombreReservations * 100 / maxReservations) : 0 %}
+                    <div class="progress-row">
+                        <div class="progress-label">
+                            {{ item.nom }} {{ item.prenom }}
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill fill-blue" style="width: {{ width }}%;"></div>
+                        </div>
+                        <div class="progress-value">{{ item.nombreReservations }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="side-grid">
+            <div class="dashboard-card">
+                <h2 class="card-title">Répartition des spécialités</h2>
+                <p class="card-subtitle">Répartition par domaine</p>
+
+                <div class="specialite-list">
+                    {% set colorIndex = 0 %}
+                    {% for libelle, count in specialiteCounts %}
+                        {% set colors = ['dot-blue', 'dot-gray', 'dot-orange', 'dot-purple', 'dot-green', 'dot-red'] %}
+                        <div class="specialite-item">
+                            <div class="specialite-left">
+                                <span class="dot {{ colors[colorIndex % 6] }}"></span>
+                                <span>{{ libelle }}</span>
+                            </div>
+                            <strong>{{ count }}</strong>
+                        </div>
+                        {% set colorIndex = colorIndex + 1 %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h2 class="card-title">Indicateurs opérationnels</h2>
+                <p class="card-subtitle">Vue synthétique de performance</p>
+
+                <div class="indicators-grid">
+                    <div class="indicator-box">
+                        <div class="indicator-value">
+                            {{ totalReservations > 0 ? ((totalConfirmees * 100 / totalReservations)|round(0, 'floor')) : 0 }}%
+                        </div>
+                        <div class="indicator-label">Taux de confirmation</div>
+                    </div>
+
+                    <div class="indicator-box">
+                        <div class="indicator-value">
+                            {{ totalExperts > 0 ? (totalOffres / totalExperts)|round(1, 'common') : 0 }}
+                        </div>
+                        <div class="indicator-label">Offres / expert</div>
+                    </div>
+
+                    <div class="indicator-box">
+                        <div class="indicator-value" style="color:#d97706;">
+                            {{ totalExperts > 0 ? (totalReservations / totalExperts)|round(1, 'common') : 0 }}
+                        </div>
+                        <div class="indicator-label">Réservations / expert</div>
+                    </div>
+
+                    <div class="indicator-box">
+                        <div class="indicator-value" style="color:#dc2626;">
+                            {{ totalReservations > 0 ? ((totalRefusees * 100 / totalReservations)|round(0, 'floor')) : 0 }}%
+                        </div>
+                        <div class="indicator-label">Taux de refus</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-grid">
+        <div class="dashboard-card">
+            <h2 class="card-title">Top confirmations</h2>
+            <p class="card-subtitle">Experts avec le plus de réservations confirmées</p>
+
+            <div class="expert-ranking-list">
+                {% set sortedConfirmed = stats|sort((a, b) => b.reservationsConfirmees <=> a.reservationsConfirmees) %}
+                {% set maxConfirmed = sortedConfirmed|length > 0 ? sortedConfirmed[0].reservationsConfirmees : 1 %}
+
+                {% for item in sortedConfirmed|slice(0, 6) %}
+                    {% set width = maxConfirmed > 0 ? ((item.reservationsConfirmees ?: 0) * 100 / maxConfirmed) : 0 %}
+                    <div class="expert-ranking-item">
+                        <div class="expert-ranking-top">
+                            <div>
+                                <div class="expert-name-rank">{{ item.nom }} {{ item.prenom }}</div>
+                                <div class="expert-meta-rank">
+                                    {{ item.specialite|replace({
+                                        'comptabilite_generale': 'Comptabilité générale',
+                                        'fiscalite': 'Fiscalité',
+                                        'audit': 'Audit',
+                                        'gestion_financiere': 'Gestion financière',
+                                        'conseil_juridique': 'Conseil juridique',
+                                        'paie_rh': 'Paie et RH',
+                                        'creation_entreprise': 'Création d’entreprise'
+                                    }) }}
+                                </div>
+                            </div>
+
+                            <div class="rank-badge">{{ item.reservationsConfirmees ?: 0 }}</div>
+                        </div>
+
+                        <div class="tiny-bar">
+                            <div class="tiny-fill" style="width: {{ width }}%;"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h2 class="card-title">Traitement des demandes</h2>
+            <p class="card-subtitle">Comparaison confirmées, attente et refusées</p>
+
+            <div class="progress-list">
+                <div class="progress-row">
+                    <div class="progress-label">Confirmées</div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-green" style="width: {{ totalReservations > 0 ? (totalConfirmees * 100 / totalReservations) : 0 }}%;"></div>
+                    </div>
+                    <div class="progress-value">{{ totalConfirmees }}</div>
+                </div>
+
+                <div class="progress-row">
+                    <div class="progress-label">En attente</div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-orange" style="width: {{ totalReservations > 0 ? (totalEnAttente * 100 / totalReservations) : 0 }}%;"></div>
+                    </div>
+                    <div class="progress-value">{{ totalEnAttente }}</div>
+                </div>
+
+                <div class="progress-row">
+                    <div class="progress-label">Refusées</div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-red" style="width: {{ totalReservations > 0 ? (totalRefusees * 100 / totalReservations) : 0 }}%;"></div>
+                    </div>
+                    <div class="progress-value">{{ totalRefusees }}</div>
+                </div>
+            </div>
+
+            <div style="height: 18px;"></div>
+
+            <h2 class="card-title" style="font-size:1.35rem;">Top offre par activité expert</h2>
+            <p class="card-subtitle">Classement rapide par nombre d’offres</p>
+
+            <div class="expert-ranking-list">
+                {% set sortedOffers = stats|sort((a, b) => b.nombreOffres <=> a.nombreOffres) %}
+                {% set maxOffers = sortedOffers|length > 0 ? sortedOffers[0].nombreOffres : 1 %}
+
+                {% for item in sortedOffers|slice(0, 5) %}
+                    {% set width = maxOffers > 0 ? (item.nombreOffres * 100 / maxOffers) : 0 %}
+                    <div class="expert-ranking-item">
+                        <div class="expert-ranking-top">
+                            <div>
+                                <div class="expert-name-rank">{{ item.nom }} {{ item.prenom }}</div>
+                                <div class="expert-meta-rank">{{ item.email }}</div>
+                            </div>
+
+                            <div class="rank-badge">{{ item.nombreOffres }}</div>
+                        </div>
+
+                        <div class="tiny-bar">
+                            <div class="tiny-fill" style="width: {{ width }}%; background: linear-gradient(90deg, #7c3aed, #8b5cf6);"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

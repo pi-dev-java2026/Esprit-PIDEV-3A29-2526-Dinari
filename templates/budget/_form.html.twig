@@ -1,0 +1,74 @@
+<form method="post" action="{{ action }}">
+
+    <div class="montant-preview" id="montant-preview">
+        <div class="label">Budget défini</div>
+        <div class="value" id="preview-value">
+            {{ budget is defined ? budget.montantLimite ~ ' DT' : '0 DT' }}
+        </div>
+    </div>
+
+    <div class="form-card">
+
+        <div class="form-group">
+            <label>Limite du budget (DT)</label>
+            <input type="number"
+                   name="montant_limite"
+                   id="montant-input"
+                   class="form-control"
+                   value="{{ budget is defined ? budget.montantLimite : '' }}"
+                   step="0.01"
+                   min="1"
+                   required
+                   oninput="updatePreview(this.value)">
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Mois</label>
+                <select name="mois" class="form-control" required>
+                    {% set moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'] %}
+
+                    {% for i in 1..12 %}
+                        <option value="{{ i }}"
+                            {% if budget is defined and budget.mois == i %}
+                                selected
+                            {% elseif moisCourant is defined and i == moisCourant %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ moisNoms[i-1] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Année</label>
+                <select name="annee" class="form-control" required>
+                    {% for y in (anneeCourante - 1)..(anneeCourante + 1) %}
+                        <option value="{{ y }}"
+                            {% if budget is defined and budget.annee == y %}
+                                selected
+                            {% elseif anneeCourante is defined and y == anneeCourante %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ y }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ path('budget_index') }}" class="btn-cancel">Annuler</a>
+
+            <button type="submit" class="btn-submit btn-add">
+                {{ button_label|default('Enregistrer') }}
+            </button>
+        </div>
+
+    </div>
+</form>

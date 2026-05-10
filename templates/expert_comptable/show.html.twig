@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ExpertComptable{% endblock %}
+
+{% block body %}
+    <h1>ExpertComptable</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ expert_comptable.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ expert_comptable.nom }}</td>
+            </tr>
+            <tr>
+                <th>Prenom</th>
+                <td>{{ expert_comptable.prenom }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ expert_comptable.email }}</td>
+            </tr>
+            <tr>
+                <th>Telephone</th>
+                <td>{{ expert_comptable.telephone }}</td>
+            </tr>
+            <tr>
+                <th>Specialite</th>
+                <td>{{ expert_comptable.specialite }}</td>
+            </tr>
+            <tr>
+                <th>Experience</th>
+                <td>{{ expert_comptable.experience }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ expert_comptable.description }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_expert_comptable_index') }}">back to list</a>
+
+    <a href="{{ path('app_expert_comptable_edit', {'id': expert_comptable.id}) }}">edit</a>
+
+    {{ include('expert_comptable/_delete_form.html.twig') }}
+{% endblock %}

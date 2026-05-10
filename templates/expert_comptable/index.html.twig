@@ -1,0 +1,552 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Liste des Experts{% endblock %}
+{% block page_title %}Experts & Offres{% endblock %}
+{% block section_title %}Liste des Experts{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --ff:        'Plus Jakarta Sans', sans-serif;
+    --bg:        #f4f6f9;
+    --surface:   #ffffff;
+    --surface2:  #f8fafc;
+    --border:    #e2e8f0;
+    --border2:   #cbd5e1;
+    --text1:     #0f1c2e;
+    --text2:     #475569;
+    --text3:     #94a3b8;
+    --blue:      #1d6fdb;
+    --blue-bg:   #eff6ff;
+    --blue-bd:   #bfdbfe;
+    --green:     #059669;
+    --green-bg:  #ecfdf5;
+    --green-bd:  #a7f3d0;
+    --amber:     #d97706;
+    --amber-bg:  #fffbeb;
+    --amber-bd:  #fde68a;
+    --red:       #dc2626;
+    --red-bg:    #fef2f2;
+    --red-bd:    #fecaca;
+    --cyan:      #0891b2;
+    --cyan-bg:   #ecfeff;
+    --cyan-bd:   #a5f3fc;
+    --teal:      #0d9488;
+    --teal-bg:   #f0fdfa;
+    --teal-bd:   #99f6e4;
+    --radius:    12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(15,28,46,0.06), 0 1px 2px rgba(15,28,46,0.04);
+    --shadow:    0 4px 12px rgba(15,28,46,0.08), 0 1px 3px rgba(15,28,46,0.05);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.adm {
+    font-family: var(--ff);
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 28px 32px 56px;
+    color: var(--text1);
+}
+
+/* Breadcrumb */
+.adm-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--text3);
+    margin-bottom: 18px;
+}
+.adm-breadcrumb a { color: var(--blue); text-decoration: none; }
+.adm-breadcrumb a:hover { text-decoration: underline; }
+
+/* Topbar */
+.adm-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.adm-topbar-left h1 {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--text1);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+.adm-topbar-left p {
+    margin-top: 5px;
+    font-size: 13.5px;
+    color: var(--text2);
+}
+.adm-topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Stat cards */
+.adm-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow-sm);
+}
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.stat-icon.blue  { background: var(--blue-bg);  border: 1px solid var(--blue-bd); }
+.stat-icon.green { background: var(--green-bg); border: 1px solid var(--green-bd); }
+.stat-icon.amber { background: var(--amber-bg); border: 1px solid var(--amber-bd); }
+.stat-icon.cyan  { background: var(--cyan-bg);  border: 1px solid var(--cyan-bd); }
+.stat-label { font-size: 11.5px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-value { font-size: 1.55rem; font-weight: 800; color: var(--text1); line-height: 1.15; margin-top: 2px; }
+
+/* Filter bar */
+.adm-filters {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+.filters-form {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+}
+.field-wrap { position: relative; display: flex; align-items: center; }
+.field-icon { position: absolute; left: 12px; font-size: 14px; pointer-events: none; color: var(--text3); }
+.f-input, .f-select {
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    font-family: var(--ff);
+    font-size: 13.5px;
+    color: var(--text1);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+.field-wrap .f-input { padding: 0 14px 0 36px; }
+.f-select { padding: 0 14px; }
+.f-input:focus, .f-select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(29,111,219,.1);
+    background: #fff;
+}
+.f-input::placeholder { color: var(--text3); }
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    font-family: var(--ff);
+    font-size: 13.5px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .16s ease;
+    white-space: nowrap;
+    line-height: 1;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-blue  { background: var(--blue);    color: #fff; border-color: var(--blue); box-shadow: 0 2px 8px rgba(29,111,219,.22); }
+.btn-blue:hover  { background: #1558be; color: #fff; }
+.btn-teal  { background: var(--teal-bg); color: var(--teal); border-color: var(--teal-bd); }
+.btn-teal:hover  { background: #ccfbf1; color: var(--teal); }
+.btn-ghost { background: var(--surface2); color: var(--text2); border-color: var(--border); }
+.btn-ghost:hover { background: #eef2f7; color: var(--text1); }
+.btn-amber { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+.btn-amber:hover { background: #fef3c7; color: var(--amber); }
+.btn-red   { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
+.btn-red:hover   { background: #fee2e2; color: var(--red); }
+.btn-cyan  { background: var(--cyan-bg); color: var(--cyan); border-color: var(--cyan-bd); }
+.btn-cyan:hover  { background: #cffafe; color: var(--cyan); }
+.btn-sm { padding: 8px 13px; font-size: 12.5px; }
+
+/* Section label */
+.section-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Grid */
+.adm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+}
+
+/* Card */
+.xcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+.xcard:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+    border-color: var(--border2);
+}
+.xcard-stripe { height: 3px; background: linear-gradient(90deg, var(--blue), #38bdf8); }
+
+.xcard-head {
+    padding: 18px 20px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+.xavatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--ff);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--blue);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.xavatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.xcard-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text1);
+    line-height: 1.25;
+}
+.xbadge-spec {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-bd);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--blue);
+}
+
+/* Card body */
+.xcard-body { padding: 0 20px 16px; flex: 1; }
+.xmeta { display: flex; flex-direction: column; gap: 8px; }
+.xmeta-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text2);
+}
+.xmeta-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.xexp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-bd);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+}
+.xdivider { height: 1px; background: var(--border); margin: 13px 0; }
+.xdesc {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Card footer */
+.xcard-foot {
+    padding: 12px 20px 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+}
+.delete-form { display: inline; margin: 0; }
+
+/* Empty state */
+.xempty {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 60px 24px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.xempty-icon { font-size: 2.6rem; margin-bottom: 14px; }
+.xempty h3 { font-size: 1.2rem; font-weight: 700; color: var(--text1); margin-bottom: 6px; }
+.xempty p  { font-size: 14px; color: var(--text2); }
+
+@media (max-width: 860px) {
+    .adm { padding: 16px 14px 40px; }
+    .filters-form { grid-template-columns: 1fr; }
+    .adm-grid { grid-template-columns: 1fr; }
+    .adm-stats { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="adm">
+
+    {# Breadcrumb #}
+    <div class="adm-breadcrumb">
+        <a href="#">Tableau de bord</a>
+        <span>›</span>
+        <span>Experts comptables</span>
+    </div>
+
+    {# Top bar #}
+    <div class="adm-topbar">
+        <div class="adm-topbar-left">
+            <h1>Experts Comptables</h1>
+            <p>Gérez les experts et consultez les offres associées à chaque profil.</p>
+        </div>
+        <div class="adm-topbar-actions">
+            <a href="{{ path('app_admin_expert_stats') }}" class="btn btn-teal">
+                📊 Statistiques
+            </a>
+            <a href="{{ path('app_expert_comptable_new') }}" class="btn btn-blue">
+                + Nouvel expert
+            </a>
+        </div>
+    </div>
+
+    {# Stat cards #}
+    <div class="adm-stats">
+        <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div>
+                <div class="stat-label">Total experts</div>
+                <div class="stat-value">{{ expert_comptables|length }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">🎓</div>
+            <div>
+                <div class="stat-label">Spécialités</div>
+                <div class="stat-value">7</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon amber">🔍</div>
+            <div>
+                <div class="stat-label">Résultats</div>
+                <div class="stat-value">{{ expert_comptables|length }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon cyan">📁</div>
+            <div>
+                <div class="stat-label">Offres actives</div>
+                <div class="stat-value">—</div>
+            </div>
+        </div>
+    </div>
+
+    {# Filters #}
+    <div class="adm-filters">
+        <form method="get" action="{{ path('app_expert_comptable_index') }}" class="filters-form">
+
+            <div class="field-wrap">
+                <span class="field-icon">🔍</span>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Rechercher par nom, prénom ou email…"
+                    value="{{ search ?? '' }}"
+                    class="f-input"
+                >
+            </div>
+
+            <select name="specialite" class="f-select">
+                <option value="">Toutes les spécialités</option>
+                <option value="comptabilite_generale" {{ specialite == 'comptabilite_generale' ? 'selected' : '' }}>Comptabilité générale</option>
+                <option value="gestion_financiere"    {{ specialite == 'gestion_financiere'    ? 'selected' : '' }}>Gestion financière</option>
+                <option value="fiscalite"             {{ specialite == 'fiscalite'             ? 'selected' : '' }}>Fiscalité</option>
+                <option value="audit"                 {{ specialite == 'audit'                 ? 'selected' : '' }}>Audit</option>
+                <option value="conseil_juridique"     {{ specialite == 'conseil_juridique'     ? 'selected' : '' }}>Conseil juridique</option>
+                <option value="paie_rh"               {{ specialite == 'paie_rh'               ? 'selected' : '' }}>Paie et RH</option>
+                <option value="creation_entreprise"   {{ specialite == 'creation_entreprise'   ? 'selected' : '' }}>Création d'entreprise</option>
+            </select>
+
+            <button type="submit" class="btn btn-blue btn-sm">Filtrer</button>
+            <a href="{{ path('app_expert_comptable_index') }}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+
+        </form>
+    </div>
+
+    {# Section label #}
+    <div class="section-label">
+        {{ expert_comptables|length }} expert{{ expert_comptables|length > 1 ? 's' : '' }} trouvé{{ expert_comptables|length > 1 ? 's' : '' }}
+    </div>
+
+    {# Cards grid #}
+    {% if expert_comptables|length > 0 %}
+        <div class="adm-grid">
+            {% for expert_comptable in expert_comptables %}
+                <div class="xcard">
+                    <div class="xcard-stripe"></div>
+
+                    <div class="xcard-head">
+                        <div class="xavatar">
+                            {% if expert_comptable.imageName %}
+                                <img
+                                    src="{{ vich_uploader_asset(expert_comptable, 'imageFile') }}"
+                                    alt="Photo de {{ expert_comptable.nom }}"
+                                >
+                            {% else %}
+                                {{ expert_comptable.nom|first|upper }}{{ expert_comptable.prenom|first|upper }}
+                            {% endif %}
+                        </div>
+
+                        <div style="flex:1; min-width:0;">
+                            <div class="xcard-name">
+                                {{ expert_comptable.nom }} {{ expert_comptable.prenom }}
+                            </div>
+                            <span class="xbadge-spec">
+                                {{ expert_comptable.specialite|replace({
+                                    'comptabilite_generale': 'Comptabilité générale',
+                                    'fiscalite':             'Fiscalité',
+                                    'audit':                 'Audit',
+                                    'gestion_financiere':    'Gestion financière',
+                                    'conseil_juridique':     'Conseil juridique',
+                                    'paie_rh':               'Paie et RH',
+                                    'creation_entreprise':   "Création d'entreprise"
+                                }) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="xcard-body">
+                        <div class="xmeta">
+
+                            <div class="xmeta-row">
+                                <div class="xmeta-icon">✉️</div>
+                                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    {{ expert_comptable.email }}
+                                </span>
+                            </div>
+
+                            <div class="xmeta-row">
+                                <div class="xmeta-icon">📞</div>
+                                <span>{{ expert_comptable.telephone }}</span>
+                            </div>
+
+                            <div class="xmeta-row">
+                                <div class="xmeta-icon">🏅</div>
+                                <span class="xexp-chip">{{ expert_comptable.experience }} ans d'expérience</span>
+                            </div>
+
+                        </div>
+
+                        {% if expert_comptable.description %}
+                            <div class="xdivider"></div>
+                            <div class="xdesc">{{ expert_comptable.description }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="xcard-foot">
+                        <a href="{{ path('app_expert_comptable_edit', {'id': expert_comptable.id}) }}"
+                           class="btn btn-amber btn-sm">
+                            ✏️ Modifier
+                        </a>
+
+                        <form method="post"
+                              action="{{ path('app_expert_comptable_delete', {'id': expert_comptable.id}) }}"
+                              class="delete-form"
+                              onsubmit="return confirm('Supprimer définitivement cet expert ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ expert_comptable.id) }}">
+                            <button class="btn btn-red btn-sm">🗑 Supprimer</button>
+                        </form>
+
+                        <a href="{{ path('app_offre_index', {'expert_id': expert_comptable.id}) }}"
+                           class="btn btn-cyan btn-sm" style="margin-left:auto;">
+                            📁 Voir offres →
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="adm-grid">
+            <div class="xempty">
+                <div class="xempty-icon">🔎</div>
+                <h3>Aucun expert trouvé</h3>
+                <p>Modifiez vos filtres ou ajoutez un premier expert comptable.</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

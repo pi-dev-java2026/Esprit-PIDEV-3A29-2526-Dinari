@@ -1,0 +1,605 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Budgets — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+/* ── PAGE BACKGROUND ── */
+body {
+    background: linear-gradient(145deg, #eaf2ff 0%, #f0f6ff 35%, #e8f4fd 65%, #f5f8ff 100%) !important;
+    min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.page-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 100px 30px 60px;
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.3px;
+    margin: 0;
+}
+.page-title span { color: #1a6fc4; }
+
+/* ── PRIMARY BUTTON (Nouveau budget) ── */
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #2563eb 0%, #1a6fc4 60%, #1558a0 100%);
+    color: #fff;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+    box-shadow: 0 6px 20px rgba(26,111,196,0.36);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-add:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(26,111,196,0.46);
+    color: #fff;
+    text-decoration: none;
+}
+.btn-add:active { transform: translateY(-1px); }
+
+/* ── NAV BUTTON — back to expenses ── */
+.btn-nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #1a6fc4;
+    border: 1.5px solid rgba(26, 111, 196, 0.35);
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 3px 12px rgba(26, 111, 196, 0.10);
+    transition: transform 0.25s ease, box-shadow 0.25s ease,
+                background 0.25s ease, border-color 0.25s ease;
+}
+.btn-nav-back:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1a6fc4 60%, #1558a0 100%);
+    color: #fff;
+    border-color: transparent;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(26, 111, 196, 0.38);
+    text-decoration: none;
+}
+.btn-nav-back:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(26, 111, 196, 0.28);
+}
+
+/* ── FLASH MESSAGES ── */
+.flash {
+    padding: 13px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+.flash-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: #065f46; }
+.flash-error   { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.25);  color: #991b1b; }
+
+/* ── HERO CARD (budget du mois courant) ── */
+.budget-hero {
+    border-radius: 22px;
+    padding: 34px 36px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 14px 44px rgba(0,0,0,0.14);
+}
+.budget-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+}
+.budget-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -70px; left: 40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+.budget-hero.ok      { background: linear-gradient(135deg, #1a6fc4 0%, #1558a0 55%, #0f4080 100%); }
+.budget-hero.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 55%, #b45309 100%); }
+.budget-hero.danger  { background: linear-gradient(135deg, #ef4444 0%, #dc2626 55%, #b91c1c 100%); }
+.budget-hero.empty   { background: linear-gradient(135deg, #475569 0%, #334155 55%, #1e293b 100%); }
+
+.budget-hero-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.58);
+    margin-bottom: 6px;
+}
+.budget-hero-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 22px;
+    letter-spacing: -0.2px;
+}
+.budget-hero-amounts {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.budget-hero-spent {
+    font-family: 'Poppins', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+.budget-hero-sep   { font-size: 24px; color: rgba(255,255,255,0.35); }
+.budget-hero-limit { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 500; color: rgba(255,255,255,0.6); }
+.budget-hero-unit  { font-size: 15px; color: rgba(255,255,255,0.5); margin-left: 2px; }
+
+.progress-bar-wrap {
+    background: rgba(255,255,255,0.18);
+    border-radius: 99px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.88);
+    box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    transition: width 1.1s cubic-bezier(0.22,1,0.36,1);
+}
+.budget-hero-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.budget-hero-pct {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.72);
+    font-weight: 600;
+}
+.budget-hero-reste {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.budget-hero-badge {
+    position: absolute;
+    top: 26px; right: 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+.budget-hero-empty-text {
+    font-family: 'Poppins', sans-serif;
+    color: rgba(255,255,255,0.65);
+    font-size: 14px;
+    margin-bottom: 22px;
+    line-height: 1.6;
+}
+.btn-hero-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+.btn-hero-add:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: #fff;
+    border-color: rgba(255,255,255,0.6);
+}
+
+/* ── BUDGET CARDS GRID ── */
+.budgets-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.budget-card {
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.92);
+    border-radius: 20px;
+    padding: 26px 28px;
+    box-shadow: 0 4px 20px rgba(26,111,196,0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.budget-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    border-radius: 20px 20px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.budget-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 44px rgba(26,111,196,0.13);
+    border-color: rgba(26,111,196,0.15);
+}
+.budget-card:hover::before { opacity: 1; }
+.budget-card.depasse { border-left: 3px solid rgba(239,68,68,0.45); }
+.budget-card.warning { border-left: 3px solid rgba(245,158,11,0.45); }
+
+.budget-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.budget-card-month {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.2px;
+}
+.budget-card-status {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+.status-ok      { background: rgba(16,185,129,0.1);  color: #059669; }
+.status-warning { background: rgba(245,158,11,0.1);  color: #d97706; }
+.status-danger  { background: rgba(239,68,68,0.1);   color: #dc2626; }
+
+.budget-amounts {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.budget-spent {
+    font-family: 'Poppins', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+    line-height: 1;
+}
+.budget-sep   { font-size: 16px; color: #cbd5e1; }
+.budget-limit { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 500; color: #94a3b8; }
+.budget-unit  { font-family: 'Poppins', sans-serif; font-size: 13px; color: #94a3b8; }
+
+.prog-wrap {
+    background: #f1f5f9;
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.prog-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1.1s cubic-bezier(0.22,1,0.36,1);
+}
+.prog-fill.ok      { background: linear-gradient(90deg, #10b981, #34d399); }
+.prog-fill.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.prog-fill.danger  { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.budget-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+.budget-pct {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+}
+.budget-reste { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: #94a3b8; }
+.budget-reste.ok     { color: #059669; }
+.budget-reste.danger { color: #dc2626; }
+
+.budget-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(226,232,240,0.7);
+    flex-wrap: wrap;
+}
+.btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 9px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.22s ease;
+    border: none;
+    cursor: pointer;
+}
+.btn-sm-edit { background: rgba(245,158,11,0.1); color: #d97706; }
+.btn-sm-edit:hover {
+    background: linear-gradient(135deg,#f59e0b,#d97706);
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+}
+.btn-sm-delete { background: rgba(239,68,68,0.1); color: #dc2626; margin-left: auto; }
+.btn-sm-delete:hover {
+    background: linear-gradient(135deg,#ef4444,#dc2626);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+}
+
+.btn-report {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #2563eb 0%, #1a6fc4 60%, #1558a0 100%);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(26,111,196,0.28);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-report:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26,111,196,0.38);
+}
+.btn-report:active { transform: translateY(0); }
+
+.empty-state {
+    text-align: center;
+    padding: 72px 20px;
+    color: #94a3b8;
+}
+.empty-state i { font-size: 52px; margin-bottom: 18px; opacity: 0.2; display: block; }
+.empty-state p { font-family: 'Poppins', sans-serif; font-size: 15px; }
+
+@media(max-width: 700px) {
+    .budgets-grid { grid-template-columns: 1fr; }
+    .budget-hero  { padding: 26px 22px; }
+    .budget-hero-spent { font-size: 32px; }
+    .page-wrapper { padding: 90px 16px 48px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+
+    {% for msg in app.flashes('success') %}
+        <div class="flash flash-success"><i class="fa fa-check-circle"></i> {{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="flash flash-error"><i class="fa fa-exclamation-circle"></i> {{ msg }}</div>
+    {% endfor %}
+
+    <div class="page-header">
+        <h1 class="page-title">Mes <span>Budgets</span></h1>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <a href="{{ path('depense_index') }}" class="btn-nav-back">
+                <i class="fa fa-arrow-left"></i> Retour aux Dépenses
+            </a>
+            <a href="{{ path('budget_new') }}" class="btn-add">
+                <i class="fa fa-plus"></i> Nouveau budget
+            </a>
+        </div>
+    </div>
+
+    {# ── BUDGET DU MOIS COURANT (hero) ── #}
+    {% if budgetCourant %}
+        {% set pct = budgetCourant.pourcentage %}
+        {% set heroClass = pct >= 100 ? 'danger' : (pct >= 80 ? 'warning' : 'ok') %}
+        {% set statusLabel = pct >= 100 ? '🔴 Dépassé' : (pct >= 80 ? '⚠️ Attention' : '✅ En ordre') %}
+
+        <div class="budget-hero {{ heroClass }}">
+            <div class="budget-hero-badge">{{ statusLabel }}</div>
+            <div class="budget-hero-label">Budget du mois courant</div>
+            <div class="budget-hero-title">
+                {{ budgetCourant.budget.getNomMois() }} {{ budgetCourant.budget.getAnnee() }}
+            </div>
+            <div class="budget-hero-amounts">
+                <span class="budget-hero-spent">{{ budgetCourant.totalDepenses|number_format(0, ',', ' ') }}</span>
+                <span class="budget-hero-sep">/</span>
+                <span class="budget-hero-limit">{{ budgetCourant.limite|number_format(0, ',', ' ') }}</span>
+                <span class="budget-hero-unit">DT</span>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width: {{ pct }}%;"></div>
+            </div>
+            <div class="budget-hero-footer">
+                <span class="budget-hero-pct">{{ pct }}% utilisé</span>
+                {% if pct >= 100 %}
+                    <span class="budget-hero-reste">
+                        🔴 Dépassement de {{ (budgetCourant.totalDepenses - budgetCourant.limite)|number_format(0, ',', ' ') }} DT
+                    </span>
+                {% else %}
+                    <span class="budget-hero-reste">
+                        Restant : {{ budgetCourant.restant|number_format(0, ',', ' ') }} DT
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="budget-hero empty">
+            <div class="budget-hero-label">Budget du mois courant</div>
+            <div class="budget-hero-title">Aucun budget défini pour ce mois</div>
+            <p class="budget-hero-empty-text">Définissez un budget mensuel pour suivre vos dépenses.</p>
+            <a href="{{ path('budget_new') }}" class="btn-hero-add">
+                <i class="fa fa-plus"></i> Créer le budget du mois
+            </a>
+        </div>
+    {% endif %}
+
+    {# ── HISTORIQUE BUDGETS ── #}
+    {% if budgetsData is empty %}
+        <div class="empty-state">
+            <i class="fa fa-pie-chart"></i>
+            <p>Aucun budget enregistré.</p>
+        </div>
+    {% else %}
+        <div class="budgets-grid">
+            {% for data in budgetsData %}
+                {% set pct       = data.pourcentage %}
+                {% set progClass = pct >= 100 ? 'danger' : (pct >= 80 ? 'warning' : 'ok') %}
+                {% set cardClass = pct >= 100 ? 'depasse' : (pct >= 80 ? 'warning' : '') %}
+
+                <div class="budget-card {{ cardClass }}">
+                    <div class="budget-card-header">
+                        <div class="budget-card-month">
+                            {{ data.budget.getNomMois() }} {{ data.budget.getAnnee() }}
+                        </div>
+                        <span class="budget-card-status status-{{ progClass }}">
+                            {% if pct >= 100 %}Dépassé
+                            {% elseif pct >= 80 %}Attention
+                            {% else %}OK{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="budget-amounts">
+                        <span class="budget-spent">{{ data.totalDepenses|number_format(0, ',', ' ') }}</span>
+                        <span class="budget-sep">/</span>
+                        <span class="budget-limit">{{ data.limite|number_format(0, ',', ' ') }}</span>
+                        <span class="budget-unit">DT</span>
+                    </div>
+
+                    <div class="prog-wrap">
+                        <div class="prog-fill {{ progClass }}" style="width: {{ pct }}%;"></div>
+                    </div>
+
+                    <div class="budget-footer">
+                        <span class="budget-pct">{{ pct }}% utilisé</span>
+                        {% if pct >= 100 %}
+                            <span class="budget-reste danger">
+                                +{{ (data.totalDepenses - data.limite)|number_format(0, ',', ' ') }} DT dépassé
+                            </span>
+                        {% else %}
+                            <span class="budget-reste ok">
+                                {{ data.restant|number_format(0, ',', ' ') }} DT restant
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="budget-actions">
+                        <a href="{{ path('budget_edit', {id: data.budget.id}) }}" class="btn-sm btn-sm-edit">
+                            <i class="fa fa-pencil"></i> Modifier
+                        </a>
+                        <form method="post" action="{{ path('budget_delete', {id: data.budget.id}) }}"
+                              onsubmit="return confirm('Supprimer ce budget ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_budget' ~ data.budget.id) }}">
+                            <button type="submit" class="btn-sm btn-sm-delete">
+                                <i class="fa fa-trash"></i> Supprimer
+                            </button>
+
+
+
+
+                        </form>
+
+
+
+                        <form method="post" action="{{ path('budget_send_report') }}" style="display:inline;">
+    <input type="hidden" name="mois" value="{{ data.budget.getMois() }}">
+    <input type="hidden" name="annee" value="{{ data.budget.getAnnee() }}">
+
+    <button type="submit" class="btn-report">
+    <i class="fa fa-envelope"></i>
+    <span>Rapport IA</span>
+</button>
+</form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

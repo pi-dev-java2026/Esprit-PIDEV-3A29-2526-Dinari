@@ -1,0 +1,779 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir une offre — {{ abo.nom }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.promo-page {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+}
+
+.promo-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 32px;
+}
+.promo-header-logo {
+    width: 52px; height: 52px; border-radius: 14px;
+    object-fit: contain; border: 1.5px solid #dce4f0;
+    background: #f6f9fd; padding: 6px; flex-shrink: 0;
+}
+.promo-header-title { font-size: 22px; font-weight: 800; color: #0d1f35; margin: 0 0 4px; }
+.promo-header-sub   { font-size: 13px; color: #6b7f96; font-weight: 500; }
+
+.steps-bar {
+    display: flex; align-items: center; margin-bottom: 32px;
+}
+.step-item { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; }
+.step-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+}
+.step-circle.active   { background: #1a6fc4; color: #fff; box-shadow: 0 4px 12px rgba(26,111,196,0.35); }
+.step-circle.inactive { background: #e8edf5; color: #8a9fb8; }
+.step-label.active   { color: #1a6fc4; }
+.step-label.inactive { color: #8a9fb8; }
+.step-line { flex: 1; height: 2px; background: #dce4f0; margin: 0 10px; }
+
+.card {
+    background: #fff;
+    border: 1.5px solid #dce4f0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 28px rgba(15,31,55,0.07);
+    margin-bottom: 16px;
+}
+.card-header {
+    padding: 18px 24px;
+    background: linear-gradient(to right, #f6f9fd, #eef3fb);
+    border-bottom: 1.5px solid #edf1f9;
+    font-size: 13px; font-weight: 800;
+    color: #0d1f35;
+}
+.card-body { padding: 24px; }
+
+.offer-option {
+    border: 2px solid #dce4f0;
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    background: #fff;
+}
+.offer-option:hover { border-color: #1a6fc4; background: #f8fbff; }
+.offer-option.selected {
+    border-color: #1a6fc4;
+    background: linear-gradient(135deg, #f0f7ff, #e8f2fd);
+    box-shadow: 0 4px 16px rgba(26,111,196,0.12);
+}
+.offer-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.offer-radio-circle {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid #cdd6e4;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.offer-option.selected .offer-radio-circle { border-color: #1a6fc4; background: #1a6fc4; }
+.offer-radio-circle::after {
+    content: ''; width: 8px; height: 8px;
+    background: #fff; border-radius: 50%; display: none;
+}
+.offer-option.selected .offer-radio-circle::after { display: block; }
+.offer-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+}
+.offer-content { flex: 1; }
+.offer-name { font-size: 15px; font-weight: 700; color: #0d1f35; margin-bottom: 3px; }
+.offer-desc { font-size: 12px; font-weight: 500; color: #6b7f96; }
+.offer-condition-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 20px; margin-top: 5px;
+}
+.offer-condition-badge.has-cond { background: #fff7e6; border: 1px solid #f5c842; color: #8a6200; }
+.offer-condition-badge.no-cond  { background: #e8faf2; border: 1px solid #a3d9bc; color: #1a7a47; }
+.offer-price-block { text-align: right; flex-shrink: 0; }
+.offer-price-new { font-size: 22px; font-weight: 800; color: #1a6fc4; }
+.offer-price-old { font-size: 13px; color: #9ab0c8; text-decoration: line-through; }
+.offer-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 800; padding: 3px 9px;
+    border-radius: 20px; margin-bottom: 4px;
+}
+.offer-badge.discount {
+    background: linear-gradient(135deg, #e8faf2, #d0f2e3);
+    border: 1.5px solid #a3d9bc; color: #1a7a47;
+}
+
+/* ══ VERIFICATION PANEL ══ */
+.verif-panel { display: none; margin-top: 8px; }
+.verif-panel.visible { display: block; animation: slideDown 0.3s ease; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab switcher email / carte */
+.verif-tabs {
+    display: flex; gap: 0;
+    background: #f0f4fa;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+}
+.verif-tab {
+    flex: 1; padding: 10px 12px;
+    border: none; border-radius: 9px;
+    font-size: 13px; font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+    background: transparent; color: #6b7f96;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.verif-tab.active {
+    background: #fff;
+    color: #1a6fc4;
+    box-shadow: 0 2px 10px rgba(26,111,196,0.15);
+}
+
+.verif-box {
+    background: linear-gradient(135deg, #f8fbff, #f0f7ff);
+    border: 2px solid #c8ddf5;
+    border-radius: 14px;
+    padding: 22px;
+}
+.verif-box-title {
+    font-size: 14px; font-weight: 800; color: #0d1f35;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+}
+.verif-box-hint {
+    font-size: 12px; color: #5a7a9e; font-weight: 500;
+    margin-bottom: 18px; line-height: 1.6;
+}
+
+/* Champ input stylé */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 12px; font-weight: 700; color: #162d4a; text-transform: uppercase; letter-spacing: 0.05em; }
+.field-input-wrap { position: relative; }
+.field-input-wrap .field-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; pointer-events: none;
+}
+.field .fc {
+    width: 100%;
+    padding: 13px 15px 13px 42px;
+    border: 2px solid #cdd6e4; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #0d1f35; background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field .fc:focus {
+    outline: none; border-color: #1a6fc4;
+    box-shadow: 0 0 0 4px rgba(26,111,196,0.12);
+}
+.field .fc.error { border-color: #e74c3c !important; box-shadow: 0 0 0 3px rgba(231,76,60,0.15) !important; }
+.field-error { font-size: 12px; font-weight: 600; color: #e74c3c; display: none; }
+.field-error.visible { display: block; }
+.field-hint { font-size: 11px; color: #8a9fb8; font-weight: 500; }
+
+/* Upload carte */
+.upload-zone {
+    border: 2px dashed #c8ddf5;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f8fbff;
+    position: relative;
+}
+.upload-zone:hover { border-color: #1a6fc4; background: #f0f7ff; }
+.upload-zone.has-file { border-color: #1a7a47; background: #f0fdf4; border-style: solid; }
+.upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon { font-size: 32px; margin-bottom: 8px; }
+.upload-title { font-size: 14px; font-weight: 700; color: #0d1f35; margin-bottom: 4px; }
+.upload-sub { font-size: 12px; color: #6b7f96; }
+.upload-preview {
+    display: none;
+    align-items: center; gap: 10px;
+    background: #fff; border-radius: 8px; padding: 10px 14px;
+    border: 1.5px solid #a3d9bc; margin-top: 12px;
+}
+.upload-preview.visible { display: flex; }
+.upload-preview-name { font-size: 13px; font-weight: 600; color: #1a7a47; flex: 1; }
+.upload-preview-remove {
+    background: none; border: none; color: #e74c3c;
+    cursor: pointer; font-size: 16px; font-weight: 800; padding: 0 4px;
+}
+
+/* Prix résumé */
+.prix-resume {
+    background: linear-gradient(135deg, #f0f7ff, #e8f2fd);
+    border: 2px solid #c8ddf5; border-radius: 14px;
+    padding: 18px 22px; margin-top: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.prix-resume-label { font-size: 13px; font-weight: 700; color: #1a4a7a; }
+.prix-resume-val   { font-size: 26px; font-weight: 800; color: #1a6fc4; }
+.prix-resume-freq  { font-size: 12px; color: #5a7a9e; font-weight: 600; }
+
+/* Boutons */
+.btn-continue {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #1a6fc4, #1254a0);
+    color: #fff; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 800;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer; margin-top: 20px;
+    box-shadow: 0 5px 18px rgba(26,111,196,0.35);
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.btn-continue:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,111,196,0.45); }
+.btn-skip {
+    width: 100%; padding: 13px;
+    background: #f0f4fa; border: 2px solid #cdd6e4;
+    border-radius: 12px; font-size: 14px; font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #2d4460; cursor: pointer; margin-top: 10px;
+    transition: all 0.2s;
+}
+.btn-skip:hover { background: #e4eaf5; }
+
+.alert-error {
+    background: #fff0f0; border: 2px solid #e74c3c;
+    border-left: 6px solid #c0392b; border-radius: 12px;
+    padding: 14px 18px; margin-bottom: 20px;
+    font-size: 13px; font-weight: 600; color: #c0392b;
+    display: flex; align-items: center; gap: 8px;
+}
+
+/* Badge domaines acceptés */
+.domain-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.domain-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; background: #eff6ff;
+    border: 1px solid #bfdbfe; color: #1d4ed8;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="promo-page">
+
+    {# HEADER #}
+    <div class="promo-header">
+        {% if abo.logoDomain %}
+        <img class="promo-header-logo" src="https://logo.clearbit.com/{{ abo.logoDomain }}" alt="{{ abo.nom }}"
+             onerror="this.src='https://www.google.com/s2/favicons?domain={{ abo.logoDomain }}&sz=80'; this.style.width='80px'; this.style.height='80px'; this.onerror=function(){ this.style.display='none'; document.getElementById('fallback-promo-header').style.display='flex'; };"/>
+        <div id="fallback-promo-header" style="display:none;width:80px;height:80px;border-radius:14px;background:linear-gradient(135deg, #1a6fc4, #1254a0);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;">{{ abo.nom|slice(0,2)|upper }}</div>
+        {% else %}
+        <div style="width:80px;height:80px;border-radius:14px;background:linear-gradient(135deg, #1a6fc4, #1254a0);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;">{{ abo.nom|slice(0,2)|upper }}</div>
+        {% endif %}
+        <div>
+            <div class="promo-header-title">{{ abo.nom }}</div>
+            <div class="promo-header-sub">{{ abo.tier }} · {{ abo.frequence|capitalize }}</div>
+        </div>
+    </div>
+
+    {# STEPS #}
+    <div class="steps-bar">
+        <div class="step-item">
+            <div class="step-circle active">1</div>
+            <span class="step-label active">Offre</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <div class="step-circle inactive">2</div>
+            <span class="step-label inactive">Paiement</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <div class="step-circle inactive">3</div>
+            <span class="step-label inactive">Confirmation</span>
+        </div>
+    </div>
+
+    {# ERREUR GLOBALE #}
+    {% if error is defined and error %}
+    <div class="alert-error">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ path('app_client_abonnement_promo_validate', {id: abo.id}) }}"
+          id="promo-form" novalidate>
+        <input type="hidden" name="_token" value="{{ csrf_token('promo_' ~ abo.id) }}">
+        <input type="hidden" name="promo_id"    id="hidden-promo-id"    value="">
+        <input type="hidden" name="promo_verif" id="hidden-promo-verif" value="">
+
+        {# CHOIX DE L'OFFRE #}
+        <div class="card">
+            <div class="card-header">🎯 Choisissez votre offre</div>
+            <div class="card-body">
+
+                {# Tarif standard #}
+                <label class="offer-option" id="opt-standard"
+                       onclick="selectOffer('standard', {{ abo.prix }}, 'none', '', 0)">
+                    <div class="offer-radio-circle"></div>
+                    <div class="offer-icon" style="background:#f0f4fa;">💳</div>
+                    <div class="offer-content">
+                        <div class="offer-name">Tarif standard</div>
+                        <div class="offer-desc">Accès complet sans condition</div>
+                        <div class="offer-condition-badge no-cond">✅ Disponible immédiatement</div>
+                    </div>
+                    <div class="offer-price-block">
+                        <div class="offer-price-new">{{ abo.prix|number_format(2) }} DT</div>
+                    </div>
+                </label>
+
+                {# Promos actives #}
+                {% for promo in promotions %}
+                {% set prixReduit = abo.prix * (1 - promo.reductionPct / 100) %}
+
+                {#
+                  ─────────────────────────────────────────────────────────────
+                  LOGIQUE DE VÉRIFICATION basée sur promo.type (modifiée)
+                  ─────────────────────────────────────────────────────────────
+                  • etudiant  → email universitaire (.edu, .ac.tn, etc.)
+                  • famille   → email simple (n'importe quel email valide)
+                  • limitee   → aucune vérification
+                  • autres    → si conditions renseignées → déclaration,
+                                sinon aucune vérification
+                  ─────────────────────────────────────────────────────────────
+                #}
+                {% if promo.type == 'etudiant' %}
+                    {% set verifType  = 'email_edu' %}
+                    {% set verifLabel = '📧 Email universitaire requis' %}
+                {% elseif promo.type == 'famille' %}
+                    {% set verifType  = 'email_simple' %}
+                    {% set verifLabel = '📧 Email de contact requis' %}
+                {% elseif promo.type == 'limitee' %}
+                    {% set verifType  = 'none' %}
+                    {% set verifLabel = null %}
+                {% elseif promo.conditions is not null and promo.conditions != '' %}
+                    {% set verifType  = 'declaration' %}
+                    {% set verifLabel = '✍️ Déclaration requise' %}
+                {% else %}
+                    {% set verifType  = 'none' %}
+                    {% set verifLabel = null %}
+                {% endif %}
+
+                <label class="offer-option" id="opt-{{ promo.id }}"
+                       onclick="selectOffer({{ promo.id }}, {{ prixReduit|round(2) }}, '{{ verifType }}', '{{ promo.conditions|default('')|e('js') }}', {{ promo.reductionPct }})">
+                    <div class="offer-radio-circle"></div>
+                    <div class="offer-icon" style="background:#fff7e6;">
+                        {% if promo.type == 'etudiant' %}🎓
+                        {% elseif promo.type == 'famille' %}👨‍👩‍👧
+                        {% elseif promo.type == 'limitee' %}⏳
+                        {% else %}🏷️{% endif %}
+                    </div>
+                    <div class="offer-content">
+                        <div class="offer-name">{{ promo.label }}</div>
+                        <div class="offer-desc">{{ promo.reductionPct }}% de réduction</div>
+                        {% if verifLabel %}
+                        <div class="offer-condition-badge has-cond">⚠️ {{ verifLabel }}</div>
+                        {% else %}
+                        <div class="offer-condition-badge no-cond">✅ Pas de justificatif requis</div>
+                        {% endif %}
+                    </div>
+                    <div class="offer-price-block">
+                        <div class="offer-badge discount">−{{ promo.reductionPct }}%</div>
+                        <div class="offer-price-new">{{ prixReduit|number_format(2) }} DT</div>
+                        <div class="offer-price-old">{{ abo.prix|number_format(2) }} DT</div>
+                    </div>
+                </label>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        {# ════════════════════════════════════════════════════════════
+           PANNEAU DE VÉRIFICATION — s'affiche selon l'offre choisie
+           ════════════════════════════════════════════════════════════ #}
+        <div id="verif-panel" class="verif-panel">
+
+            {# ── 1. EMAIL UNIVERSITAIRE (type = etudiant) ── #}
+            <div id="verif-email-edu" style="display:none">
+                <div class="verif-box">
+                    <div class="verif-box-title">📧 Vérification de votre statut étudiant</div>
+                    <div class="verif-box-hint">
+                        Cette offre est réservée aux étudiants. Saisissez votre adresse email universitaire officielle.
+                    </div>
+
+                    <div class="field">
+                        <label>Adresse email universitaire</label>
+                        <div class="field-input-wrap">
+                            <span class="field-icon">✉️</span>
+                            <input type="email" class="fc" id="input-email-edu"
+                                   placeholder="prenom.nom@universite.edu"
+                                   autocomplete="email"
+                                   oninput="liveValidateEmailEdu(this)">
+                        </div>
+                        <div class="field-error" id="err-email-edu">
+                            ⚠️ Cet email ne semble pas être un email universitaire valide
+                        </div>
+                        <div class="field-hint">
+                            Domaines acceptés :
+                            <div class="domain-badges">
+                                <span class="domain-badge">.edu</span>
+                                <span class="domain-badge">.ac.tn</span>
+                                <span class="domain-badge">.ac.uk</span>
+                                <span class="domain-badge">.univ-*</span>
+                                <span class="domain-badge">.etu.*</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# ── 2. EMAIL SIMPLE (type = famille) ── #}
+            <div id="verif-email-simple" style="display:none">
+                <div class="verif-box">
+                    <div class="verif-box-title">📧 Votre adresse email</div>
+                    <div class="verif-box-hint">
+                        Saisissez votre adresse email pour bénéficier de cette offre familiale.
+                        Aucun justificatif supplémentaire n'est requis.
+                    </div>
+
+                    <div class="field">
+                        <label>Adresse email</label>
+                        <div class="field-input-wrap">
+                            <span class="field-icon">✉️</span>
+                            <input type="email" class="fc" id="input-email-simple"
+                                   placeholder="votre@email.com"
+                                   autocomplete="email"
+                                   oninput="liveValidateEmailSimple(this)">
+                        </div>
+                        <div class="field-error" id="err-email-simple">
+                            ⚠️ Veuillez saisir une adresse email valide
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# ── 3. CARTE ÉTUDIANTE (si conditions contient 'carte') ── #}
+            <div id="verif-carte-etudiant" style="display:none">
+                <div class="verif-box">
+                    <div class="verif-box-title">🪪 Justificatif de statut étudiant</div>
+                    <div class="verif-box-hint">
+                        Uploadez une photo ou scan de votre carte étudiante valide pour l'année en cours.
+                        Votre dossier sera examiné sous 24h.
+                    </div>
+
+                    <div class="verif-tabs" id="carte-tabs">
+                        <button type="button" class="verif-tab active"
+                                onclick="switchCarteTab('email', event)">
+                            ✉️ Email scolaire
+                        </button>
+                        <button type="button" class="verif-tab"
+                                onclick="switchCarteTab('upload', event)">
+                            📎 Photo de carte
+                        </button>
+                    </div>
+
+                    <div id="carte-tab-email">
+                        <div class="field">
+                            <label>Email scolaire ou universitaire</label>
+                            <div class="field-input-wrap">
+                                <span class="field-icon">✉️</span>
+                                <input type="email" class="fc" id="input-carte-email"
+                                       placeholder="prenom.nom@universite.edu"
+                                       oninput="liveValidateEmailEduField(this, 'err-carte-email')">
+                            </div>
+                            <div class="field-error" id="err-carte-email">
+                                ⚠️ Email universitaire invalide (.edu, .ac.tn, etc.)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="carte-tab-upload" style="display:none">
+                        <div class="upload-zone" id="upload-zone"
+                             onclick="document.getElementById('file-carte').click()">
+                            <div class="upload-icon">🪪</div>
+                            <div class="upload-title">Glissez votre carte ou cliquez pour sélectionner</div>
+                            <div class="upload-sub">JPG, PNG ou PDF — max 5 Mo</div>
+                            <input type="file" id="file-carte" name="carte_file"
+                                   accept="image/*,.pdf"
+                                   onchange="handleFileUpload(this)" style="display:none">
+                        </div>
+                        <div class="upload-preview" id="upload-preview">
+                            <span>✅</span>
+                            <span class="upload-preview-name" id="upload-filename"></span>
+                            <button type="button" class="upload-preview-remove"
+                                    onclick="removeFile()">✕</button>
+                        </div>
+                        <div class="field-error" id="err-carte-upload" style="margin-top:8px;">
+                            ⚠️ Veuillez fournir une photo de votre carte étudiante
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── 4. DÉCLARATION GÉNÉRIQUE ── #}
+            <div id="verif-declaration" style="display:none">
+                <div class="verif-box">
+                    <div class="verif-box-title">✍️ Conditions d'éligibilité</div>
+                    <div class="verif-box-hint" id="verif-declaration-hint"></div>
+
+                    <div class="field">
+                        <label>Confirmez votre éligibilité</label>
+                        <div class="field-input-wrap">
+                            <span class="field-icon">✉️</span>
+                            <input type="email" class="fc" id="input-declaration-email"
+                                   placeholder="Votre email de contact"
+                                   oninput="liveValidateEmailSimpleField(this, 'err-declaration')">
+                        </div>
+                        <div class="field-error" id="err-declaration">
+                            ⚠️ Email invalide
+                        </div>
+                        <div class="field-hint">
+                            En soumettant, vous certifiez répondre aux conditions de cette offre.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>{# /verif-panel #}
+
+        {# PRIX RÉSUMÉ #}
+        <div class="prix-resume">
+            <div>
+                <div class="prix-resume-label">Total à payer</div>
+                <div class="prix-resume-freq">/ {{ abo.frequence }}</div>
+            </div>
+            <div class="prix-resume-val" id="prix-display">{{ abo.prix|number_format(2) }} DT</div>
+        </div>
+
+        {# BOUTONS #}
+        <button type="submit" class="btn-continue" id="btn-continue" onclick="return submitForm()">
+            Continuer vers le paiement →
+        </button>
+        <a href="{{ path('app_client_abonnement_show', {id: abo.id}) }}">
+            <button type="button" class="btn-skip">Annuler</button>
+        </a>
+
+    </form>
+</div>
+
+<script>
+let currentPromoId   = 'standard';
+let currentVerifType = 'none';
+let currentPrix      = {{ abo.prix }};
+let currentCarteTab  = 'email'; // 'email' ou 'upload'
+
+/* ─────────────────────────────────────────────
+   Sélection d'une offre
+───────────────────────────────────────────── */
+function selectOffer(promoId, prix, verifType, condition, reductionPct) {
+    currentPromoId   = promoId;
+    currentVerifType = verifType;
+    currentPrix      = prix;
+
+    // Highlight visuel
+    document.querySelectorAll('.offer-option').forEach(el => el.classList.remove('selected'));
+    const target = document.getElementById('opt-' + promoId);
+    if (target) target.classList.add('selected');
+
+    // Prix affiché
+    document.getElementById('prix-display').textContent = prix.toFixed(2) + ' DT';
+
+    // Cacher tous les sous-panneaux
+    const panel = document.getElementById('verif-panel');
+    document.querySelectorAll('#verif-panel > div').forEach(b => b.style.display = 'none');
+    hideAllErrors();
+
+    if (verifType && verifType !== 'none') {
+        panel.classList.add('visible');
+
+        // Mapping verifType → id du panneau
+        const boxId = 'verif-' + verifType.replace(/_/g, '-');
+        const box = document.getElementById(boxId);
+        if (box) box.style.display = 'block';
+
+        // Pour déclaration générique : afficher la condition
+        if (verifType === 'declaration' && condition) {
+            document.getElementById('verif-declaration-hint').textContent =
+                'Condition requise : ' + condition;
+        }
+    } else {
+        panel.classList.remove('visible');
+    }
+}
+
+/* ─────────────────────────────────────────────
+   Onglets carte étudiante
+───────────────────────────────────────────── */
+function switchCarteTab(tab, event) {
+    currentCarteTab = tab;
+    document.querySelectorAll('#carte-tabs .verif-tab').forEach(t => t.classList.remove('active'));
+    if (event && event.target) event.target.classList.add('active');
+    document.getElementById('carte-tab-email').style.display  = (tab === 'email')  ? 'block' : 'none';
+    document.getElementById('carte-tab-upload').style.display = (tab === 'upload') ? 'block' : 'none';
+    hideAllErrors();
+}
+
+/* ─────────────────────────────────────────────
+   Validations live
+───────────────────────────────────────────── */
+
+// Email universitaire — champ dédié "etudiant"
+function liveValidateEmailEdu(input) {
+    liveValidateEmailEduField(input, 'err-email-edu');
+}
+
+// Email universitaire — générique (carte onglet email)
+function liveValidateEmailEduField(input, errId) {
+    const val = input.value.trim();
+    const eduPattern = /\.(edu|ac\.|univ-|etu\.)/i;
+    if (val && (!isValidEmail(val) || !eduPattern.test(val))) {
+        input.classList.add('error');
+        document.getElementById(errId).classList.add('visible');
+    } else {
+        input.classList.remove('error');
+        document.getElementById(errId).classList.remove('visible');
+    }
+}
+
+// Email simple — champ dédié "famille"
+function liveValidateEmailSimple(input) {
+    liveValidateEmailSimpleField(input, 'err-email-simple');
+}
+
+// Email simple — générique (déclaration)
+function liveValidateEmailSimpleField(input, errId) {
+    const val = input.value.trim();
+    if (val && !isValidEmail(val)) {
+        input.classList.add('error');
+        document.getElementById(errId).classList.add('visible');
+    } else {
+        input.classList.remove('error');
+        document.getElementById(errId).classList.remove('visible');
+    }
+}
+
+/* ─────────────────────────────────────────────
+   Upload carte
+───────────────────────────────────────────── */
+function handleFileUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    document.getElementById('upload-zone').classList.add('has-file');
+    document.getElementById('upload-preview').classList.add('visible');
+    document.getElementById('upload-filename').textContent = file.name;
+    document.getElementById('err-carte-upload').classList.remove('visible');
+}
+
+function removeFile() {
+    document.getElementById('file-carte').value = '';
+    document.getElementById('upload-zone').classList.remove('has-file');
+    document.getElementById('upload-preview').classList.remove('visible');
+}
+
+/* ─────────────────────────────────────────────
+   Utilitaires
+───────────────────────────────────────────── */
+function hideAllErrors() {
+    document.querySelectorAll('.field-error').forEach(e => e.classList.remove('visible'));
+    document.querySelectorAll('.fc').forEach(i => i.classList.remove('error'));
+}
+
+function isValidEmail(val) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+}
+
+/* ─────────────────────────────────────────────
+   Soumission du formulaire
+───────────────────────────────────────────── */
+function submitForm() {
+    hideAllErrors();
+    let valid = true;
+    const eduPattern = /\.(edu|ac\.|univ-|etu\.)/i;
+
+    // ── Offre étudiant : email universitaire obligatoire ──
+    if (currentVerifType === 'email_edu') {
+        const input = document.getElementById('input-email-edu');
+        const val   = input.value.trim();
+        if (!val || !isValidEmail(val) || !eduPattern.test(val)) {
+            input.classList.add('error');
+            document.getElementById('err-email-edu').classList.add('visible');
+            valid = false;
+        } else {
+            document.getElementById('hidden-promo-verif').value = val;
+        }
+
+    // ── Offre famille : email simple obligatoire ──
+    } else if (currentVerifType === 'email_simple') {
+        const input = document.getElementById('input-email-simple');
+        const val   = input.value.trim();
+        if (!val || !isValidEmail(val)) {
+            input.classList.add('error');
+            document.getElementById('err-email-simple').classList.add('visible');
+            valid = false;
+        } else {
+            document.getElementById('hidden-promo-verif').value = val;
+        }
+
+    // ── Carte étudiante (onglet email ou upload) ──
+    } else if (currentVerifType === 'carte_etudiant') {
+        if (currentCarteTab === 'email') {
+            const input = document.getElementById('input-carte-email');
+            const val   = input.value.trim();
+            if (!val || !isValidEmail(val) || !eduPattern.test(val)) {
+                input.classList.add('error');
+                document.getElementById('err-carte-email').classList.add('visible');
+                valid = false;
+            } else {
+                document.getElementById('hidden-promo-verif').value = val;
+            }
+        } else {
+            const file = document.getElementById('file-carte').files[0];
+            if (!file) {
+                document.getElementById('err-carte-upload').classList.add('visible');
+                valid = false;
+            } else {
+                document.getElementById('hidden-promo-verif').value = 'carte_uploadee';
+            }
+        }
+
+    // ── Déclaration générique ──
+    } else if (currentVerifType === 'declaration') {
+        const input = document.getElementById('input-declaration-email');
+        const val   = input.value.trim();
+        if (!val || !isValidEmail(val)) {
+            input.classList.add('error');
+            document.getElementById('err-declaration').classList.add('visible');
+            valid = false;
+        } else {
+            document.getElementById('hidden-promo-verif').value = val;
+        }
+    }
+
+    if (valid) {
+        document.getElementById('hidden-promo-id').value =
+            currentPromoId === 'standard' ? '' : currentPromoId;
+    }
+
+    return valid;
+}
+
+// Sélectionner standard par défaut au chargement
+selectOffer('standard', {{ abo.prix }}, 'none', '', 0);
+</script>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mot de passe oublié — DINARI{% endblock %}
+
+{% block stylesheets %}
+<style>
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding: 20px;
+}
+.login-box {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 16px;
+    padding: 40px 48px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 24px 48px -12px rgba(0, 0, 0, 0.05);
+}
+.login-logo {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.logo-text {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1e293b;
+    letter-spacing: 0.5px;
+}
+.logo-text span {
+    color: #1d4ed8;
+    font-weight: 700;
+}
+.login-title {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.login-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+}
+.login-title p {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0;
+}
+.form-field {
+    margin-bottom: 20px;
+}
+.form-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 8px;
+    display: block;
+}
+.form-control {
+    width: 100%;
+    background-color: #f3f4f6;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+.form-control:focus {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px #bfdbfe;
+    border-color: #93c5fd;
+}
+.btn-primary {
+    width: 100%;
+    background-color: #1d4ed8;
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
+}
+.btn-primary:hover {
+    background-color: #1e40af;
+}
+.login-footer {
+    text-align: center;
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 32px;
+}
+.login-footer a {
+    color: #1d4ed8;
+    font-weight: 600;
+    text-decoration: none;
+}
+.login-footer a:hover {
+    text-decoration: underline;
+}
+.alert {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.alert-danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+.alert-success {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #86efac;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <div class="logo-text"><span>ID</span>INARI</div>
+        </div>
+
+        <div class="login-title">
+            <h1>Mot de passe oublié</h1>
+            <p>Entrez votre email pour recevoir le code de réinitialisation</p>
+        </div>
+
+        {% for message in app.flashes('danger') %}
+            <div class="alert alert-danger">
+                ⚠️ {{ message }}
+            </div>
+        {% endfor %}
+        
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                ✅ {{ message }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(form) }}
+            <div class="form-field">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email) }}
+                <div class="text-danger mt-1" style="color: #dc2626; font-size: 13px;">
+                    {{ form_errors(form.email) }}
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:center;margin-bottom:18px;">
+                <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+            </div>
+
+            {{ form_widget(form.submit) }}
+        {{ form_end(form) }}
+
+        <div class="login-footer">
+            <a href="{{ path('app_login') }}">Retour à la connexion</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}

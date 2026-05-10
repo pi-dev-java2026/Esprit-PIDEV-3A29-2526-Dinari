@@ -1,0 +1,503 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réserver une offre — Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --blue-50: #E6F1FB;
+    --blue-100: #B5D4F4;
+    --blue-200: #85B7EB;
+    --blue-400: #378ADD;
+    --blue-600: #185FA5;
+    --blue-800: #0C447C;
+    --blue-900: #042C53;
+    --teal-50: #E1F5EE;
+    --teal-100: #9FE1CB;
+    --teal-400: #1D9E75;
+    --teal-800: #085041;
+    --green-50: #EAF3DE;
+    --green-100: #C0DD97;
+    --green-800: #27500A;
+    --red-50: #FCEBEB;
+    --red-100: #F7C1C1;
+    --red-800: #791F1F;
+    --gray-50: #F1EFE8;
+    --gray-100: #D3D1C7;
+    --gray-800: #444441;
+    --text: #0f172a;
+    --muted: #475569;
+    --border: rgba(15,23,42,.09);
+    --surface: #ffffff;
+    --page-bg: #f5f7fa;
+}
+
+body { background: var(--page-bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; }
+
+.page { max-width: 960px; margin: 0 auto; padding: 28px 20px 80px; }
+
+@keyframes up    { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.6} }
+
+/* ── HERO ── */
+.hero {
+    border-radius: 20px;
+    padding: 32px 36px;
+    margin-bottom: 22px;
+    background: var(--blue-900);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    animation: up .5s ease both;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -80px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    pointer-events: none;
+}
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,.8);
+    margin-bottom: 12px;
+    letter-spacing: .04em;
+}
+.hero-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal-400);
+    animation: pulse 2s infinite;
+}
+.hero h1 {
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.4px;
+    color: #fff;
+    margin-bottom: 8px;
+}
+.hero-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,.7);
+    line-height: 1.65;
+    margin-bottom: 18px;
+}
+.hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.16);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,.88);
+}
+.chip-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--teal-400);
+    flex-shrink: 0;
+}
+
+/* ── LAYOUT ── */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 16px;
+    align-items: start;
+    animation: up .5s .08s ease both;
+}
+
+/* ── PANEL ── */
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+.panel-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.panel-head-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--blue-50);
+    color: var(--blue-800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.panel-head h2 { font-size: 15px; font-weight: 700; }
+.panel-head p  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.panel-body { padding: 20px; }
+
+/* ── FORM ── */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.form-group.full { grid-column: 1 / -1; }
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: .03em;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid var(--gray-100);
+    border-radius: 11px;
+    background: var(--page-bg);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s, background .2s;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--blue-400);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(55,138,221,.12);
+}
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-errors {
+    font-size: 12px;
+    color: var(--red-800);
+    background: var(--red-50);
+    border: 1px solid var(--red-100);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: none;
+}
+.form-errors:not(:empty) { display: block; }
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+.btn-submit {
+    flex: 1;
+    padding: 13px 20px;
+    border-radius: 12px;
+    background: var(--blue-900);
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-submit:hover { background: var(--blue-800); }
+.btn-back {
+    padding: 13px 18px;
+    border-radius: 12px;
+    background: var(--page-bg);
+    color: var(--gray-800);
+    border: 1px solid var(--gray-100);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .2s;
+    white-space: nowrap;
+}
+.btn-back:hover { background: var(--gray-50); color: var(--gray-800); }
+
+/* ── SIDEBAR ── */
+.sidebar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+.sidebar-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--blue-900);
+}
+.sidebar-head h3 { font-size: 13px; font-weight: 700; color: #fff; }
+.sidebar-head p  { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 2px; }
+
+.sidebar-body { padding: 16px; }
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+.summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+.summary-row:first-child { padding-top: 0; }
+.summary-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.summary-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+}
+
+.sidebar-price {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--green-50);
+    border: 1px solid var(--green-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.sidebar-price-label { font-size: 12px; color: var(--green-800); font-weight: 700; }
+.sidebar-price-val   { font-size: 22px; font-weight: 700; color: var(--green-800); }
+.sidebar-price-currency { font-size: 13px; font-weight: 600; }
+
+.sidebar-trust {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+}
+.trust-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--teal-50);
+    color: var(--teal-800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 760px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar-card { order: -1; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .btn-submit { flex: none; width: 100%; }
+}
+@media (max-width: 480px) {
+    .page { padding: 14px 12px 60px; }
+    .hero { padding: 22px 18px; }
+    .hero h1 { font-size: 22px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+
+    {# ── HERO ── #}
+    <div class="hero">
+        <div class="hero-eyebrow">
+            <span class="hero-dot"></span>
+            Réservation · Dinari
+        </div>
+        <h1>Finalisez votre réservation</h1>
+        <p class="hero-sub">Remplissez le formulaire ci-dessous pour envoyer votre demande de réservation à l'expert.</p>
+        <div class="hero-chips">
+            <span class="hero-chip">
+                <span class="chip-dot"></span>
+                {{ expert.nom }} {{ expert.prenom }}
+            </span>
+            <span class="hero-chip">
+                {{ expert.specialite|replace({
+                    'comptabilite_generale': 'Comptabilité générale',
+                    'fiscalite': 'Fiscalité',
+                    'audit': 'Audit',
+                    'gestion_financiere': 'Gestion financière',
+                    'conseil_juridique': 'Conseil juridique',
+                    'paie_rh': 'Paie et RH',
+                    "creation_entreprise": "Création d'entreprise"
+                }) }}
+            </span>
+            <span class="hero-chip">{{ offre.titre }}</span>
+            <span class="hero-chip">{{ offre.prix }} TND</span>
+        </div>
+    </div>
+
+    {# ── LAYOUT ── #}
+    <div class="layout">
+
+        {# LEFT: FORM #}
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-head-icon">📋</div>
+                <div>
+                    <h2>Vos informations</h2>
+                    <p>Tous les champs sont obligatoires</p>
+                </div>
+            </div>
+            <div class="panel-body">
+
+                {{ form_start(form) }}
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        {{ form_label(form.nomClient) }}
+                        {{ form_widget(form.nomClient) }}
+                        <div class="form-errors">{{ form_errors(form.nomClient) }}</div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.prenomClient) }}
+                        {{ form_widget(form.prenomClient) }}
+                        <div class="form-errors">{{ form_errors(form.prenomClient) }}</div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.emailClient) }}
+                        {{ form_widget(form.emailClient) }}
+                        <div class="form-errors">{{ form_errors(form.emailClient) }}</div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.telephoneClient) }}
+                        {{ form_widget(form.telephoneClient) }}
+                        <div class="form-errors">{{ form_errors(form.telephoneClient) }}</div>
+                    </div>
+
+                    <div class="form-group full">
+                        {{ form_label(form.message) }}
+                        {{ form_widget(form.message) }}
+                        <div class="form-errors">{{ form_errors(form.message) }}</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        Envoyer la réservation →
+                    </button>
+                    <a href="{{ path('app_client_offres_expert', {'id': expert.id}) }}" class="btn-back">
+                        ← Retour
+                    </a>
+                </div>
+
+                {{ form_end(form) }}
+
+            </div>
+        </div>
+
+        {# RIGHT: SIDEBAR #}
+        <div class="sidebar-card">
+            <div class="sidebar-head">
+                <h3>Récapitulatif</h3>
+                <p>Détails de votre réservation</p>
+            </div>
+            <div class="sidebar-body">
+
+                <div class="summary-row">
+                    <span class="summary-label">Expert</span>
+                    <span class="summary-val">{{ expert.nom }} {{ expert.prenom }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Spécialité</span>
+                    <span class="summary-val">{{ expert.specialite|replace({
+                        'comptabilite_generale': 'Comptabilité générale',
+                        'fiscalite': 'Fiscalité',
+                        'audit': 'Audit',
+                        'gestion_financiere': 'Gestion financière',
+                        'conseil_juridique': 'Conseil juridique',
+                        'paie_rh': 'Paie et RH',
+                        "creation_entreprise": "Création d'entreprise"
+                    }) }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Offre</span>
+                    <span class="summary-val">{{ offre.titre }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Durée</span>
+                    <span class="summary-val">{{ offre.duree }} min</span>
+                </div>
+
+                <div class="sidebar-price">
+                    <span class="sidebar-price-label">Total à régler</span>
+                    <span class="sidebar-price-val">
+                        {{ offre.prix }} <span class="sidebar-price-currency">TND</span>
+                    </span>
+                </div>
+
+                <div class="sidebar-trust">
+                    <div class="trust-item">
+                        <div class="trust-icon">🔒</div>
+                        Réservation sécurisée
+                    </div>
+                    <div class="trust-item">
+                        <div class="trust-icon">✓</div>
+                        Confirmation par email
+                    </div>
+                    <div class="trust-item">
+                        <div class="trust-icon">📞</div>
+                        Support disponible 24/7
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

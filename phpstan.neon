@@ -1,0 +1,14 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+
+parameters:
+    level: 8
+
+    paths:
+        - src
+
+    # Optionnel mais recommandé avec Symfony
+    treatPhpDocTypesAsCertain: false
+
+    excludePaths:
+        - src/Command/GenerateEntitiesCommand.php

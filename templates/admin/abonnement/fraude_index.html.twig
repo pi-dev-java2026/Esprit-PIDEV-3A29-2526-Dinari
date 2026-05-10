@@ -1,0 +1,191 @@
+{# templates/admin/fraude/dashboard.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Dashboard Anti-Fraude{% endblock %}
+
+{% block body %}
+<div class="fraud-dashboard">
+    
+    {# HEADER AVEC ALERTE EN TEMPS RÉEL #}
+    <div class="dashboard-header">
+        <div>
+            <h1>🛡️ Centre Anti-Fraude</h1>
+            <p>Surveillance en temps réel des tentatives suspectes</p>
+        </div>
+        <div class="live-badge">
+            <span class="pulse"></span> LIVE
+        </div>
+    </div>
+
+    {# 4 CARTES STATS #}
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🚨</div>
+            <div class="stat-value">{{ stats.total_alertes }}</div>
+            <div class="stat-label">Alertes ouvertes</div>
+            <div class="stat-trend {% if stats.total_alertes > 5 %}trend-up{% else %}trend-down{% endif %}">
+                {% if stats.total_alertes > 5 %}⚠️ +{{ stats.total_alertes - 5 }} aujourd'hui{% else %}✅ Stable{% endif %}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-value">{{ stats.severite_elevee }}</div>
+            <div class="stat-label">Risque élevé</div>
+            <div class="stat-sub">Nécessite action immédiate</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🌐</div>
+            <div class="stat-value">{{ stats.top_ips|length }}</div>
+            <div class="stat-label">IPs suspectes</div>
+            <div class="stat-sub">Multiples tentatives</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value">{{ stats.alertes_aujourdhui }}</div>
+            <div class="stat-label">Aujourd'hui</div>
+            <div class="stat-sub">Dernières 24h</div>
+        </div>
+    </div>
+
+    {# TABLEAU DES ALERTES AVEC CODE COULEUR #}
+    <div class="alerts-table">
+        <h2>📋 Alertes en cours</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Score</th>
+                    <th>Client</th>
+                    <th>IP</th>
+                    <th>Raison</th>
+                    <th>Tentatives</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alerte in alertes %}
+                <tr class="risk-{{ alerte.severite }}">
+                    <td>
+                        <div class="score-badge score-{{ alerte.score >= 70 ? 'high' : (alerte.score >= 40 ? 'medium' : 'low') }}">
+                            {{ alerte.score }}/100
+                        </div>
+                    </td>
+                    <td>
+                        <strong>{{ alerte.clientNom }}</strong><br>
+                        <small>{{ alerte.clientEmail }}</small>
+                    </td>
+                    <td><code>{{ alerte.ipAdresse }}</code></td>
+                    <td>
+                        <span class="reason-badge">
+                            {{ alerte.raison == 'TROP_TENTATIVES' ? '🔁 Trop de tentatives' : 
+                               (alerte.raison == 'IPS_MULTIPLES' ? '🌍 Multiples IPs' : '💳 Test carte') }}
+                        </span>
+                    </td>
+                    <td>{{ alerte.nbTentatives }} en 5min</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-block" onclick="blockUser({{ alerte.id }})">🚫 Bloquer</button>
+                            <button class="btn-verify" onclick="verifyUser({{ alerte.id }})">🔍 Vérifier</button>
+                            <button class="btn-ignore" onclick="ignoreAlert({{ alerte.id }})">✓ Ignorer</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# TOP FRAUDEURS #}
+    <div class="fraudsters-section">
+        <h2>🏆 Top clients à risque</h2>
+        <div class="fraudsters-list">
+            {% for client in stats.top_clients %}
+            <div class="fraudster-card">
+                <div class="fraudster-rank">#{{ loop.index }}</div>
+                <div class="fraudster-info">
+                    <div class="fraudster-name">{{ client.nom }}</div>
+                    <div class="fraudster-stats">{{ client.tentatives }} tentatives | Score {{ client.score_max }}</div>
+                </div>
+                <button class="btn-warn" onclick="warnUser('{{ client.email }}')">⚠️ Avertir</button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function blockUser(alertId) {
+    if(confirm('Bloquer définitivement ce client ?')) {
+        fetch(`/admin/fraude/${alertId}/block`, {method: 'POST'})
+            .then(() => location.reload());
+    }
+}
+
+function verifyUser(alertId) {
+    fetch(`/admin/fraude/${alertId}/verify`, {method: 'POST'})
+        .then(() => location.reload());
+}
+
+function ignoreAlert(alertId) {
+    fetch(`/admin/fraude/${alertId}/ignore`, {method: 'POST'})
+        .then(() => location.reload());
+}
+
+function warnUser(email) {
+    fetch('/admin/fraude/warn', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email})
+    }).then(() => alert('Avertissement envoyé'));
+}
+</script>
+
+<style>
+.fraud-dashboard { padding: 2rem; background: #f5f7fb; min-height: 100vh; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.live-badge { background: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.pulse { width: 8px; height: 8px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+.stat-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #1f2937; }
+.stat-label { color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; }
+.stat-trend { font-size: 0.75rem; margin-top: 0.5rem; }
+.trend-up { color: #ef4444; }
+.trend-down { color: #10b981; }
+
+.alerts-table { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.alerts-table table { width: 100%; border-collapse: collapse; }
+.alerts-table th { text-align: left; padding: 0.75rem; color: #6b7280; font-size: 0.75rem; text-transform: uppercase; }
+.alerts-table td { padding: 0.75rem; border-top: 1px solid #e5e7eb; }
+
+.risk-high { background: #fef2f2; }
+.risk-medium { background: #fffbeb; }
+.risk-low { background: #f0fdf4; }
+
+.score-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.score-high { background: #ef4444; color: white; }
+.score-medium { background: #f59e0b; color: white; }
+.score-low { background: #10b981; color: white; }
+
+.reason-badge { font-size: 0.75rem; background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 8px; }
+.action-buttons { display: flex; gap: 0.5rem; }
+.btn-block { background: #ef4444; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; }
+.btn-verify { background: #3b82f6; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; }
+.btn-ignore { background: #9ca3af; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; }
+
+.fraudsters-section { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.fraudsters-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+.fraudster-card { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: #f9fafb; border-radius: 12px; }
+.fraudster-rank { font-size: 1.25rem; font-weight: 700; color: #ef4444; min-width: 40px; }
+.fraudster-info { flex: 1; }
+.fraudster-name { font-weight: 600; }
+.fraudster-stats { font-size: 0.75rem; color: #6b7280; }
+.btn-warn { background: #f59e0b; color: white; border: none; padding: 0.25rem 1rem; border-radius: 6px; cursor: pointer; }
+</style>
+{% endblock %}

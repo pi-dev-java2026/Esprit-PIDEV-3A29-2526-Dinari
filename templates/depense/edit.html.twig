@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la dépense — Dinari{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── PAGE ── */
+body {
+    background: linear-gradient(145deg, #eaf2ff 0%, #f0f6ff 35%, #e8f4fd 65%, #f5f8ff 100%) !important;
+    min-height: 100vh;
+}
+.page-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 100px 30px 60px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 32px; }
+.breadcrumb  { font-size: 12.5px; color: #64748b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.breadcrumb a { color: #1a6fc4; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+.breadcrumb a:hover { color: #1558a0; text-decoration: underline; }
+.page-title  { font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #1e293b; letter-spacing: -0.3px; margin: 0; }
+.page-title span { color: #1a6fc4; }
+
+/* ── FORM CARD ── */
+.form-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.95);
+    border-radius: 20px;
+    padding: 38px 40px;
+    box-shadow: 0 8px 32px rgba(26,111,196,0.09);
+}
+
+/* ── FORM FIELDS ── */
+.form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.form-group { margin-bottom: 22px; }
+.form-group label {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 7px;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.form-group label .required { color: #ef4444; margin-left: 2px; }
+
+.form-control {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    color: #1e293b;
+    outline: none;
+    background: #fff;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.form-control:focus {
+    border-color: #1a6fc4;
+    box-shadow: 0 0 0 3px rgba(26,111,196,0.12);
+}
+.form-control:hover:not(:focus) { border-color: #cbd5e1; }
+
+/* select arrow */
+select.form-control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+}
+
+/* ── FORM ACTIONS ── */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(226,232,240,0.7);
+}
+
+/* Primary — blue gradient */
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #2563eb 0%, #1a6fc4 60%, #1558a0 100%);
+    color: #fff;
+    border: none;
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 5px 18px rgba(26,111,196,0.35);
+    letter-spacing: 0.2px;
+}
+.btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(26,111,196,0.45);
+}
+.btn-submit:active { transform: translateY(-1px); }
+
+/* Secondary — light gray */
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.22s ease;
+}
+.btn-cancel:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    text-decoration: none;
+    border-color: #cbd5e1;
+}
+
+/* Also override .btn-add used in _form.html.twig submit */
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #2563eb 0%, #1a6fc4 60%, #1558a0 100%) !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 5px 18px rgba(26,111,196,0.35) !important;
+    text-decoration: none;
+}
+.btn-add:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 26px rgba(26,111,196,0.45) !important;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+@media(max-width: 600px) {
+    .form-row  { grid-template-columns: 1fr; }
+    .form-card { padding: 24px 20px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ path('depense_index') }}">Dépenses</a> ›
+            <a href="{{ path('depense_show', {id: depense.id}) }}">#{{ depense.id }}</a> ›
+            Modifier
+        </div>
+        <h1 class="page-title">Modifier la <span>dépense</span></h1>
+    </div>
+ 
+    <div class="form-card">
+ {% include 'depense/_form.html.twig' with {'form': form} %}
+    </div>
+
+</div>
+{% endblock %}

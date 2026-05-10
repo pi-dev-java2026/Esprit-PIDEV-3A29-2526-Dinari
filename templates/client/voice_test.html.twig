@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>🎤 Chatbot Vocal DinariBot</h1>
+    <p>Cliquez sur le micro et parlez !</p>
+    
+    <div class="card mt-4">
+        <div class="card-body text-center">
+            <button id="recordBtn" class="btn btn-danger btn-lg">🎙️ Parler</button>
+            
+            <div id="status" class="mt-3"></div>
+            <div id="transcribed" class="mt-3 alert alert-info" style="display:none;"></div>
+            <div id="response" class="mt-3 alert alert-success" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const recordBtn = document.getElementById('recordBtn');
+const statusDiv = document.getElementById('status');
+const transcribedDiv = document.getElementById('transcribed');
+const responseDiv = document.getElementById('response');
+
+// Reconnaissance vocale du navigateur
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang = 'fr-FR';
+recognition.continuous = false;
+
+recognition.onstart = () => {
+    statusDiv.innerHTML = '<div class="alert alert-warning">🔴 Parlez maintenant...</div>';
+    recordBtn.disabled = true;
+};
+
+recognition.onend = () => {
+    recordBtn.disabled = false;
+};
+
+recognition.onresult = async (event) => {
+    const userMessage = event.results[0][0].transcript;
+    statusDiv.innerHTML = '<div class="alert alert-info">⏳ Envoi en cours...</div>';
+    transcribedDiv.innerHTML = '<strong>🎤 Vous :</strong><br>' + userMessage;
+    transcribedDiv.style.display = 'block';
+    
+    // Envoyer à votre chatbot
+    const response = await fetch('/chatbot/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+    });
+    
+    const data = await response.json();
+    
+    responseDiv.innerHTML = '<strong>🤖 DinariBot :</strong><br>' + data.response;
+    responseDiv.style.display = 'block';
+    statusDiv.innerHTML = '<div class="alert alert-success">✅ Terminé !</div>';
+    
+    // Lire la réponse à voix haute
+    const utterance = new SpeechSynthesisUtterance(data.response);
+    utterance.lang = 'fr-FR';
+    window.speechSynthesis.speak(utterance);
+};
+
+recognition.onerror = (event) => {
+    statusDiv.innerHTML = '<div class="alert alert-danger">❌ Erreur : ' + event.error + '</div>';
+    recordBtn.disabled = false;
+};
+
+recordBtn.onclick = () => {
+    recognition.start();
+};
+</script>
+{% endblock %}

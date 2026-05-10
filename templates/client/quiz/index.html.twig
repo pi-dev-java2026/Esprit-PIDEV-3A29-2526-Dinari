@@ -1,0 +1,91 @@
+﻿{% extends 'base.html.twig' %}
+{% block title %}Quiz Fintech — Dinari{% endblock %}
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--d-blue:#1a6fc4;--d-blue2:#0d4fa0;--d-green:#27ae60;--d-text:#1e2d40;--d-muted:#5a6e84;--d-border:#dde4ee;--d-light:#f5f7fa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--d-text);}
+.quiz-page{max-width:1100px;margin:0 auto;padding:48px 32px 80px;}
+.page-hero{background:var(--d-blue);border-radius:12px;padding:40px;margin-bottom:36px;position:relative;overflow:hidden;}
+.page-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);}
+.page-hero-tag{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px;}
+.page-hero h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:8px;}
+.page-hero p{font-size:14px;color:rgba(255,255,255,.7);max-width:500px;line-height:1.75;}
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.quiz-card{background:#fff;border:1px solid var(--d-border);border-radius:12px;padding:28px;transition:all .25s;display:flex;flex-direction:column;gap:14px;}
+.quiz-card:hover{box-shadow:0 8px 28px rgba(26,111,196,.12);transform:translateY(-3px);border-color:rgba(26,111,196,.25);}
+.quiz-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;}
+.badge-exam{background:rgba(231,76,60,.1);color:#e74c3c;border:1px solid rgba(231,76,60,.2);}
+.badge-practice{background:rgba(39,174,96,.1);color:#27ae60;border:1px solid rgba(39,174,96,.2);}
+.quiz-card h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--d-text);line-height:1.35;}
+.quiz-meta{display:flex;gap:14px;flex-wrap:wrap;}
+.quiz-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--d-muted);}
+.quiz-meta-item i{font-size:13px;color:var(--d-blue);}
+.quiz-actions{display:flex;gap:8px;margin-top:auto;padding-top:4px;}
+.btn-start{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--d-blue);color:#fff;border-radius:6px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
+.btn-start:hover{background:var(--d-blue2);transform:translateY(-1px);color:#fff;text-decoration:none;}
+.btn-details{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background:#fff;color:var(--d-muted);border:1.5px solid var(--d-border);border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;}
+.btn-details:hover{border-color:var(--d-blue);color:var(--d-blue);text-decoration:none;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--d-muted);}
+.empty-state i{font-size:48px;display:block;margin-bottom:16px;color:var(--d-border);}
+@media(max-width:600px){.quiz-page{padding:24px 16px 60px;}.page-hero{padding:24px;}}
+</style>
+{% endblock %}
+{% block body %}
+<div class="quiz-page">
+  <div class="page-hero">
+    <div class="page-hero-tag" data-i18n="quiz_page_tag">Évaluation · Fintech</div>
+    <h1 data-i18n="quiz_page_title">Quiz &amp; Évaluations</h1>
+    <p data-i18n="quiz_page_desc">Testez vos connaissances en finance personnelle avec nos quiz interactifs.</p>
+  </div>
+  {% if quizzes is empty %}
+    <div class="empty-state">
+      <i class="fa fa-question-circle"></i>
+      <p data-i18n="quiz_empty">Aucun quiz disponible pour le moment.</p>
+    </div>
+  {% else %}
+    <div class="quiz-grid">
+      {% for quiz in quizzes %}
+        <div class="quiz-card">
+          <div>
+            {% if quiz.isExamMode %}
+              <span class="quiz-badge badge-exam" data-i18n="quiz_mode_exam">Mode examen</span>
+            {% else %}
+              <span class="quiz-badge badge-practice" data-i18n="quiz_mode_practice">Entraînement</span>
+            {% endif %}
+          </div>
+          <h3>{{ quiz.titre }}</h3>
+          <div class="quiz-meta">
+            {% if quiz.scoreQuiz %}<div class="quiz-meta-item"><i class="fa fa-star"></i><span>{{ quiz.scoreQuiz }} pts</span></div>{% endif %}
+            {% if quiz.timeLimit %}<div class="quiz-meta-item"><i class="fa fa-clock-o"></i><span>{{ quiz.timeLimit }} min</span></div>{% endif %}
+            {% if quiz.dateCreation %}<div class="quiz-meta-item"><i class="fa fa-calendar"></i><span>{{ quiz.dateCreation|date('d/m/Y') }}</span></div>{% endif %}
+          </div>
+          <div class="quiz-actions">
+            <a href="{{ path('app_quiz_show', {'id': quiz.id}) }}" class="btn-start" data-i18n="quiz_btn_start"><i class="fa fa-play"></i> Commencer</a>
+            <a href="{{ path('app_quiz_show', {'id': quiz.id}) }}" class="btn-details" data-i18n="quiz_btn_details">Détails</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block javascripts %}
+<script>
+const QUIZ_T = {
+  fr:{quiz_page_tag:'Évaluation · Fintech',quiz_page_title:'Quiz & Évaluations',quiz_page_desc:'Testez vos connaissances en finance personnelle avec nos quiz interactifs.',quiz_empty:'Aucun quiz disponible pour le moment.',quiz_mode_exam:'Mode examen',quiz_mode_practice:'Entraînement',quiz_btn_start:'Commencer',quiz_btn_details:'Détails'},
+  en:{quiz_page_tag:'Assessment · Fintech',quiz_page_title:'Quizzes & Assessments',quiz_page_desc:'Test your personal finance knowledge with our interactive quizzes.',quiz_empty:'No quizzes available at the moment.',quiz_mode_exam:'Exam mode',quiz_mode_practice:'Practice',quiz_btn_start:'Start',quiz_btn_details:'Details'},
+  ar:{quiz_page_tag:'تقييم · فينتك',quiz_page_title:'الاختبارات والتقييمات',quiz_page_desc:'اختبر معلوماتك في الإدارة المالية الشخصية مع اختباراتنا التفاعلية.',quiz_empty:'لا توجد اختبارات متاحة في الوقت الحالي.',quiz_mode_exam:'وضع الامتحان',quiz_mode_practice:'تدريب',quiz_btn_start:'ابدأ',quiz_btn_details:'التفاصيل'}
+};
+function applyPageTranslations(lang) {
+  const base = (typeof DINARI_TRANSLATIONS !== 'undefined' && DINARI_TRANSLATIONS[lang]) || {};
+  const page = QUIZ_T[lang] || QUIZ_T['fr'];
+  const t = Object.assign({}, base, page);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,840 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Experts & Offres — Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --blue-50: #E6F1FB;
+    --blue-100: #B5D4F4;
+    --blue-200: #85B7EB;
+    --blue-400: #378ADD;
+    --blue-600: #185FA5;
+    --blue-800: #0C447C;
+    --blue-900: #042C53;
+    --teal-50: #E1F5EE;
+    --teal-400: #1D9E75;
+    --teal-800: #085041;
+    --green-50: #EAF3DE;
+    --green-400: #639922;
+    --green-800: #27500A;
+    --gray-50: #F1EFE8;
+    --gray-100: #D3D1C7;
+    --gray-400: #888780;
+    --gray-800: #444441;
+    --text: #0f172a;
+    --muted: #475569;
+    --border: rgba(15,23,42,.1);
+    --surface: #ffffff;
+    --page-bg: #f5f7fa;
+}
+
+body { background: var(--page-bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; }
+
+.page { max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
+
+@keyframes up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.6} }
+
+/* ── HERO ── */
+.hero {
+    border-radius: 20px;
+    padding: 36px 40px;
+    margin-bottom: 20px;
+    background: var(--blue-900);
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+    animation: up .5s ease both;
+    overflow: hidden;
+    position: relative;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    right: -60px; top: -80px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    pointer-events: none;
+}
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: rgba(255,255,255,.85);
+    margin-bottom: 14px;
+}
+.hero-eyebrow-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #1D9E75;
+    animation: pulse 2s infinite;
+}
+.hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.5px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+.hero p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255,255,255,.7);
+    max-width: 500px;
+}
+.hero-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 160px;
+}
+.hero-stat {
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.hero-stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+}
+.hero-stat-lbl {
+    font-size: 11px;
+    color: rgba(255,255,255,.6);
+    text-align: right;
+    line-height: 1.4;
+}
+
+/* ── AI STRIP ── */
+.ai-strip {
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    overflow: hidden;
+    animation: up .5s .08s ease both;
+}
+.ai-strip-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 22px;
+}
+.ai-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.ai-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: var(--blue-50);
+    color: var(--blue-800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.ai-label {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--blue-50);
+    color: var(--blue-800);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    margin-bottom: 4px;
+}
+.ai-strip h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.ai-strip p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.ai-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.ai-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    border: 1px solid var(--gray-100);
+    font-size: 11px;
+    font-weight: 600;
+}
+.btn-ai {
+    flex-shrink: 0;
+    padding: 11px 20px;
+    border-radius: 12px;
+    background: var(--blue-900);
+    color: #fff;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s;
+}
+.btn-ai:hover { background: var(--blue-800); }
+
+/* ── PREDICTION RESULT ── */
+.prediction-result {
+    border-top: 1px solid var(--border);
+    padding: 20px 22px;
+    background: var(--blue-50);
+}
+.pred-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.pred-badge {
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--blue-100);
+    color: var(--blue-800);
+    font-size: 11px;
+    font-weight: 700;
+}
+.pred-speciality {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--blue-900);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+.pred-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+}
+.pred-box {
+    padding: 12px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid var(--blue-100);
+}
+.pred-box strong { display: block; font-size: 11px; color: var(--text); font-weight: 700; margin-bottom: 4px; }
+.pred-box span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.pred-note { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+/* ── MODAL ── */
+.modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(4,44,83,.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+.modal-backdrop.open { display: flex; }
+.modal-box {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+    animation: up .25s ease both;
+    border: 1px solid var(--border);
+}
+.modal-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--gray-50);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.modal-box h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.modal-box > p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+.field-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.modal-textarea {
+    width: 100%;
+    min-height: 130px;
+    border: 1px solid var(--gray-100);
+    border-radius: 12px;
+    background: var(--page-bg);
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    outline: none;
+    resize: vertical;
+    transition: border-color .2s;
+}
+.modal-textarea:focus { border-color: var(--blue-400); background: #fff; }
+.modal-hint { font-size: 12px; color: var(--muted); margin: 8px 0 16px; }
+.btn-submit {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    background: var(--blue-900);
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+}
+.btn-submit:hover { background: var(--blue-800); }
+
+/* ── SECTION HEADER ── */
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+.section-head h2 { font-size: 22px; font-weight: 700; }
+.section-head p  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: var(--blue-900);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: background .2s;
+    white-space: nowrap;
+}
+.btn-primary:hover { background: var(--blue-800); color: #fff; }
+
+/* ── FILTERS ── */
+.filters {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 80px;
+    z-index: 10;
+}
+.filters-form {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+}
+.fgroup { position: relative; }
+.fgroup-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    pointer-events: none;
+    color: var(--muted);
+}
+.finput, .fselect {
+    height: 42px;
+    border: 1px solid var(--gray-100);
+    border-radius: 10px;
+    background: var(--page-bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+    width: 100%;
+    transition: border-color .2s;
+}
+.finput:focus, .fselect:focus { border-color: var(--blue-400); background: #fff; }
+.finput { padding: 0 12px 0 34px; }
+.fselect { padding: 0 12px; }
+.fbtn {
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    transition: .2s;
+}
+.fbtn-primary { background: var(--blue-900); color: #fff; }
+.fbtn-primary:hover { background: var(--blue-800); }
+.fbtn-light { background: var(--page-bg); color: var(--gray-800); border: 1px solid var(--gray-100); }
+.fbtn-light:hover { background: var(--gray-50); color: var(--gray-800); }
+
+/* ── EXPERT CARDS ── */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    gap: 14px;
+}
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: transform .22s, box-shadow .22s;
+    animation: up .45s ease both;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(4,44,83,.1);
+    border-color: var(--blue-200);
+}
+.card-inner { padding: 18px; }
+
+/* card top row */
+.card-top {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 14px;
+    align-items: start;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+.avatar {
+    width: 70px; height: 70px;
+    border-radius: 16px;
+    background: var(--blue-50);
+    color: var(--blue-800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+    border: 1px solid var(--blue-100);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.avatar img {
+    width: 70px; height: 70px;
+    object-fit: cover;
+    border-radius: 16px;
+    transition: transform .3s;
+}
+.card:hover .avatar img { transform: scale(1.06); }
+
+.expert-name { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.spec-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--blue-50);
+    color: var(--blue-800);
+    border: 1px solid var(--blue-100);
+    font-size: 11px;
+    font-weight: 700;
+}
+.expert-desc { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+.online-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: var(--teal-50);
+    color: var(--teal-800);
+    border: 1px solid #9FE1CB;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.online-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--teal-400);
+    animation: pulse 2s infinite;
+}
+
+/* info row */
+.info-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+.info-box {
+    padding: 10px;
+    border-radius: 12px;
+    background: var(--page-bg);
+    border: 1px solid var(--border);
+    transition: .2s;
+}
+.info-box:hover { background: var(--blue-50); border-color: var(--blue-100); }
+.info-box strong { display: block; font-size: 10px; font-weight: 700; color: var(--muted); margin-bottom: 3px; letter-spacing: .04em; }
+.info-box span { font-size: 12px; color: var(--text); font-weight: 500; line-height: 1.4; word-break: break-word; }
+
+/* card footer */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+.exp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: var(--green-50);
+    color: var(--green-800);
+    border: 1px solid #C0DD97;
+    font-size: 12px;
+    font-weight: 700;
+}
+.exp-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.btn-card {
+    padding: 11px 18px;
+    border-radius: 11px;
+    background: var(--blue-900);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: background .2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn-card:hover { background: var(--blue-800); color: #fff; }
+
+/* ── EMPTY ── */
+.empty {
+    text-align: center;
+    padding: 64px 24px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px dashed var(--blue-200);
+}
+.empty-icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 16px;
+    border-radius: 20px;
+    background: var(--blue-50);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+}
+.empty h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.empty p  { font-size: 14px; color: var(--muted); max-width: 380px; margin: 0 auto; line-height: 1.6; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-stats { flex-direction: row; }
+    .hero-stat { flex: 1; }
+    .filters-form { grid-template-columns: 1fr 1fr; }
+    .filters-form .fbtn { width: 100%; justify-content: center; }
+    .pred-grid { grid-template-columns: 1fr 1fr; }
+    .filters { position: static; }
+    .grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+    .page { padding: 16px 12px 60px; }
+    .hero { padding: 22px 18px; }
+    .hero h1 { font-size: 24px; }
+    .hero-stats { flex-direction: column; }
+    .ai-strip-bar { flex-direction: column; align-items: stretch; }
+    .btn-ai { text-align: center; }
+    .filters-form { grid-template-columns: 1fr; }
+    .info-row { grid-template-columns: 1fr 1fr; }
+    .card-top { grid-template-columns: 1fr; }
+    .card-footer { flex-direction: column; align-items: stretch; }
+    .btn-card { text-align: center; }
+    .pred-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+
+   
+    <div class="hero">
+        <div>
+            <div class="hero-eyebrow">
+                <span class="hero-eyebrow-dot"></span>
+                Experts certifiés · Services financiers
+            </div>
+            <h1>Trouvez l'expert adapté à votre besoin</h1>
+            <p>Comparez les profils, spécialités et expériences des experts comptables disponibles sur Dinari.</p>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-val">{{ experts|length }}</span>
+                <span class="hero-stat-lbl">Experts<br>disponibles</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-val">✓</span>
+                <span class="hero-stat-lbl">Profils<br>vérifiés</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-val">24/7</span>
+                <span class="hero-stat-lbl">Réservation<br>en ligne</span>
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="ai-strip">
+        <div class="ai-strip-bar">
+            <div class="ai-strip-left">
+                <div class="ai-icon">🧠</div>
+                <div>
+                    <span class="ai-label">ASSISTANT INTELLIGENT</span>
+                    <h2>Prédiction de spécialité</h2>
+                    <p>Décrivez votre besoin et le système recommande automatiquement la spécialité la plus adaptée.</p>
+                    <div class="ai-tags">
+                        <span class="ai-tag">Fiscalité</span>
+                        <span class="ai-tag">Audit</span>
+                        <span class="ai-tag">Gestion financière</span>
+                        <span class="ai-tag">Conseil juridique</span>
+                        <span class="ai-tag">Paie &amp; RH</span>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-ai" onclick="openModal()">
+                Lancer la prédiction →
+            </button>
+        </div>
+
+        {% if specialitePredite is not null %}
+        <div class="prediction-result">
+            <div class="pred-top">
+                <span class="pred-badge">Résultat</span>
+                <div class="pred-speciality">
+                    ✅ {{ specialitePredite|replace({
+                        'comptabilite_generale': 'Comptabilité générale',
+                        'fiscalite': 'Fiscalité',
+                        'audit': 'Audit',
+                        'gestion_financiere': 'Gestion financière',
+                        'conseil_juridique': 'Conseil juridique',
+                        'paie_rh': 'Paie et RH',
+                        "creation_entreprise": "Création d'entreprise"
+                    }) }}
+                </div>
+            </div>
+            <div class="pred-grid">
+                <div class="pred-box">
+                    <strong>Besoin analysé</strong>
+                    <span>{{ besoin|default('Aucune description fournie') }}</span>
+                </div>
+                <div class="pred-box">
+                    <strong>Action proposée</strong>
+                    <span>Utilisez cette recommandation pour filtrer les profils ci-dessous.</span>
+                </div>
+                <div class="pred-box">
+                    <strong>Conseil</strong>
+                    <span>Comparez plusieurs offres avant de réserver votre consultation.</span>
+                </div>
+            </div>
+            <p class="pred-note">Cette recommandation est une aide à l'orientation. Vous pouvez aussi utiliser les filtres manuellement.</p>
+        </div>
+        {% endif %}
+    </div>
+
+   
+    <div id="modal" class="modal-backdrop" onclick="handleBackdrop(event)">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h3>Prédire la spécialité</h3>
+            <p>Décrivez votre besoin en une ou deux phrases. Le système analysera votre texte et vous recommandera la spécialité la plus adaptée.</p>
+            <div class="field-label">Votre besoin</div>
+            <form method="post" action="{{ path('app_client_experts') }}">
+                <textarea
+                    name="besoin"
+                    class="modal-textarea"
+                    placeholder="Exemple : je veux optimiser mes impôts ou préparer un audit financier…"
+                >{{ besoin|default('') }}</textarea>
+                <p class="modal-hint">Domaines couverts : fiscalité, audit, paie, gestion comptable, création d'entreprise…</p>
+                <button type="submit" class="btn-submit">Analyser mon besoin →</button>
+            </form>
+        </div>
+    </div>
+
+   
+    <div class="section-head">
+        <div>
+            <h2>Experts disponibles</h2>
+            <p>Recherchez, filtrez et choisissez l'expert qui correspond à votre besoin.</p>
+        </div>
+        <a href="{{ path('app_mes_reservations') }}" class="btn-primary">Mes réservations →</a>
+    </div>
+
+ 
+    <div class="filters">
+        <form method="get" action="{{ path('app_client_experts') }}" class="filters-form">
+            <div class="fgroup">
+                <span class="fgroup-icon">🔍</span>
+                <input type="text" name="search" placeholder="Rechercher un expert…"
+                       value="{{ search ?? '' }}" class="finput">
+            </div>
+            <select name="specialite" class="fselect">
+                <option value="">Toutes les spécialités</option>
+                <option value="comptabilite_generale" {{ specialite is defined and specialite == 'comptabilite_generale' ? 'selected' }}>Comptabilité générale</option>
+                <option value="gestion_financiere"    {{ specialite is defined and specialite == 'gestion_financiere'    ? 'selected' }}>Gestion financière</option>
+                <option value="fiscalite"             {{ specialite is defined and specialite == 'fiscalite'             ? 'selected' }}>Fiscalité</option>
+                <option value="audit"                 {{ specialite is defined and specialite == 'audit'                 ? 'selected' }}>Audit</option>
+                <option value="conseil_juridique"     {{ specialite is defined and specialite == 'conseil_juridique'     ? 'selected' }}>Conseil juridique</option>
+                <option value="paie_rh"               {{ specialite is defined and specialite == 'paie_rh'               ? 'selected' }}>Paie et RH</option>
+                <option value="creation_entreprise"   {{ specialite is defined and specialite == 'creation_entreprise'   ? 'selected' }}>Création d'entreprise</option>
+            </select>
+            <select name="tri" class="fselect">
+                <option value="">Trier par</option>
+                <option value="experience_desc" {{ tri is defined and tri == 'experience_desc' ? 'selected' }}>Expérience décroissante</option>
+                <option value="experience_asc"  {{ tri is defined and tri == 'experience_asc'  ? 'selected' }}>Expérience croissante</option>
+            </select>
+            <button type="submit" class="fbtn fbtn-primary">Filtrer</button>
+            <a href="{{ path('app_client_experts') }}" class="fbtn fbtn-light">Réinitialiser</a>
+        </form>
+    </div>
+
+  
+    {% if experts|length > 0 %}
+    <div class="grid">
+        {% for expert in experts %}
+        <div class="card">
+            <div class="card-inner">
+
+                <div class="card-top">
+                    <div class="avatar">
+                        {% if expert.imageName %}
+                            <img src="{{ vich_uploader_asset(expert, 'imageFile') }}"
+                                 alt="{{ expert.nom }} {{ expert.prenom }}"
+                                 onerror="this.style.display='none';this.parentElement.textContent='{{ expert.nom|first|upper ~ expert.prenom|first|upper }}'">
+                        {% else %}
+                            {{ expert.nom|first|upper }}{{ expert.prenom|first|upper }}
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <div class="expert-name">{{ expert.nom }} {{ expert.prenom }}</div>
+                        <span class="spec-pill">
+                            🧾 {{ expert.specialite|replace({
+                                'comptabilite_generale': 'Comptabilité générale',
+                                'fiscalite': 'Fiscalité',
+                                'audit': 'Audit',
+                                'gestion_financiere': 'Gestion financière',
+                                'conseil_juridique': 'Conseil juridique',
+                                'paie_rh': 'Paie et RH',
+                                "creation_entreprise": "Création d'entreprise"
+                            }) }}
+                        </span>
+                        <p class="expert-desc">
+                            {{ expert.description
+                                ? expert.description|slice(0, 110) ~ (expert.description|length > 110 ? '…' : '')
+                                : 'Expert comptable disponible pour vous accompagner dans vos besoins administratifs, financiers et fiscaux.'
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="online-badge">
+                        <span class="online-dot"></span>
+                        Disponible
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-box">
+                        <strong>EMAIL</strong>
+                        <span>{{ expert.email }}</span>
+                    </div>
+                    <div class="info-box">
+                        <strong>TÉLÉPHONE</strong>
+                        <span>{{ expert.telephone }}</span>
+                    </div>
+                    <div class="info-box">
+                        <strong>EXPÉRIENCE</strong>
+                        <span>{{ expert.experience }} ans</span>
+                    </div>
+                    <div class="info-box">
+                        <strong>DOMAINE</strong>
+                        <span>{{ expert.specialite|replace({
+                            'comptabilite_generale': 'Comptabilité générale',
+                            'fiscalite': 'Fiscalité',
+                            'audit': 'Audit',
+                            'gestion_financiere': 'Gestion financière',
+                            'conseil_juridique': 'Conseil juridique',
+                            'paie_rh': 'Paie et RH',
+                            "creation_entreprise": "Création d'entreprise"
+                        }) }}</span>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div>
+                        <span class="exp-badge">✔ {{ expert.experience }} ans d'expérience</span>
+                        <div class="exp-sub">Consultation en ligne disponible</div>
+                    </div>
+                    <a href="{{ path('app_client_offres_expert', {'id': expert.id}) }}" class="btn-card">
+                        Voir les offres →
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty">
+        <div class="empty-icon">👨‍💼</div>
+        <h3>Aucun expert trouvé</h3>
+        <p>Aucun expert ne correspond à votre recherche. Essayez de modifier les filtres ou utilisez l'assistant intelligent.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function openModal() {
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+function handleBackdrop(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+{% endblock %}

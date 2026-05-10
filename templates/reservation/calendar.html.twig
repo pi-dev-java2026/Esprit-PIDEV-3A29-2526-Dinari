@@ -1,0 +1,472 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir une date et une heure — Dinari{% endblock %}
+
+{% block stylesheets %}
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --blue-50: #E6F1FB;
+    --blue-100: #B5D4F4;
+    --blue-200: #85B7EB;
+    --blue-400: #378ADD;
+    --blue-600: #185FA5;
+    --blue-800: #0C447C;
+    --blue-900: #042C53;
+    --teal-50: #E1F5EE;
+    --teal-100: #9FE1CB;
+    --teal-400: #1D9E75;
+    --teal-800: #085041;
+    --green-50: #EAF3DE;
+    --green-100: #C0DD97;
+    --green-800: #27500A;
+    --red-50: #FCEBEB;
+    --red-100: #F7C1C1;
+    --red-800: #791F1F;
+    --gray-50: #F1EFE8;
+    --gray-100: #D3D1C7;
+    --gray-800: #444441;
+    --text: #0f172a;
+    --muted: #475569;
+    --border: rgba(15,23,42,.09);
+    --surface: #ffffff;
+    --page-bg: #f5f7fa;
+}
+
+body { background: var(--page-bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; }
+
+.page { max-width: 1160px; margin: 0 auto; padding: 28px 20px 80px; }
+
+@keyframes up    { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.6} }
+
+/* ── HERO ── */
+.hero {
+    border-radius: 20px;
+    padding: 32px 36px;
+    margin-bottom: 22px;
+    background: var(--blue-900);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    animation: up .5s ease both;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -80px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    pointer-events: none;
+}
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,.8);
+    margin-bottom: 12px;
+    letter-spacing: .04em;
+}
+.hero-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal-400);
+    animation: pulse 2s infinite;
+}
+.hero h1 {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.4px;
+    color: #fff;
+    margin-bottom: 8px;
+}
+.hero-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,.7);
+    line-height: 1.65;
+    max-width: 560px;
+    margin-bottom: 18px;
+}
+.hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.16);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,.88);
+}
+.chip-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--teal-400);
+    flex-shrink: 0;
+}
+
+/* ── LAYOUT ── */
+.layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+    align-items: start;
+    animation: up .5s .08s ease both;
+}
+
+/* ── PANEL ── */
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+.panel-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.panel-head-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--blue-50);
+    color: var(--blue-800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.panel-head h2 { font-size: 15px; font-weight: 700; }
+.panel-head p  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.panel-body { padding: 18px 20px; }
+
+/* ── FULLCALENDAR OVERRIDES ── */
+.fc .fc-toolbar-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--text) !important;
+}
+.fc .fc-button {
+    background: var(--blue-900) !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+    border-radius: 8px !important;
+}
+.fc .fc-button:hover { background: var(--blue-800) !important; }
+.fc .fc-button:focus { box-shadow: none !important; }
+.fc .fc-daygrid-day-number {
+    color: var(--text) !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    text-decoration: none !important;
+}
+.fc .fc-col-header-cell-cushion {
+    color: var(--muted) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+.fc .fc-daygrid-day:hover {
+    background: var(--blue-50) !important;
+    cursor: pointer;
+}
+.fc .fc-day-today {
+    background: var(--blue-50) !important;
+}
+.fc .fc-day-today .fc-daygrid-day-number {
+    color: var(--blue-800) !important;
+}
+.fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
+    border-color: var(--border) !important;
+}
+.calendar-note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ── SLOTS PANEL ── */
+.selected-date-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    margin-bottom: 16px;
+}
+.selected-date-badge .cal-icon { font-size: 16px; }
+.selected-date-badge strong { font-size: 13px; font-weight: 700; color: var(--blue-800); }
+
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.slot-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 10px;
+    border-radius: 11px;
+    background: var(--page-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .18s, border-color .18s, transform .18s;
+    cursor: pointer;
+}
+.slot-btn:hover {
+    background: var(--blue-900);
+    color: #fff;
+    border-color: var(--blue-900);
+    transform: translateY(-1px);
+}
+.slot-btn.reserved {
+    background: var(--red-50);
+    color: var(--red-800);
+    border-color: var(--red-100);
+    cursor: not-allowed;
+    opacity: .75;
+}
+
+.slot-empty {
+    padding: 24px 16px;
+    border-radius: 14px;
+    background: var(--page-bg);
+    border: 1px dashed var(--gray-100);
+    text-align: center;
+    margin-bottom: 18px;
+}
+.slot-empty-icon { font-size: 28px; margin-bottom: 8px; }
+.slot-empty p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* offre summary strip */
+.offre-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--page-bg);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+.offre-strip-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.offre-strip-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+.offre-strip-val   { font-size: 13px; font-weight: 700; color: var(--text); }
+.offre-strip-divider { height: 1px; background: var(--border); }
+
+/* back btn */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 11px;
+    background: var(--surface);
+    color: var(--blue-800);
+    border: 1px solid var(--blue-100);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: background .2s;
+    width: 100%;
+    justify-content: center;
+}
+.btn-back:hover { background: var(--blue-50); color: var(--blue-800); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .slots-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 500px) {
+    .page { padding: 14px 12px 60px; }
+    .hero { padding: 22px 18px; }
+    .hero h1 { font-size: 22px; }
+    .slots-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page">
+
+    {# ── HERO ── #}
+    <div class="hero">
+        <div class="hero-eyebrow">
+            <span class="hero-dot"></span>
+            Réservation · Dinari
+        </div>
+        <h1>Choisissez une date et un créneau</h1>
+        <p class="hero-sub">
+            Sélectionnez une date dans le calendrier, puis choisissez un horaire disponible pour confirmer votre réservation.
+        </p>
+        <div class="hero-chips">
+            <span class="hero-chip">
+                <span class="chip-dot"></span>
+                {{ expert.nom }} {{ expert.prenom }}
+            </span>
+            <span class="hero-chip">
+                {{ expert.specialite|replace({
+                    'comptabilite_generale': 'Comptabilité générale',
+                    'fiscalite': 'Fiscalité',
+                    'audit': 'Audit',
+                    'gestion_financiere': 'Gestion financière',
+                    'conseil_juridique': 'Conseil juridique',
+                    'paie_rh': 'Paie et RH',
+                    "creation_entreprise": "Création d'entreprise"
+                }) }}
+            </span>
+            <span class="hero-chip">{{ offre.titre }}</span>
+            <span class="hero-chip">{{ offre.prix }} TND</span>
+            <span class="hero-chip">⏱ {{ offre.duree }} min</span>
+        </div>
+    </div>
+
+    {# ── LAYOUT ── #}
+    <div class="layout">
+
+        {# LEFT: CALENDAR #}
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-head-icon">📅</div>
+                <div>
+                    <h2>Calendrier</h2>
+                    <p>Cliquez sur une date pour voir les créneaux disponibles</p>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="calendar"></div>
+                <p class="calendar-note">📌 Les dates passées ne sont pas sélectionnables.</p>
+            </div>
+        </div>
+
+        {# RIGHT: SLOTS #}
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-head-icon">🕐</div>
+                <div>
+                    <h2>Créneaux horaires</h2>
+                    <p>Choisissez un horaire pour cette date</p>
+                </div>
+            </div>
+            <div class="panel-body">
+
+                <div class="offre-strip">
+                    <div class="offre-strip-row">
+                        <span class="offre-strip-label">Offre</span>
+                        <span class="offre-strip-val">{{ offre.titre }}</span>
+                    </div>
+                    <div class="offre-strip-divider"></div>
+                    <div class="offre-strip-row">
+                        <span class="offre-strip-label">Prix</span>
+                        <span class="offre-strip-val">{{ offre.prix }} TND</span>
+                    </div>
+                    <div class="offre-strip-row">
+                        <span class="offre-strip-label">Durée</span>
+                        <span class="offre-strip-val">{{ offre.duree }} min</span>
+                    </div>
+                </div>
+
+                {% if selectedDate %}
+                    <div class="selected-date-badge">
+                        <span class="cal-icon">📆</span>
+                        <strong>{{ selectedDate }}</strong>
+                    </div>
+
+                    <div class="slots-grid">
+                        {% for slot in timeSlots %}
+                            {% if slot in reservedSlots %}
+                                <button class="slot-btn reserved" disabled>
+                                    🔴 {{ slot }}
+                                </button>
+                            {% else %}
+                                <a href="{{ path('app_reservation_new', {
+                                    id: offre.id,
+                                    date: selectedDate,
+                                    time: slot
+                                }) }}" class="slot-btn">
+                                    🟢 {{ slot }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="slot-empty">
+                        <div class="slot-empty-icon">📅</div>
+                        <p>Aucune date sélectionnée.<br>Cliquez sur une date dans le calendrier pour voir les créneaux.</p>
+                    </div>
+                {% endif %}
+
+                <a href="{{ path('app_client_offres_expert', {'id': expert.id}) }}" class="btn-back">
+                    ← Retour aux offres
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    const today = new Date().toISOString().split('T')[0];
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'fr',
+        selectable: false,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: ''
+        },
+        validRange: { start: today },
+        dateClick: function(info) {
+            if (info.dateStr < today) return;
+            window.location.href = '{{ path('app_reservation_calendar', {'id': offre.id}) }}?date=' + info.dateStr;
+        }
+    });
+
+    calendar.render();
+});
+</script>
+{% endblock %}

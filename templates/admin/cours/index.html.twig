@@ -1,0 +1,303 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Cours — Admin{% endblock %}
+{% block page_title %}Cours{% endblock %}
+{% block section_title %}Gestion des cours{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── shared tree styles ── */
+.tree-wrap { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px; }
+.tree-toolbar {
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:14px 20px; border-bottom:1px solid var(--border);
+}
+.tree-toolbar .tt-title { font-size:14px; font-weight:700; color:var(--text); flex:1; }
+.search-wrap { position:relative; width:280px; }
+.search-wrap i { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px; pointer-events:none; }
+.search-input {
+    width:100%; padding:8px 12px 8px 34px;
+    border:1.5px solid var(--border); border-radius:8px;
+    font-size:13px; font-family:'Raleway',sans-serif; color:var(--text);
+    transition:border-color .2s; background:#fff;
+}
+.search-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,111,196,.08); }
+.search-input::placeholder { color:#b0bec5; }
+
+.tree-body { padding:6px 0; }
+.tree-empty { text-align:center; padding:36px; color:var(--muted); font-size:14px; }
+
+/* cours row */
+.c-node { border-bottom:1px solid #f0f4f8; }
+.c-node:last-child { border-bottom:none; }
+.c-row {
+    display:flex; align-items:center; gap:10px; padding:11px 18px;
+    cursor:pointer; transition:background .15s; user-select:none;
+}
+.c-row:hover { background:#f8f9fa; }
+.c-arrow { width:18px; height:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; flex-shrink:0; transition:transform .2s; }
+.c-node.open > .c-row .c-arrow { transform:rotate(90deg); }
+.c-icon { color:var(--blue); font-size:16px; flex-shrink:0; }
+.c-name { font-size:14px; font-weight:700; color:var(--text); flex:1; min-width:0; }
+.c-badge { font-size:11px; color:var(--muted); white-space:nowrap; }
+.c-actions { display:flex; gap:5px; opacity:0; transition:opacity .15s; flex-shrink:0; }
+.c-row:hover .c-actions { opacity:1; }
+
+/* chapter row */
+.ch-list { display:none; background:#fafbfc; }
+.c-node.open > .ch-list { display:block; }
+.ch-node { border-bottom:1px solid #f5f7fa; }
+.ch-node:last-child { border-bottom:none; }
+.ch-row {
+    display:flex; align-items:center; gap:9px; padding:9px 18px 9px 44px;
+    cursor:pointer; transition:background .15s; user-select:none;
+}
+.ch-row:hover { background:#f0f4f8; }
+.ch-arrow { width:16px; height:16px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px; flex-shrink:0; transition:transform .2s; }
+.ch-node.open > .ch-row .ch-arrow { transform:rotate(90deg); }
+.ch-icon { color:#27ae60; font-size:14px; flex-shrink:0; }
+.ch-name { font-size:13px; font-weight:600; color:var(--text); flex:1; min-width:0; }
+.ch-sub { font-size:11px; color:var(--muted); }
+.ch-pos { font-size:10px; font-weight:700; background:#eef4fd; color:var(--blue); padding:1px 7px; border-radius:10px; }
+.ch-actions { display:flex; gap:5px; opacity:0; transition:opacity .15s; flex-shrink:0; }
+.ch-row:hover .ch-actions { opacity:1; }
+
+/* task row */
+.t-list { display:none; background:#f5f7fa; }
+.ch-node.open > .t-list { display:block; }
+.t-row { display:flex; align-items:flex-start; gap:8px; padding:7px 18px 7px 72px; border-bottom:1px solid #eef0f3; font-size:12px; color:var(--muted); }
+.t-row:last-child { border-bottom:none; }
+.t-row i { color:#f39c12; font-size:13px; flex-shrink:0; margin-top:1px; }
+
+/* action buttons */
+.tb { display:inline-flex; align-items:center; gap:4px; padding:4px 9px; border-radius:6px; font-size:11px; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:'Raleway',sans-serif; white-space:nowrap; }
+.tb-edit  { background:#fff7e6; color:#f39c12; border:1px solid #fde8b0; }
+.tb-edit:hover  { background:#fde8b0; color:#e67e22; }
+.tb-ch    { background:#eef4fd; color:var(--blue); border:1px solid #c8ddf5; }
+.tb-ch:hover    { background:#c8ddf5; }
+.tb-del   { background:rgba(231,76,60,.08); color:#e74c3c; border:1px solid rgba(231,76,60,.2); }
+.tb-del:hover   { background:rgba(231,76,60,.15); }
+
+/* search highlight */
+.hl { background:#fff3cd; border-radius:2px; padding:0 2px; }
+.c-node.hidden { display:none; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div>
+        <h1>Cours</h1>
+        <div class="breadcrumb-d"><a href="{{ path('admin_dashboard') }}">Dashboard</a> › Cours</div>
+    </div>
+    <a href="{{ path('admin_cours_new') }}" class="btn-dinari btn-primary-d">
+        <i class="ri-add-line"></i> Nouveau cours
+    </a>
+</div>
+
+{# ── TREE ── #}
+<div class="tree-wrap">
+    <div class="tree-toolbar">
+        <span class="tt-title"><i class="ri-node-tree" style="color:var(--blue);margin-right:6px;"></i> Arborescence</span>
+        <div class="search-wrap">
+            <i class="ri-search-line"></i>
+            <input type="text" id="cours-search" class="search-input" placeholder="Rechercher un cours..." autocomplete="off">
+        </div>
+    </div>
+    <div class="tree-body" id="cours-tree">
+        {% if cours_list is not empty %}
+            {% for cours in cours_list %}
+                <div class="c-node" data-name="{{ cours.nomCours|lower }}">
+                    <div class="c-row" onclick="toggle(this.parentElement)">
+                        <span class="c-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        <i class="ri-book-open-line c-icon"></i>
+                        <span class="c-name">{{ cours.nomCours }}</span>
+                        <span class="c-badge">{{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}</span>
+                        <div class="c-actions">
+                            <a href="{{ path('admin_cours_edit', {id: cours.id}) }}" class="tb tb-edit" onclick="event.stopPropagation()"><i class="ri-edit-line"></i> Modifier</a>
+                            <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}" class="tb tb-ch" onclick="event.stopPropagation()"><i class="ri-list-ordered"></i> Chapitres</a>
+                        </div>
+                    </div>
+                    <div class="ch-list">
+                        {% if cours.chapitres is empty %}
+                            <div style="padding:9px 44px;font-size:12px;color:var(--muted);font-style:italic;">
+                                Aucun chapitre — <a href="{{ path('admin_chapitre_new', {coursId: cours.id}) }}" style="color:var(--blue);">Ajouter</a>
+                            </div>
+                        {% else %}
+                            {% for ch in cours.chapitres %}
+                                <div class="ch-node">
+                                    <div class="ch-row" onclick="toggle(this.parentElement)">
+                                        <span class="ch-arrow">
+                                            {% if ch.taches|length > 0 %}<i class="ri-arrow-right-s-line"></i>{% else %}<i class="ri-subtract-line" style="opacity:.25;"></i>{% endif %}
+                                        </span>
+                                        <i class="ri-file-list-3-line ch-icon"></i>
+                                        <span class="ch-name">{{ ch.titre }}</span>
+                                        {% if ch.sousTitre %}<span class="ch-sub">— {{ ch.sousTitre }}</span>{% endif %}
+                                        <span class="ch-pos">{{ ch.position }}</span>
+                                        <span class="c-badge">{{ ch.taches|length }} tâche{{ ch.taches|length != 1 ? 's' : '' }}</span>
+                                        <div class="ch-actions">
+                                            <a href="{{ path('admin_chapitre_edit', {coursId: cours.id, id: ch.id}) }}" class="tb tb-edit" onclick="event.stopPropagation()"><i class="ri-edit-line"></i></a>
+                                        </div>
+                                    </div>
+                                    {% if ch.taches|length > 0 %}
+                                        <div class="t-list">
+                                            {% for t in ch.taches %}
+                                                <div class="t-row">
+                                                    <i class="ri-checkbox-blank-circle-line"></i>
+                                                    <span>{{ t.libelle }}{% if t.description %} <span style="color:#b0bec5;">— {{ t.description }}</span>{% endif %}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% elseif static_cours is not empty %}
+            {% for cours in static_cours %}
+                <div class="c-node" data-name="{{ cours.nomCours|lower }}">
+                    <div class="c-row" onclick="toggle(this.parentElement)">
+                        <span class="c-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        <i class="ri-book-open-line c-icon"></i>
+                        <span class="c-name">{{ cours.nomCours }}</span>
+                        <span class="c-badge">{{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}</span>
+                        <div class="c-actions">
+                            <span class="tb" style="opacity:.45;cursor:default;"><i class="ri-edit-line"></i> Modifier</span>
+                        </div>
+                    </div>
+                    <div class="ch-list">
+                        {% if cours.chapitres is empty %}
+                            <div style="padding:9px 44px;font-size:12px;color:var(--muted);font-style:italic;">Aucun chapitre enregistré.</div>
+                        {% else %}
+                            {% for ch in cours.chapitres %}
+                                <div class="ch-node">
+                                    <div class="ch-row">
+                                        <span class="ch-arrow"><i class="ri-subtract-line" style="opacity:.25;"></i></span>
+                                        <i class="ri-file-list-3-line ch-icon"></i>
+                                        <span class="ch-name">{{ ch.titre }}</span>
+                                        {% if ch.sousTitre %}<span class="ch-sub">— {{ ch.sousTitre }}</span>{% endif %}
+                                        <span class="ch-pos">{{ ch.position }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="tree-empty"><i class="ri-inbox-line" style="font-size:28px;display:block;margin-bottom:8px;"></i>Aucun cours.</div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── TABLE ── #}
+<div class="card-dinari">
+    <div class="card-header-dinari">
+        <span class="card-title">{{ cours_list is not empty ? cours_list|length : static_cours|length }} cours au total{% if static_cours is not empty and cours_list is empty %} <span style="font-size:11px;font-weight:500;color:var(--muted);">(aperçu statique)</span>{% endif %}</span>
+    </div>
+    {% set display_list = cours_list is not empty ? cours_list : static_cours %}
+    {% if display_list is empty %}
+        <p style="color:var(--muted);text-align:center;padding:32px;">Aucun cours pour l'instant.</p>
+    {% else %}
+        <table class="table-dinari" id="cours-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Date création</th>
+                    <th>Chapitres</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if cours_list is not empty %}
+                {% for cours in cours_list %}
+                <tr data-name="{{ cours.nomCours|lower }}">
+                    <td>{{ cours.id }}</td>
+                    <td><strong>{{ cours.nomCours }}</strong></td>
+                    <td style="max-width:260px;color:var(--muted);font-size:13px;">
+                        {{ cours.description|default('—')|slice(0,80) }}{% if cours.description|length > 80 %}…{% endif %}
+                    </td>
+                    <td>{{ cours.dateCreation ? cours.dateCreation|date('d/m/Y') : '—' }}</td>
+                    <td>
+                        <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}"
+                           class="badge-dinari badge-info" style="text-decoration:none;">
+                            <i class="ri-list-ordered"></i>
+                            {{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}
+                        </a>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="{{ path('admin_chapitre_index', {coursId: cours.id}) }}" class="btn-dinari btn-secondary-d btn-sm-d" title="Chapitres"><i class="ri-list-ordered"></i></a>
+                            <a href="{{ path('admin_cours_edit', {id: cours.id}) }}" class="btn-dinari btn-warning-d btn-sm-d" title="Modifier"><i class="ri-edit-line"></i></a>
+                            <form method="POST" action="{{ path('admin_cours_delete', {id: cours.id}) }}"
+                                  onsubmit="return confirm(
+                                    {% set nbCh = cours.chapitres|length %}
+                                    {% set nbQz = cours.quizzes|length %}
+                                    {% if nbCh > 0 or nbQz > 0 %}
+                                        'Supprimer « {{ cours.nomCours }} » ?\n\n{% if nbCh > 0 %}{{ nbCh }} chapitre{{ nbCh > 1 ? 's' : '' }}{% endif %}{% if nbCh > 0 and nbQz > 0 %} et {% endif %}{% if nbQz > 0 %}{{ nbQz }} quiz{% endif %} associé{{ (nbCh + nbQz) > 1 ? 's' : '' }} seront également supprimés.'
+                                    {% else %}
+                                        'Supprimer le cours « {{ cours.nomCours }} » ?'
+                                    {% endif %}
+                                  )">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_cours_' ~ cours.id) }}">
+                                <button type="submit" class="btn-dinari btn-danger-d btn-sm-d" title="Supprimer"><i class="ri-delete-bin-line"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                {% for i, cours in static_cours %}
+                <tr data-name="{{ cours.nomCours|lower }}">
+                    <td style="color:var(--muted);">—</td>
+                    <td><strong>{{ cours.nomCours }}</strong></td>
+                    <td style="max-width:260px;color:var(--muted);font-size:13px;">
+                        {{ cours.description|slice(0,80) }}{% if cours.description|length > 80 %}…{% endif %}
+                    </td>
+                    <td>{{ cours.dateCreation|date('d/m/Y') }}</td>
+                    <td>
+                        <span class="badge-dinari badge-info">
+                            <i class="ri-list-ordered"></i>
+                            {{ cours.chapitres|length }} chapitre{{ cours.chapitres|length != 1 ? 's' : '' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size:12px;color:var(--muted);font-style:italic;">Aperçu statique</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function toggle(node) { node.classList.toggle('open'); }
+
+// Live search — filters both tree nodes and table rows simultaneously
+document.getElementById('cours-search').addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+
+    // Tree
+    document.querySelectorAll('#cours-tree .c-node').forEach(node => {
+        const name = node.dataset.name || '';
+        const match = !q || name.includes(q);
+        node.classList.toggle('hidden', !match);
+        if (match && q) node.classList.add('open');
+    });
+
+    // Table
+    document.querySelectorAll('#cours-table tbody tr').forEach(row => {
+        const name = row.dataset.name || '';
+        row.style.display = (!q || name.includes(q)) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

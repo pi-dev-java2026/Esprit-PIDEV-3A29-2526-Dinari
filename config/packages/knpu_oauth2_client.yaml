@@ -1,0 +1,12 @@
+knpu_oauth2_client:
+    clients:
+        # Nom du client utilisé dans GoogleAuthenticator
+        google:
+            # Type de provider OAuth2 : Google
+            type: google
+            # L'URI de callback doit correspondre EXACTEMENT à ce qui est configuré dans Google Cloud Console
+            redirect_route: connect_google_check
+            redirect_params: {}
+            # Credentials récupérés depuis les variables d'environnement
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'

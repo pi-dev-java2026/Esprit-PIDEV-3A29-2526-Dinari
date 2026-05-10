@@ -1,0 +1,632 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes réservations{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --ff:        'Plus Jakarta Sans', sans-serif;
+    --bg:        #f4f6f9;
+    --surface:   #ffffff;
+    --surface2:  #f8fafc;
+    --border:    #e2e8f0;
+    --border2:   #cbd5e1;
+    --text1:     #0f1c2e;
+    --text2:     #475569;
+    --text3:     #94a3b8;
+    --blue:      #1d6fdb;
+    --blue-lt:   #eff6ff;
+    --blue-bd:   #bfdbfe;
+    --green:     #059669;
+    --green-lt:  #ecfdf5;
+    --green-bd:  #a7f3d0;
+    --amber:     #d97706;
+    --amber-lt:  #fffbeb;
+    --amber-bd:  #fde68a;
+    --red:       #dc2626;
+    --red-lt:    #fef2f2;
+    --red-bd:    #fecaca;
+    --gray-lt:   #f1f5f9;
+    --gray-bd:   #e2e8f0;
+    --gray-tx:   #64748b;
+    --radius:    12px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+    --shadow-sm: 0 1px 3px rgba(15,28,46,0.06), 0 1px 2px rgba(15,28,46,0.04);
+    --shadow:    0 4px 14px rgba(15,28,46,0.08);
+    --shadow-lg: 0 8px 28px rgba(15,28,46,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.res-page {
+    font-family: var(--ff);
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 32px 0 64px;
+    color: var(--text1);
+}
+
+.res-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ── Hero banner ── */
+.res-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+}
+
+.res-hero::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: var(--blue-lt);
+    border: 1px solid var(--blue-bd);
+    pointer-events: none;
+}
+
+.res-hero-left { position: relative; z-index: 1; }
+
+.res-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--blue-lt);
+    color: var(--blue);
+    border: 1px solid var(--blue-bd);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: 0.03em;
+}
+
+.res-hero h1 {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--text1);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.res-hero p {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    max-width: 580px;
+}
+
+.res-hero-right { position: relative; z-index: 1; }
+
+/* ── Topbar ── */
+.res-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.res-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text1);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13.5px;
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+}
+
+.res-count-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    font-family: var(--ff);
+    font-size: 13.5px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .16s ease;
+    white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); }
+
+.btn-blue  { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 2px 10px rgba(29,111,219,.22); }
+.btn-blue:hover { background: #1558be; color: #fff; }
+.btn-green { background: var(--green); color: #fff; border-color: var(--green); box-shadow: 0 2px 10px rgba(5,150,105,.22); }
+.btn-green:hover { background: #047857; color: #fff; }
+.btn-red   { background: var(--red-lt); color: var(--red); border-color: var(--red-bd); }
+.btn-red:hover   { background: #fee2e2; color: var(--red); }
+.btn-ghost { background: var(--surface2); color: var(--text2); border-color: var(--border); }
+.btn-ghost:hover { background: #eef2f7; color: var(--text1); }
+.btn-sm { padding: 8px 14px; font-size: 12.5px; }
+
+/* ── Cards list ── */
+.res-list { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Single reservation card ── */
+.rcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+.rcard:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+    border-color: var(--border2);
+}
+
+.rcard-stripe { height: 3px; background: linear-gradient(90deg, var(--blue), #38bdf8); }
+.rcard-stripe.green  { background: linear-gradient(90deg, var(--green), #34d399); }
+.rcard-stripe.amber  { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.rcard-stripe.red    { background: linear-gradient(90deg, var(--red), #f87171); }
+.rcard-stripe.gray   { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+
+/* Card header */
+.rcard-head {
+    padding: 20px 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+}
+
+.rcard-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text1);
+    line-height: 1.25;
+    margin-bottom: 4px;
+}
+
+.rcard-sub {
+    font-size: 13px;
+    color: var(--text3);
+    font-weight: 500;
+}
+
+/* Status badges */
+.sbadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+.sbadge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.sbadge-confirmed { background: var(--green-lt); color: var(--green); border-color: var(--green-bd); }
+.sbadge-confirmed::before { background: var(--green); }
+.sbadge-refused   { background: var(--red-lt);   color: var(--red);   border-color: var(--red-bd); }
+.sbadge-refused::before   { background: var(--red); }
+.sbadge-pending   { background: var(--amber-lt); color: var(--amber); border-color: var(--amber-bd); }
+.sbadge-pending::before   { background: var(--amber); }
+.sbadge-cancelled { background: var(--gray-lt);  color: var(--gray-tx); border-color: var(--gray-bd); }
+.sbadge-cancelled::before { background: var(--gray-tx); }
+
+/* Card body — two columns */
+.rcard-body {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 0;
+}
+
+.rcard-main {
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+}
+
+.rcard-side {
+    padding: 20px 24px;
+    background: var(--surface2);
+}
+
+/* Info rows */
+.info-grid { display: flex; flex-direction: column; gap: 12px; }
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13.5px;
+}
+
+.info-ico {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--blue-lt);
+    border: 1px solid var(--blue-bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.info-row-label {
+    font-size: 11.5px;
+    color: var(--text3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.info-row-val {
+    font-size: 13.5px;
+    color: var(--text1);
+    font-weight: 600;
+}
+
+/* Meeting box */
+.meeting-box {
+    margin-top: 16px;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    border: 1px solid var(--border);
+}
+.meeting-box.confirmed { background: var(--green-lt); border-color: var(--green-bd); }
+.meeting-box.pending   { background: var(--amber-lt); border-color: var(--amber-bd); }
+.meeting-box.refused   { background: var(--red-lt);   border-color: var(--red-bd); }
+.meeting-box.cancelled { background: var(--gray-lt);  border-color: var(--gray-bd); }
+
+.meeting-box-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text1);
+    margin-bottom: 5px;
+}
+.meeting-box-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* Actions */
+.rcard-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Expert side */
+.expert-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.expert-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--blue-lt);
+    border: 1px solid var(--blue-bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--blue);
+    flex-shrink: 0;
+}
+
+.expert-name { font-size: 15px; font-weight: 700; color: var(--text1); margin-bottom: 3px; }
+.expert-role { font-size: 12.5px; color: var(--text3); font-weight: 500; }
+
+.mode-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    background: var(--blue-lt);
+    border: 1px solid var(--blue-bd);
+    color: var(--blue);
+}
+
+/* ── Empty state ── */
+.res-empty {
+    background: var(--surface);
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius-xl);
+    padding: 70px 24px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.res-empty-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    background: var(--blue-lt);
+    border: 1px solid var(--blue-bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 18px;
+}
+.res-empty h2 { font-size: 1.4rem; font-weight: 800; color: var(--text1); margin-bottom: 8px; }
+.res-empty p  { font-size: 14px; color: var(--text2); line-height: 1.7; max-width: 480px; margin: 0 auto 22px; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+    .rcard-body { grid-template-columns: 1fr; }
+    .rcard-main { border-right: none; border-bottom: 1px solid var(--border); }
+    .res-hero { padding: 26px 22px; }
+    .res-hero h1 { font-size: 1.6rem; }
+    .res-hero::before { display: none; }
+}
+
+@media (max-width: 600px) {
+    .res-inner { padding: 0 14px; }
+    .rcard-head, .rcard-main, .rcard-side { padding: 16px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="res-page">
+<div class="res-inner">
+
+    {# ── Hero ── #}
+    <div class="res-hero">
+        <div class="res-hero-left">
+            <div class="res-hero-badge">📋 Suivi client · Réservations & rendez-vous</div>
+            <h1>Mes réservations</h1>
+            <p>Consultez l'historique de vos réservations, suivez leur statut en temps réel et rejoignez vos réunions en ligne une fois confirmées.</p>
+        </div>
+        <div class="res-hero-right">
+            <a href="{{ path('app_client_experts') }}" class="btn btn-blue">
+                ← Retour aux experts
+            </a>
+        </div>
+    </div>
+
+    {% if reservations is not empty %}
+
+        {# ── Topbar ── #}
+        <div class="res-topbar">
+            <div class="res-count">
+                <span class="res-count-dot"></span>
+                {{ reservations|length }} réservation{{ reservations|length > 1 ? 's' : '' }}
+            </div>
+        </div>
+
+        {# ── List ── #}
+        <div class="res-list">
+            {% for reservation in reservations %}
+
+                {# Determine stripe color by status #}
+                {% set stripeClass = 'blue' %}
+                {% if reservation.statut == 'confirmee' %}{% set stripeClass = 'green' %}
+                {% elseif reservation.statut == 'refusee' %}{% set stripeClass = 'red' %}
+                {% elseif reservation.statut == 'annulee' %}{% set stripeClass = 'gray' %}
+                {% else %}{% set stripeClass = 'amber' %}{% endif %}
+
+                <div class="rcard">
+                    <div class="rcard-stripe {{ stripeClass }}"></div>
+
+                    {# Card head #}
+                    <div class="rcard-head">
+                        <div>
+                            <div class="rcard-title">{{ reservation.offre.titre }}</div>
+                            <div class="rcard-sub">Offre d'expertise comptable</div>
+                        </div>
+
+                        {% if reservation.statut == 'confirmee' %}
+                            <span class="sbadge sbadge-confirmed">Confirmée</span>
+                        {% elseif reservation.statut == 'refusee' %}
+                            <span class="sbadge sbadge-refused">Refusée</span>
+                        {% elseif reservation.statut == 'annulee' %}
+                            <span class="sbadge sbadge-cancelled">Annulée</span>
+                        {% else %}
+                            <span class="sbadge sbadge-pending">En attente</span>
+                        {% endif %}
+                    </div>
+
+                    {# Card body #}
+                    <div class="rcard-body">
+
+                        {# Left — details #}
+                        <div class="rcard-main">
+                            <div class="info-grid">
+
+                                <div class="info-row">
+                                    <div class="info-ico">📅</div>
+                                    <div>
+                                        <div class="info-row-label">Date de réservation</div>
+                                        <div class="info-row-val">{{ reservation.dateReservation|date('d/m/Y à H:i') }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-ico">💼</div>
+                                    <div>
+                                        <div class="info-row-label">Offre réservée</div>
+                                        <div class="info-row-val">{{ reservation.offre.titre }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-ico">📍</div>
+                                    <div>
+                                        <div class="info-row-label">Mode de consultation</div>
+                                        <div class="info-row-val">
+                                            {{ reservation.mode == 'en_ligne' ? 'En ligne' : 'Présentiel' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {# Meeting box #}
+                            {% if reservation.mode == 'en_ligne' and reservation.roomName and reservation.statut == 'confirmee' %}
+                                <div class="meeting-box confirmed">
+                                    <div class="meeting-box-title">✅ Réunion en ligne disponible</div>
+                                    <div class="meeting-box-text">Votre réservation est confirmée. Rejoignez votre salle de réunion dès maintenant.</div>
+                                    <div class="rcard-actions">
+                                        <a href="{{ path('app_reservation_meet', {'token': reservation.token}) }}" class="btn btn-green btn-sm">
+                                            🎥 Rejoindre la réunion
+                                        </a>
+                                    </div>
+                                </div>
+
+                            {% elseif reservation.mode == 'en_ligne' and reservation.statut == 'en_attente' %}
+                                <div class="meeting-box pending">
+                                    <div class="meeting-box-title">⏳ Réunion en attente</div>
+                                    <div class="meeting-box-text">Votre demande est en attente de confirmation par l'expert.</div>
+                                </div>
+
+                            {% elseif reservation.mode == 'en_ligne' and reservation.statut == 'refusee' %}
+                                <div class="meeting-box refused">
+                                    <div class="meeting-box-title">❌ Réservation refusée</div>
+                                    <div class="meeting-box-text">Cette réservation a été refusée par l'expert concerné.</div>
+                                </div>
+
+                            {% elseif reservation.statut == 'annulee' %}
+                                <div class="meeting-box cancelled">
+                                    <div class="meeting-box-title">🚫 Réservation annulée</div>
+                                    <div class="meeting-box-text">Vous avez annulé cette réservation. L'expert a été informé par email.</div>
+                                </div>
+                            {% endif %}
+
+                            {# Cancel action #}
+                            {% if reservation.statut in ['en_attente', 'confirmee'] %}
+                                <div class="rcard-actions">
+                                    <form method="post"
+                                          action="{{ path('app_reservation_cancel', {'id': reservation.id}) }}"
+                                          onsubmit="return confirm('Voulez-vous vraiment annuler cette réservation ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('cancel_reservation_' ~ reservation.id) }}">
+                                        <button type="submit" class="btn btn-red btn-sm">
+                                            🚫 Annuler la réservation
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {# Right — expert info #}
+                        <div class="rcard-side">
+
+                            <div class="expert-profile">
+                                <div class="expert-avatar">
+                                    {{ reservation.offre.expertComptable.nom|first|upper }}{{ reservation.offre.expertComptable.prenom|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="expert-name">
+                                        {{ reservation.offre.expertComptable.nom }}
+                                        {{ reservation.offre.expertComptable.prenom }}
+                                    </div>
+                                    <div class="expert-role">Expert comptable</div>
+                                </div>
+                            </div>
+
+                            <div class="info-grid">
+                                <div class="info-row">
+                                    <div class="info-ico">✅</div>
+                                    <div>
+                                        <div class="info-row-label">Statut actuel</div>
+                                        <div class="info-row-val">
+                                            {% if reservation.statut == 'confirmee' %}Confirmée
+                                            {% elseif reservation.statut == 'refusee' %}Refusée
+                                            {% elseif reservation.statut == 'annulee' %}Annulée
+                                            {% else %}En attente{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-ico">👤</div>
+                                    <div>
+                                        <div class="info-row-label">Expert assigné</div>
+                                        <div class="info-row-val">
+                                            {{ reservation.offre.expertComptable.nom }}
+                                            {{ reservation.offre.expertComptable.prenom }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mode-chip">
+                                {{ reservation.mode == 'en_ligne' ? '💻 Consultation en ligne' : '🏢 Consultation présentielle' }}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+
+        <div class="res-empty">
+            <div class="res-empty-icon">📋</div>
+            <h2>Aucune réservation pour le moment</h2>
+            <p>Vous n'avez encore effectué aucune réservation. Parcourez la liste des experts et choisissez l'offre qui correspond à votre besoin.</p>
+            <a href="{{ path('app_client_experts') }}" class="btn btn-blue">
+                Découvrir les experts →
+            </a>
+        </div>
+
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

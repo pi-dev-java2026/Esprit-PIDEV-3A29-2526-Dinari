@@ -1,0 +1,219 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérification de sécurité — DINARI{% endblock %}
+
+{% block stylesheets %}
+<style>
+.verify-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0f172a;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+/* Abstract bg decoration */
+.verify-page::before {
+    content: ''; position: absolute; top: -20%; left: -10%; width: 50%; height: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);
+}
+.verify-page::after {
+    content: ''; position: absolute; bottom: -20%; right: -10%; width: 50%; height: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);
+}
+
+.verify-box {
+    background: #1e293b;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 24px;
+    padding: 32px 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 10;
+    border: 1px solid #334155;
+    text-align: center;
+}
+.verify-logo { font-size: 24px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px; margin-bottom: 24px; }
+.verify-logo span { color: #818cf8; }
+
+.verify-title { font-size: 22px; font-weight: 700; color: #f8fafc; margin: 0 0 10px 0; }
+.verify-subtitle { font-size: 14px; color: #94a3b8; margin: 0 0 24px 0; line-height: 1.5; }
+
+.cam-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    aspect-ratio: 4/3;
+    margin-bottom: 24px;
+    border: 2px solid #334155;
+}
+.cam-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1); /* mirror */
+}
+.cam-overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+}
+.cam-guide {
+    width: 55%; aspect-ratio: 3/4; border: 2px dashed rgba(167,139,250,0.8); border-radius: 50%;
+    box-shadow: 0 0 0 2000px rgba(15,23,42,0.4);
+    animation: guidePulse 2.5s ease-in-out infinite;
+}
+@keyframes guidePulse { 0%,100% { border-color: rgba(99,102,241,0.6); } 50% { border-color: rgba(167,139,250,1); } }
+
+.btn-capture {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
+    font-weight: 600; font-size: 15px; padding: 14px; border: none; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(99,102,241,0.3);
+}
+.btn-capture:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+.btn-capture:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+.cam-status {
+    padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 500; margin-bottom: 20px; text-align: left; display: flex; align-items: center; gap: 10px;
+}
+
+.footer-link {
+    display: inline-block; margin-top: 24px; color: #64748b; font-size: 13px; text-decoration: none; transition: color 0.2s;
+}
+.footer-link:hover { color: #f1f5f9; }
+
+.spinner {
+    width: 16px; height: 16px; border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="verify-page">
+    <div class="verify-box">
+        <div class="verify-logo"><span>ID</span>INARI</div>
+        
+        <h1 class="verify-title">Double Sécurité Biométrique</h1>
+        <p class="verify-subtitle">Pour protéger vos données, veuillez confirmer votre identité avec le visage enregistré sur votre compte.</p>
+        
+        <div id="statusAlert" class="cam-status" style="display:none;"></div>
+
+        <div class="cam-wrapper" id="videoContainer">
+            <video id="camVideo" class="cam-video" autoplay playsinline></video>
+            <div class="cam-overlay">
+                <div class="cam-guide"></div>
+            </div>
+            <!-- Canvas invisible pour la capture -->
+            <canvas id="camCanvas" style="display:none;"></canvas>
+        </div>
+
+        <button type="button" class="btn-capture" id="btnCapture" onclick="captureAndVerify()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="10" stroke-dasharray="4 2"/></svg>
+            <span id="btnText">Scanner mon visage</span>
+        </button>
+
+        <a href="{{ path('app_logout') }}" class="footer-link">Annuler et se déconnecter</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+let stream = null;
+const COMPARE_URL = '{{ path('app_face_compare') }}';
+const DASHBOARD_URL = '{{ path('app_dashboard') }}'; // Or home, redirect happens automatically
+
+async function initCamera() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 } }, audio: false });
+        const video = document.getElementById('camVideo');
+        video.srcObject = stream;
+        await video.play();
+        showStatus('Mettez-vous bien en face de la caméra et cliquez sur "Scanner".', '#3b82f6', '#1e3a8a');
+    } catch (err) {
+        showStatus('⚠️ Impossible d\'accéder à la caméra. Vérifiez vos permissions.', '#ef4444', '#450a0a');
+        document.getElementById('btnCapture').disabled = true;
+    }
+}
+
+function showStatus(msg, color, bgColor) {
+    const s = document.getElementById('statusAlert');
+    s.style.display = 'flex';
+    s.style.color = color;
+    s.style.backgroundColor = bgColor;
+    s.style.border = `1px solid ${color}40`;
+    s.innerHTML = msg;
+}
+
+async function captureAndVerify() {
+    const video = document.getElementById('camVideo');
+    const canvas = document.getElementById('camCanvas');
+    const btn = document.getElementById('btnCapture');
+    const btnText = document.getElementById('btnText');
+
+    // Mettre la caméra en pause visuelle
+    video.pause();
+    
+    // Capturer
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0);
+    ctx.setTransform(1,0,0,1,0,0);
+    const b64 = canvas.toDataURL('image/png', 0.95);
+
+    // UI Loading
+    btn.disabled = true;
+    btnText.innerHTML = 'Analyse en cours...';
+    btn.querySelector('svg').outerHTML = '<div class="spinner"></div>';
+    showStatus('<div class="spinner" style="border-color:rgba(59,130,246,0.3);border-top-color:#3b82f6;"></div> Analyse DeepFace en cours...', '#60a5fa', '#1e3a8a');
+
+    try {
+        const res = await fetch(COMPARE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+        });
+        const result = await res.json();
+
+        if (result.ok) {
+            showStatus('✅ ' + result.message, '#34d399', '#064e3b');
+            btnText.innerHTML = 'Accès autorisé';
+            btn.querySelector('.spinner').outerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+            btn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+            
+            // Redirect to dashboard (or wherever they were going)
+            setTimeout(() => {
+                window.location.href = DASHBOARD_URL;
+            }, 1000);
+        } else {
+            showStatus('❌ ' + (result.error || 'Visage non reconnu.'), '#f87171', '#450a0a');
+            resetBtn();
+            video.play();
+        }
+    } catch (err) {
+        showStatus('⚠️ Erreur réseau : ' + err.message, '#f87171', '#450a0a');
+        resetBtn();
+        video.play();
+    }
+}
+
+function resetBtn() {
+    const btn = document.getElementById('btnCapture');
+    const btnText = document.getElementById('btnText');
+    btn.disabled = false;
+    btnText.innerHTML = 'Réessayer le scan';
+    btn.querySelector('.spinner').outerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="10" stroke-dasharray="4 2"/></svg>';
+}
+
+document.addEventListener('DOMContentLoaded', initCamera);
+</script>
+{% endblock %}

@@ -1,0 +1,263 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Quiz — Admin{% endblock %}
+{% block page_title %}Quiz{% endblock %}
+{% block section_title %}Gestion des quiz{% endblock %}
+
+{% block stylesheets %}
+<style>
+.tree-wrap { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px; }
+.tree-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:14px 20px; border-bottom:1px solid var(--border); }
+.tree-toolbar .tt-title { font-size:14px; font-weight:700; color:var(--text); flex:1; }
+.search-wrap { position:relative; width:280px; }
+.search-wrap i { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px; pointer-events:none; }
+.search-input { width:100%; padding:8px 12px 8px 34px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:'Raleway',sans-serif; color:var(--text); transition:border-color .2s; background:#fff; }
+.search-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,111,196,.08); }
+.search-input::placeholder { color:#b0bec5; }
+
+.tree-body { padding:6px 0; }
+.tree-empty { text-align:center; padding:36px; color:var(--muted); font-size:14px; }
+
+/* group (cours) row */
+.g-node { border-bottom:1px solid #f0f4f8; }
+.g-node:last-child { border-bottom:none; }
+.g-row { display:flex; align-items:center; gap:10px; padding:11px 18px; cursor:pointer; transition:background .15s; user-select:none; }
+.g-row:hover { background:#f8f9fa; }
+.g-arrow { width:18px; height:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; flex-shrink:0; transition:transform .2s; }
+.g-node.open > .g-row .g-arrow { transform:rotate(90deg); }
+.g-icon { font-size:16px; flex-shrink:0; }
+.g-name { font-size:14px; font-weight:700; color:var(--text); flex:1; }
+.g-badge { font-size:11px; color:var(--muted); }
+
+/* quiz leaf row */
+.q-list { display:none; background:#fafbfc; }
+.g-node.open > .q-list { display:block; }
+.q-row { display:flex; align-items:center; gap:9px; padding:9px 18px 9px 44px; border-bottom:1px solid #f5f7fa; transition:background .15s; }
+.q-row:last-child { border-bottom:none; }
+.q-row:hover { background:#f0f4f8; }
+.q-icon { color:#9b59b6; font-size:14px; flex-shrink:0; }
+.q-name { font-size:13px; font-weight:600; color:var(--text); flex:1; }
+.q-meta { font-size:11px; color:var(--muted); }
+.q-actions { display:flex; gap:5px; opacity:0; transition:opacity .15s; flex-shrink:0; }
+.q-row:hover .q-actions { opacity:1; }
+
+.tb { display:inline-flex; align-items:center; gap:4px; padding:4px 9px; border-radius:6px; font-size:11px; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:'Raleway',sans-serif; white-space:nowrap; }
+.tb-edit { background:#fff7e6; color:#f39c12; border:1px solid #fde8b0; }
+.tb-edit:hover { background:#fde8b0; color:#e67e22; }
+.tb-del  { background:rgba(231,76,60,.08); color:#e74c3c; border:1px solid rgba(231,76,60,.2); }
+.tb-del:hover  { background:rgba(231,76,60,.15); }
+
+.g-node.hidden { display:none; }
+.q-row.hidden  { display:none; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div>
+        <h1>Quiz</h1>
+        <div class="breadcrumb-d"><a href="{{ path('admin_dashboard') }}">Dashboard</a> › Quiz</div>
+    </div>
+    <a href="{{ path('admin_quiz_new') }}" class="btn-dinari btn-primary-d">
+        <i class="ri-add-line"></i> Nouveau quiz
+    </a>
+</div>
+
+{# ── TREE ── #}
+<div class="tree-wrap">
+    <div class="tree-toolbar">
+        <span class="tt-title"><i class="ri-node-tree" style="color:#9b59b6;margin-right:6px;"></i> Arborescence par cours</span>
+        <div class="search-wrap">
+            <i class="ri-search-line"></i>
+            <input type="text" id="quiz-search" class="search-input" placeholder="Rechercher un quiz..." autocomplete="off">
+        </div>
+    </div>
+    <div class="tree-body" id="quiz-tree">
+        {% if quizzes is not empty %}
+            {% for key, group in groups %}
+                <div class="g-node" data-group="{{ group.cours.nomCours|lower }}">
+                    <div class="g-row" onclick="toggle(this.parentElement)">
+                        <span class="g-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        <i class="ri-book-open-line g-icon" style="color:var(--blue);"></i>
+                        <span class="g-name">{{ group.cours.nomCours }}</span>
+                        <span class="g-badge">{{ group.quizzes|length }} quiz</span>
+                    </div>
+                    <div class="q-list">
+                        {% for quiz in group.quizzes %}
+                            <div class="q-row" data-name="{{ quiz.titre|lower }}">
+                                <i class="ri-question-answer-line q-icon"></i>
+                                <span class="q-name">{{ quiz.titre }}</span>
+                                <span class="q-meta">
+                                    {% if quiz.isExamMode %}<span class="badge-dinari badge-warning" style="font-size:10px;">Examen</span>{% else %}<span class="badge-dinari badge-success" style="font-size:10px;">Normal</span>{% endif %}
+                                    {% if quiz.scoreQuiz %}&nbsp;· Score {{ quiz.scoreQuiz }}{% endif %}
+                                </span>
+                                <div class="q-actions">
+                                    <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="tb tb-edit"><i class="ri-edit-line"></i> Modifier</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% if ungrouped is not empty %}
+                <div class="g-node" data-group="sans cours">
+                    <div class="g-row" onclick="toggle(this.parentElement)">
+                        <span class="g-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        <i class="ri-question-mark g-icon" style="color:var(--muted);"></i>
+                        <span class="g-name" style="color:var(--muted);">Sans cours associé</span>
+                        <span class="g-badge">{{ ungrouped|length }} quiz</span>
+                    </div>
+                    <div class="q-list">
+                        {% for quiz in ungrouped %}
+                            <div class="q-row" data-name="{{ quiz.titre|lower }}">
+                                <i class="ri-question-answer-line q-icon"></i>
+                                <span class="q-name">{{ quiz.titre }}</span>
+                                <span class="q-meta">
+                                    {% if quiz.isExamMode %}<span class="badge-dinari badge-warning" style="font-size:10px;">Examen</span>{% else %}<span class="badge-dinari badge-success" style="font-size:10px;">Normal</span>{% endif %}
+                                </span>
+                                <div class="q-actions">
+                                    <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="tb tb-edit"><i class="ri-edit-line"></i> Modifier</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% elseif static_quizzes is not empty %}
+            {# Group static quizzes by cours name #}
+            {% set static_groups = {} %}
+            {% for q in static_quizzes %}
+                {% set key = q.cours %}
+                {% if static_groups[key] is not defined %}
+                    {% set static_groups = static_groups|merge({(key): []}) %}
+                {% endif %}
+                {% set static_groups = static_groups|merge({(key): static_groups[key]|merge([q])}) %}
+            {% endfor %}
+            {% for coursName, qlist in static_groups %}
+                <div class="g-node open" data-group="{{ coursName|lower }}">
+                    <div class="g-row" onclick="toggle(this.parentElement)">
+                        <span class="g-arrow"><i class="ri-arrow-right-s-line"></i></span>
+                        <i class="ri-book-open-line g-icon" style="color:var(--blue);"></i>
+                        <span class="g-name">{{ coursName }}</span>
+                        <span class="g-badge">{{ qlist|length }} quiz</span>
+                    </div>
+                    <div class="q-list">
+                        {% for quiz in qlist %}
+                            <div class="q-row" data-name="{{ quiz.titre|lower }}">
+                                <i class="ri-question-answer-line q-icon"></i>
+                                <span class="q-name">{{ quiz.titre }}</span>
+                                <span class="q-meta">
+                                    {% if quiz.isExamMode %}<span class="badge-dinari badge-warning" style="font-size:10px;">Examen</span>{% else %}<span class="badge-dinari badge-success" style="font-size:10px;">Normal</span>{% endif %}
+                                    {% if quiz.scoreQuiz %}&nbsp;· Score {{ quiz.scoreQuiz }}{% endif %}
+                                </span>
+                                <div class="q-actions">
+                                    <span class="tb" style="opacity:.45;cursor:default;font-size:11px;">Aperçu statique</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="tree-empty"><i class="ri-inbox-line" style="font-size:28px;display:block;margin-bottom:8px;"></i>Aucun quiz.</div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── TABLE ── #}
+<div class="card-dinari">
+    <div class="card-header-dinari">
+        <span class="card-title">{{ quizzes is not empty ? quizzes|length : static_quizzes|length }} quiz au total{% if static_quizzes is not empty and quizzes is empty %} <span style="font-size:11px;font-weight:500;color:var(--muted);">(aperçu statique)</span>{% endif %}</span>
+    </div>
+    {% if quizzes is empty and static_quizzes is empty %}
+        <p style="color:var(--muted);text-align:center;padding:32px;">Aucun quiz pour l'instant.</p>
+    {% else %}
+        <table class="table-dinari" id="quiz-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Titre</th>
+                    <th>Cours associé</th>
+                    <th>Réponse correcte</th>
+                    <th>Score</th>
+                    <th>Mode</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if quizzes is not empty %}
+                {% for quiz in quizzes %}
+                <tr data-name="{{ quiz.titre|lower }}">
+                    <td>{{ quiz.id }}</td>
+                    <td><strong>{{ quiz.titre }}</strong></td>
+                    <td>
+                        {% if quiz.cours %}<span class="badge-dinari badge-info">{{ quiz.cours.nomCours }}</span>
+                        {% else %}<span style="color:var(--muted);">—</span>{% endif %}
+                    </td>
+                    <td style="font-size:13px;color:var(--muted);">{{ quiz.reponseCorrect|default('—') }}</td>
+                    <td>{{ quiz.scoreQuiz ?? '—' }}</td>
+                    <td>
+                        {% if quiz.isExamMode %}<span class="badge-dinari badge-warning">Examen</span>
+                        {% else %}<span class="badge-dinari badge-success">Normal</span>{% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn-dinari btn-warning-d btn-sm-d"><i class="ri-edit-line"></i></a>
+                            <form method="POST" action="{{ path('admin_quiz_delete', {id: quiz.id}) }}" onsubmit="return confirm('Supprimer ce quiz ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_quiz_' ~ quiz.id) }}">
+                                <button type="submit" class="btn-dinari btn-danger-d btn-sm-d"><i class="ri-delete-bin-line"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                {% for i, quiz in static_quizzes %}
+                <tr data-name="{{ quiz.titre|lower }}">
+                    <td style="color:var(--muted);">—</td>
+                    <td><strong>{{ quiz.titre }}</strong></td>
+                    <td><span class="badge-dinari badge-info">{{ quiz.cours }}</span></td>
+                    <td style="font-size:13px;color:var(--muted);">{{ quiz.reponseCorrect ?? '—' }}</td>
+                    <td>{{ quiz.scoreQuiz ?? '—' }}</td>
+                    <td>
+                        {% if quiz.isExamMode %}<span class="badge-dinari badge-warning">Examen</span>
+                        {% else %}<span class="badge-dinari badge-success">Normal</span>{% endif %}
+                    </td>
+                    <td><span style="font-size:12px;color:var(--muted);font-style:italic;">Aperçu statique</span></td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function toggle(node) { node.classList.toggle('open'); }
+
+document.getElementById('quiz-search').addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+
+    // Tree: filter quiz rows, show/hide groups accordingly
+    document.querySelectorAll('#quiz-tree .g-node').forEach(group => {
+        let anyVisible = false;
+        group.querySelectorAll('.q-row').forEach(row => {
+            const name = row.dataset.name || '';
+            const match = !q || name.includes(q) || (group.dataset.group || '').includes(q);
+            row.classList.toggle('hidden', !match);
+            if (match) anyVisible = true;
+        });
+        group.classList.toggle('hidden', !anyVisible);
+        if (anyVisible && q) group.classList.add('open');
+    });
+
+    // Table
+    document.querySelectorAll('#quiz-table tbody tr').forEach(row => {
+        const name = row.dataset.name || '';
+        row.style.display = (!q || name.includes(q)) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

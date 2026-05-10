@@ -1,0 +1,223 @@
+{% extends is_granted('ROLE_ADMIN') ? 'base_admin.html.twig' : 'base.html.twig' %}
+
+{% block title %}Nouvelle Réclamation — DINARI{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* Modern Form Redesign */
+.reclamation-edit-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 24px;
+    transition: color 0.2s ease;
+}
+
+.page-back-link:hover {
+    color: #2563eb;
+}
+
+.modern-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+}
+
+.card-header-modern {
+    padding: 24px 32px;
+    background: linear-gradient(to right, #f8fafc, #ffffff);
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header-modern h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+}
+
+.modern-form-body {
+    padding: 32px;
+}
+
+.form-group-modern {
+    margin-bottom: 24px;
+}
+
+.form-group-modern label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.form-input-modern {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #0f172a;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-input-modern:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.form-input-modern:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.form-actions-modern {
+    margin-top: 36px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-modern {
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.btn-cancel {
+    background: white;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-cancel:hover {
+    background: #f8fafc;
+    color: #334155;
+    border-color: #94a3b8;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -2px rgba(37, 99, 235, 0.1);
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.25), 0 4px 6px -2px rgba(37, 99, 235, 0.15);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+/* Specific select styling */
+select.form-input-modern {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 48px;
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="reclamation-edit-container">
+    <a href="{{ path('app_reclamation_index') }}" class="page-back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Retour aux réclamations
+    </a>
+
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <h2>Créer une réclamation</h2>
+            <div>
+                <span style="background: #eef2ff; color: #4f46e5; padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase;">Nouveau Ticket</span>
+            </div>
+        </div>
+        
+        <div class="modern-form-body">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="form-group-modern">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email, {'attr': {'class': 'form-input-modern'}}) }}
+                {{ form_errors(form.email) }}
+            </div>
+
+            <div class="form-group-modern">
+                {{ form_label(form.subject) }}
+                {{ form_widget(form.subject, {'attr': {'class': 'form-input-modern'}}) }}
+                {{ form_errors(form.subject) }}
+            </div>
+
+            <div class="form-group-modern">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description, {'attr': {'class': 'form-input-modern'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <div class="form-group-modern" {% if not is_granted('ROLE_ADMIN') %}style="display: none;"{% endif %}>
+                {{ form_label(form.statut) }}
+                {{ form_widget(form.statut, {'attr': {'class': 'form-input-modern'}}) }}
+                {{ form_errors(form.statut) }}
+            </div>
+
+            <div class="form-actions-modern">
+                <a href="{{ path('app_reclamation_index') }}" class="btn-modern btn-cancel">Annuler</a>
+                <button type="submit" class="btn-modern btn-save">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    Envoyer la réclamation
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

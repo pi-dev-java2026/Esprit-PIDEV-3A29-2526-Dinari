@@ -1,0 +1,498 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Paiements Clients — Admin Dinari{% endblock %}
+{% block page_title %}Paiements Clients{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.paiement-page { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.page-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.page-top h1 { font-size: 24px; font-weight: 800; color: #1e2d40; margin: 0 0 4px; }
+.breadcrumb-d { font-size: 13px; color: #8a9bb5; }
+.breadcrumb-d a { color: #1a6fc4; text-decoration: none; }
+
+.nav-tabs-d { display: flex; gap: 4px; background: #f0f2f7; border-radius: 12px; padding: 4px; margin-bottom: 28px; width: fit-content; }
+.tab-d { padding: 9px 20px; border-radius: 9px; font-size: 13px; font-weight: 600; color: #8a9bb5; cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; background: transparent; display: inline-flex; align-items: center; gap: 7px; }
+.tab-d:hover { color: #1e2d40; text-decoration: none; }
+.tab-d.active { background: #fff; color: #1a6fc4; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-box { background: #fff; border: 1px solid #e4e9f2; border-radius: 14px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: box-shadow 0.2s; }
+.stat-box:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+.stat-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-value { font-size: 26px; font-weight: 800; color: #1e2d40; line-height: 1; }
+.stat-label { font-size: 12px; color: #8a9bb5; font-weight: 600; margin-top: 3px; }
+
+.section-sep { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #8a9bb5; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.section-sep::after { content: ''; flex: 1; height: 1px; background: #e4e9f2; }
+
+.offres-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 36px; }
+.offre-card { background: #fff; border: 1.5px solid #e4e9f2; border-radius: 14px; padding: 20px; cursor: pointer; transition: all 0.25s; display: flex; flex-direction: column; gap: 12px; }
+.offre-card:hover { border-color: #1a6fc4; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(26,111,196,0.12); }
+.offre-card-top { display: flex; align-items: center; gap: 12px; }
+
+/* Logo réel pour les cartes offres */
+.offre-logo-wrap {
+    width: 42px; height: 42px; border-radius: 10px;
+    overflow: hidden; background: #f0f4f9;
+    border: 1px solid #e4e9f2;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+}
+.offre-logo-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.offre-logo-fb {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+/* fallback à l'intérieur du wrap */
+.offre-logo-wrap .offre-logo-fb {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; border-radius: 0;
+}
+
+.offre-nom { font-weight: 700; color: #1e2d40; font-size: 14px; }
+.offre-cat { font-size: 11px; color: #8a9bb5; }
+.offre-stats { display: flex; gap: 10px; }
+.offre-stat { flex: 1; background: #f8f9fc; border-radius: 8px; padding: 10px 12px; }
+.offre-stat-val { font-size: 18px; font-weight: 800; color: #1e2d40; }
+.offre-stat-lbl { font-size: 11px; color: #8a9bb5; font-weight: 600; margin-top: 2px; }
+.offre-cta { width: 100%; padding: 9px; background: #f0f4ff; border: 1.5px solid #d0dcff; border-radius: 8px; font-size: 12px; font-weight: 700; color: #1a6fc4; cursor: pointer; transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
+.offre-cta:hover { background: #1a6fc4; color: #fff; border-color: #1a6fc4; }
+
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.search-box { flex: 1; min-width: 220px; display: flex; align-items: center; background: #fff; border: 1.5px solid #e4e9f2; border-radius: 10px; padding: 0 14px; gap: 8px; transition: border-color 0.2s; }
+.search-box:focus-within { border-color: #1a6fc4; }
+.search-box input { border: none; outline: none; flex: 1; padding: 10px 0; font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e2d40; background: transparent; }
+.search-box i { color: #8a9bb5; font-size: 13px; }
+.filter-select { padding: 10px 14px; border: 1.5px solid #e4e9f2; border-radius: 10px; background: #fff; font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; color: #3d5166; cursor: pointer; outline: none; }
+.filter-select:focus { border-color: #1a6fc4; }
+
+.table-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 16px; overflow: hidden; }
+.table-card-header { padding: 18px 24px; border-bottom: 1px solid #f0f3f9; display: flex; justify-content: space-between; align-items: center; }
+.table-card-title { font-size: 14px; font-weight: 700; color: #1e2d40; }
+.table-count { font-size: 12px; color: #8a9bb5; }
+
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: #f8f9fc; }
+th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a9bb5; border-bottom: 1px solid #f0f3f9; }
+td { padding: 14px 16px; border-bottom: 1px solid #f7f8fb; font-size: 13px; color: #3d5166; vertical-align: middle; }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: #fafbfd; }
+tbody tr:last-child td { border-bottom: none; }
+
+.client-cell { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1a6fc4, #1558a0); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.client-name { font-weight: 700; color: #1e2d40; font-size: 13px; }
+.client-sub  { font-size: 11px; color: #8a9bb5; margin-top: 2px; }
+
+/* Logo dans tableau abonnement */
+.abo-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; background: #f0f4ff; border: 1px solid #d0dcff; font-size: 12px; font-weight: 600; color: #1a6fc4; cursor: pointer; transition: all 0.2s; }
+.abo-pill:hover { background: #1a6fc4; color: #fff; border-color: #1a6fc4; }
+.abo-pill img { width: 16px; height: 16px; object-fit: contain; border-radius: 3px; flex-shrink: 0; }
+
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+.badge-paye      { background: rgba(39,174,96,0.12);   color: #27ae60; }
+.badge-attente   { background: rgba(243,156,18,0.12);  color: #e67e22; }
+.badge-echec     { background: rgba(231,76,60,0.12);   color: #e74c3c; }
+.badge-rembourse { background: rgba(127,140,141,0.12); color: #7f8c8d; }
+
+.montant-cell { font-size: 16px; font-weight: 800; color: #1e2d40; }
+
+.btn-action { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e4e9f2; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.2s; color: #1a6fc4; }
+.btn-action:hover { background: rgba(26,111,196,0.08); border-color: #1a6fc4; transform: translateY(-1px); }
+
+/* DRAWER */
+.drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(10,20,40,0.45); backdrop-filter: blur(3px); z-index: 8000; }
+.drawer-overlay.open { display: block; }
+.drawer { position: fixed; top: 0; right: -620px; width: 560px; max-width: 95vw; height: 100vh; background: #fff; box-shadow: -8px 0 40px rgba(0,0,0,0.15); z-index: 8001; transition: right 0.35s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; overflow: hidden; }
+.drawer.open { right: 0; }
+.drawer-header { background: linear-gradient(135deg, #0f1f3d, #1a6fc4); padding: 24px 28px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.drawer-logo { width: 48px; height: 48px; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.drawer-logo img { width: 100%; height: 100%; object-fit: contain; }
+.drawer-logo-text { font-size: 16px; font-weight: 800; color: #fff; }
+.drawer-title { color: #fff; font-size: 18px; font-weight: 800; margin: 0 0 3px; }
+.drawer-sub   { color: rgba(255,255,255,0.65); font-size: 13px; }
+.drawer-close { margin-left: auto; background: rgba(255,255,255,0.15); border: none; width: 32px; height: 32px; border-radius: 50%; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.drawer-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.d-stat { background: #f8f9fc; border-radius: 10px; padding: 14px 16px; }
+.d-stat-val { font-size: 22px; font-weight: 800; color: #1e2d40; }
+.d-stat-lbl { font-size: 11px; color: #8a9bb5; font-weight: 600; margin-top: 3px; }
+.drawer-section-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #8a9bb5; margin-bottom: 12px; }
+
+.hist-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f3f9; }
+.hist-item:last-child { border-bottom: none; }
+.hist-date { font-size: 12px; color: #8a9bb5; min-width: 75px; }
+.hist-info { flex: 1; }
+.hist-nom  { font-size: 13px; font-weight: 600; color: #1e2d40; }
+.hist-mode { font-size: 11px; color: #8a9bb5; margin-top: 2px; }
+.hist-montant { font-weight: 800; color: #1e2d40; font-size: 13px; margin-left: auto; white-space: nowrap; }
+
+.drawer-loading { display: flex; align-items: center; justify-content: center; height: 200px; flex-direction: column; gap: 12px; color: #8a9bb5; }
+.spinner { width: 32px; height: 32px; border: 3px solid #e4e9f2; border-top-color: #1a6fc4; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-drawer { text-align: center; padding: 40px 20px; color: #8a9bb5; }
+.empty-drawer .ei { font-size: 36px; margin-bottom: 10px; }
+.empty-drawer p { font-size: 14px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="paiement-page">
+
+    <div class="page-top">
+        <div>
+            <h1>Paiements Clients</h1>
+            <div class="breadcrumb-d">
+                <a href="{{ path('app_home') }}">Accueil</a> →
+                <a href="{{ path('admin_abonnement_index') }}">Abonnements</a> →
+                Paiements
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-tabs-d">
+        <a href="{{ path('admin_abonnement_index') }}" class="tab-d">
+            <i class="fa fa-th-list"></i> Catalogue des offres
+        </a>
+        <span class="tab-d active">
+            <i class="fa fa-credit-card"></i> Paiements clients
+        </span>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(26,111,196,0.1);">💳</div>
+            <div>
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">Total paiements</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(39,174,96,0.1);">✅</div>
+            <div>
+                <div class="stat-value">{{ stats.actifs }}</div>
+                <div class="stat-label">Paiements réussis</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(243,156,18,0.1);">⏳</div>
+            <div>
+                <div class="stat-value">{{ stats.enAttente }}</div>
+                <div class="stat-label">En attente</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(39,174,96,0.08);">💰</div>
+            <div>
+                <div class="stat-value">{{ stats.revenus|number_format(2) }} DT</div>
+                <div class="stat-label">Revenus totaux</div>
+            </div>
+        </div>
+    </div>
+
+    {# Vue par offre #}
+    <div class="section-sep">Vue par offre</div>
+    <div class="offres-grid">
+        {% for abo in abonnements %}
+        {% set aboStats = statsByAbo[abo.id] ?? {count: 0, revenus: 0} %}
+        <div class="offre-card"
+             onclick="openDrawer({{ abo.id }}, '{{ abo.nom|e('js') }}', '{{ abo.categorie|capitalize }}', '{{ abo.logoDomain|default('') }}')">
+            <div class="offre-card-top">
+
+                {# Logo réel avec fallback HTML — sans JS complexe #}
+                {% if abo.logoDomain %}
+                <div class="offre-logo-wrap">
+                    <img src="https://logo.clearbit.com/{{ abo.logoDomain }}"
+                         alt="{{ abo.nom }}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="offre-logo-fb"
+                         style="background:{{ abo.tierColor|default('#1a6fc4') }};display:none;">
+                        {{ abo.nom|slice(0,2)|upper }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="offre-logo-fb" style="background:{{ abo.tierColor|default('#1a6fc4') }};">
+                    {{ abo.nom|slice(0,2)|upper }}
+                </div>
+                {% endif %}
+
+                <div>
+                    <div class="offre-nom">{{ abo.nom }}</div>
+                    <div class="offre-cat">{{ abo.categorie|capitalize }} · {{ abo.tier }}</div>
+                </div>
+            </div>
+            <div class="offre-stats">
+                <div class="offre-stat">
+                    <div class="offre-stat-val">{{ aboStats.count }}</div>
+                    <div class="offre-stat-lbl">Paiements</div>
+                </div>
+                <div class="offre-stat">
+                    <div class="offre-stat-val">{{ aboStats.revenus|number_format(0) }} DT</div>
+                    <div class="offre-stat-lbl">Revenus</div>
+                </div>
+            </div>
+            <button class="offre-cta">
+                <i class="fa fa-history"></i> Voir l'historique
+            </button>
+        </div>
+        {% else %}
+        <div style="grid-column:1/-1;text-align:center;color:#8a9bb5;padding:40px;">
+            Aucune offre créée.
+        </div>
+        {% endfor %}
+    </div>
+
+    {# Tableau tous les paiements #}
+    <div class="section-sep">Tous les paiements</div>
+
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" id="search-input"
+                   placeholder="Rechercher un client ou abonnement..."
+                   oninput="filterTable()">
+        </div>
+        <select class="filter-select" id="filter-statut" onchange="filterTable()">
+            <option value="">Tous les statuts</option>
+            <option value="payé">Payé</option>
+            <option value="en_attente">En attente</option>
+            <option value="échoué">Échoué</option>
+            <option value="remboursé">Remboursé</option>
+        </select>
+        <select class="filter-select" id="filter-abo" onchange="filterTable()">
+            <option value="">Tous les abonnements</option>
+            {% for abo in abonnements %}
+            <option value="{{ abo.nom|lower }}">{{ abo.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title">Liste des paiements</span>
+            <span class="table-count" id="count-label">{{ paiements|length }} paiements</span>
+        </div>
+
+        {% if paiements is empty %}
+        <div style="text-align:center;padding:60px;color:#8a9bb5;">
+            <div style="font-size:48px;margin-bottom:16px;">📭</div>
+            <p style="font-size:14px;">Aucun paiement enregistré.</p>
+        </div>
+        {% else %}
+        <table id="paiement-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Abonnement</th>
+                    <th>Montant</th>
+                    <th>Mode</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for p in paiements %}
+            {% set nomComplet = ((p.prenomTitulaire ?? '') ~ ' ' ~ (p.nomTitulaire ?? ''))|trim %}
+            {% set initiales  = ((p.prenomTitulaire ?? '')|slice(0,1) ~ (p.nomTitulaire ?? '')|slice(0,1))|upper %}
+            <tr data-nom="{{ nomComplet|lower }}"
+                data-abo="{{ p.abonnementId ? p.abonnementId.nom|lower : '' }}"
+                data-statut="{{ p.statut }}">
+
+                <td style="color:#b0bec5;font-size:12px;font-weight:600;">#{{ p.id }}</td>
+
+                <td>
+                    <div class="client-cell">
+                        <div class="avatar">{{ initiales ?: '?' }}</div>
+                        <div>
+                            <div class="client-name">{{ nomComplet ?: 'Client inconnu' }}</div>
+                            <div class="client-sub">{{ p.modePaiement ?? '—' }}</div>
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    {% if p.abonnementId %}
+                    <span class="abo-pill"
+                          onclick="openDrawer({{ p.abonnementId.id }}, '{{ p.abonnementId.nom|e('js') }}', '{{ p.abonnementId.categorie|capitalize }}', '{{ p.abonnementId.logoDomain|default('') }}'); event.stopPropagation();">
+                        {% if p.abonnementId.logoDomain %}
+                        <img src="https://logo.clearbit.com/{{ p.abonnementId.logoDomain }}"
+                             alt="{{ p.abonnementId.nom }}"
+                             onerror="this.style.display='none';">
+                        {% endif %}
+                        {{ p.abonnementId.nom }}
+                    </span>
+                    {% else %}—{% endif %}
+                </td>
+
+                <td><span class="montant-cell">{{ p.montant|number_format(2) }} DT</span></td>
+                <td style="font-size:12px;color:#8a9bb5;">{{ p.modePaiement ?? '—' }}</td>
+                <td style="font-size:12px;color:#8a9bb5;">{{ p.datePaiement ? p.datePaiement|date('d/m/Y') : '—' }}</td>
+
+                <td>
+                    {% set s = p.statut %}
+                    <span class="badge {% if s == 'payé' %}badge-paye{% elseif s == 'en_attente' %}badge-attente{% elseif s == 'échoué' %}badge-echec{% else %}badge-rembourse{% endif %}">
+                        {{ s|capitalize }}
+                    </span>
+                </td>
+
+                <td>
+                    {% if p.abonnementId %}
+                    <button class="btn-action" title="Voir l'historique"
+                            onclick="openDrawer({{ p.abonnementId.id }}, '{{ p.abonnementId.nom|e('js') }}', '{{ p.abonnementId.categorie|capitalize }}', '{{ p.abonnementId.logoDomain|default('') }}')">
+                        <i class="fa fa-history"></i>
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{# DRAWER — historique seulement #}
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">
+        <div class="drawer-logo" id="d-logo"></div>
+        <div>
+            <div class="drawer-title" id="d-title">Chargement...</div>
+            <div class="drawer-sub"   id="d-sub"></div>
+        </div>
+        <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body" id="drawer-body">
+        <div class="drawer-loading">
+            <div class="spinner"></div>
+            <span>Chargement des données...</span>
+        </div>
+    </div>
+</div>
+
+<script>
+let drawerData = null;
+
+function openDrawer(id, nom, cat, logoDomain) {
+    drawerData = null;
+
+    const logoEl = document.getElementById('d-logo');
+    logoEl.innerHTML = '';
+
+    if (logoDomain) {
+        const img = document.createElement('img');
+        img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+        img.src = 'https://logo.clearbit.com/' + logoDomain;
+        img.onerror = function() {
+            logoEl.innerHTML = '<span class="drawer-logo-text">' + nom.slice(0,2).toUpperCase() + '</span>';
+            logoEl.style.background = 'rgba(255,255,255,0.2)';
+        };
+        logoEl.appendChild(img);
+        logoEl.style.background = 'rgba(255,255,255,0.15)';
+    } else {
+        logoEl.innerHTML = '<span class="drawer-logo-text">' + nom.slice(0,2).toUpperCase() + '</span>';
+        logoEl.style.background = 'rgba(255,255,255,0.2)';
+    }
+
+    document.getElementById('d-title').textContent = nom;
+    document.getElementById('d-sub').textContent   = cat;
+
+    document.getElementById('drawer-body').innerHTML = `
+        <div class="drawer-loading">
+            <div class="spinner"></div>
+            <span>Chargement...</span>
+        </div>`;
+
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('drawer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    fetch(`/admin/paiement/abonnement/${id}/details`)
+        .then(r => r.json())
+        .then(data => { drawerData = data; renderHistorique(); })
+        .catch(() => {
+            document.getElementById('drawer-body').innerHTML =
+                '<div class="empty-drawer"><div class="ei">⚠️</div><p>Erreur de chargement.</p></div>';
+        });
+}
+
+function closeDrawer() {
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('drawer').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function statutBadge(s) {
+    const map = { 'payé':'badge-paye','en_attente':'badge-attente','échoué':'badge-echec','remboursé':'badge-rembourse' };
+    return `<span class="badge ${map[s]||'badge-attente'}">${s}</span>`;
+}
+
+function renderHistorique() {
+    const d = drawerData;
+
+    const statsHtml = `
+        <div class="drawer-stats">
+            <div class="d-stat">
+                <div class="d-stat-val">${d.nbPaiements}</div>
+                <div class="d-stat-lbl">Paiements</div>
+            </div>
+            <div class="d-stat">
+                <div class="d-stat-val">${parseFloat(d.revenus).toFixed(2)} DT</div>
+                <div class="d-stat-lbl">Revenus</div>
+            </div>
+            <div class="d-stat">
+                <div class="d-stat-val">${d.abonnement.prix} DT</div>
+                <div class="d-stat-lbl">Prix / ${d.abonnement.frequence}</div>
+            </div>
+        </div>`;
+
+    if (d.historique.length === 0) {
+        document.getElementById('drawer-body').innerHTML =
+            statsHtml + '<div class="empty-drawer"><div class="ei">📋</div><p>Aucun historique pour cette offre.</p></div>';
+        return;
+    }
+
+    let html = statsHtml + '<div class="drawer-section-title">Historique des paiements</div>';
+    d.historique.forEach(h => {
+        html += `
+            <div class="hist-item">
+                <span class="hist-date">${h.date}</span>
+                <div class="hist-info">
+                    <div class="hist-nom">${h.nom}</div>
+                    <div class="hist-mode">${h.mode}</div>
+                </div>
+                ${statutBadge(h.statut)}
+                <span class="hist-montant">${parseFloat(h.montant).toFixed(2)} DT</span>
+            </div>`;
+    });
+    document.getElementById('drawer-body').innerHTML = html;
+}
+
+function filterTable() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const statut = document.getElementById('filter-statut').value;
+    const abo    = document.getElementById('filter-abo').value;
+    const rows   = document.querySelectorAll('#paiement-table tbody tr');
+    let visible  = 0;
+    rows.forEach(row => {
+        const match =
+            (!search || row.dataset.nom.includes(search) || row.dataset.abo.includes(search)) &&
+            (!statut || row.dataset.statut === statut) &&
+            (!abo    || row.dataset.abo    === abo);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    document.getElementById('count-label').textContent =
+        visible + ' paiement' + (visible > 1 ? 's' : '');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+</script>
+{% endblock %}

@@ -1,0 +1,526 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Abonnements — Admin Dinari{% endblock %}
+{% block page_title %}Gestion des Abonnements{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.abo-page { font-family: 'Plus Jakarta Sans', sans-serif; }
+.page-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.page-top h1 { font-size: 24px; font-weight: 800; color: #1e2d40; margin: 0 0 4px; letter-spacing: -0.5px; }
+.breadcrumb-d { font-size: 13px; color: #8a9bb5; }
+.breadcrumb-d a { color: #1a6fc4; text-decoration: none; }
+.page-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.btn-primary-d {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px;
+    background: linear-gradient(135deg, #1a6fc4, #1558a0); color: #fff; border-radius: 10px;
+    font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(26,111,196,0.3); border: none; cursor: pointer;
+}
+.btn-primary-d:hover { transform: translateY(-1px); color: #fff; text-decoration: none; }
+
+.btn-outline-d {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px;
+    background: #fff; border: 2px solid #1a6fc4; color: #1a6fc4; border-radius: 10px;
+    font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+}
+.btn-outline-d:hover { background: #1a6fc4; color: #fff; transform: translateY(-1px); text-decoration: none; }
+
+.btn-ghost-d {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px;
+    background: #fff; border: 2px solid rgba(124,58,237,0.25); color: #7c3aed; border-radius: 10px;
+    font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+}
+.btn-ghost-d:hover { background: #7c3aed; color: #fff; border-color: #7c3aed; transform: translateY(-1px); text-decoration: none; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-box {
+    background: #fff; border: 1px solid #e4e9f2; border-radius: 14px; padding: 20px;
+    display: flex; align-items: center; gap: 16px; transition: box-shadow 0.2s;
+}
+.stat-box:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+.stat-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-value { font-size: 26px; font-weight: 800; color: #1e2d40; line-height: 1; }
+.stat-label { font-size: 12px; color: #8a9bb5; font-weight: 600; margin-top: 3px; }
+
+/* Widget Prédictions ML */
+.predictions-widget {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.predictions-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+.predictions-widget .stat-icon {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+.predictions-widget .stat-value {
+    color: #fff;
+    font-size: 18px;
+}
+.predictions-widget .stat-label {
+    color: rgba(255,255,255,0.8);
+}
+.prediction-trend {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.prediction-trend i {
+    font-size: 12px;
+}
+
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.search-box {
+    flex: 1; min-width: 220px; display: flex; align-items: center;
+    background: #fff; border: 1.5px solid #e4e9f2; border-radius: 10px;
+    padding: 0 14px; gap: 8px; transition: border-color 0.2s;
+}
+.search-box:focus-within { border-color: #1a6fc4; }
+.search-box input {
+    border: none; outline: none; flex: 1; padding: 10px 0; font-size: 13px;
+    font-family: 'Plus Jakarta Sans', sans-serif; color: #1e2d40; background: transparent;
+}
+.filter-select {
+    padding: 10px 14px; border: 1.5px solid #e4e9f2; border-radius: 10px;
+    background: #fff; font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #3d5166; cursor: pointer; outline: none;
+}
+.filter-select:focus { border-color: #1a6fc4; }
+
+.table-card { background: #fff; border: 1px solid #e4e9f2; border-radius: 16px; overflow: hidden; }
+.table-card-header {
+    padding: 18px 24px; border-bottom: 1px solid #f0f3f9;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.table-card-title { font-size: 14px; font-weight: 700; color: #1e2d40; }
+.table-count { font-size: 12px; color: #8a9bb5; }
+
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: #f8f9fc; }
+th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a9bb5; border-bottom: 1px solid #f0f3f9; }
+td { padding: 14px 16px; border-bottom: 1px solid #f7f8fb; font-size: 13px; color: #3d5166; vertical-align: middle; }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: #fafbfd; }
+tbody tr:last-child td { border-bottom: none; }
+
+.service-cell { display: flex; align-items: center; gap: 12px; }
+.logo-wrap { width: 38px; height: 38px; border-radius: 8px; background: #f0f4f9; border: 1px solid #d9e2ed; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.logo-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.logo-fallback-initials { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #1a6fc4, #1558a0); flex-shrink: 0; }
+.service-name { font-weight: 700; color: #1e2d40; font-size: 14px; }
+.service-desc { font-size: 11px; color: #8a9bb5; margin-top: 1px; }
+
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+.badge-Normal   { background: rgba(52,152,219,0.1);  color: #2980b9; }
+.badge-Silver   { background: rgba(127,140,141,0.1); color: #7f8c8d; }
+.badge-Gold     { background: rgba(243,156,18,0.12); color: #e67e22; }
+.badge-Platinum { background: rgba(155,89,182,0.12); color: #8e44ad; }
+.badge-streaming    { background: rgba(229,9,20,0.08);   color: #c0392b; }
+.badge-musique      { background: rgba(29,185,84,0.1);   color: #1db954; }
+.badge-productivite { background: rgba(26,111,196,0.1);  color: #1a6fc4; }
+.badge-gaming       { background: rgba(16,124,16,0.1);   color: #107c10; }
+.badge-education    { background: rgba(0,86,210,0.1);    color: #0056d2; }
+.badge-securite     { background: rgba(70,135,255,0.1);  color: #4687ff; }
+
+.prix-crossed { font-size: 12px; color: #8a9bb5; text-decoration: line-through; margin-bottom: 4px; }
+.prix-cell { font-size: 16px; font-weight: 800; color: #1a6fc4; }
+.price-note { display: inline-block; font-size: 11px; color: #27ae60; margin-top: 4px; }
+.freq-sub { font-size: 11px; color: #8a9bb5; font-weight: 500; }
+.promo-pill { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; background: rgba(26,111,196,0.1); color: #1a6fc4; font-size: 11px; font-weight: 700; margin-right: 6px; margin-top: 6px; }
+.promo-pill.featured { background: rgba(26,111,196,0.15); color: #1558a0; }
+
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: #dde3ee; border-radius: 22px; cursor: pointer; transition: 0.3s; }
+.toggle-slider::before { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.toggle-switch input:checked + .toggle-slider { background: #27ae60; }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+.actions-cell { display: flex; gap: 6px; }
+.btn-action { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e4e9f2; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.2s; text-decoration: none; }
+.btn-action:hover { transform: translateY(-1px); }
+.btn-edit   { color: #e67e22; } .btn-edit:hover   { background: rgba(230,126,34,0.08); border-color: #e67e22; }
+.btn-delete { color: #e74c3c; } .btn-delete:hover { background: rgba(231,76,60,0.08);  border-color: #e74c3c; }
+
+.empty-state { text-align: center; padding: 60px 40px; color: #8a9bb5; }
+.empty-state h3 { font-size: 18px; font-weight: 700; color: #3d5166; margin-bottom: 8px; }
+.empty-state p { font-size: 14px; margin-bottom: 24px; }
+
+mark { background: rgba(26,111,196,0.15); color: #1a6fc4; border-radius: 3px; padding: 0 2px; font-weight: 700; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="abo-page">
+
+    {# ── Header ── #}
+    <div class="page-top">
+        <div>
+            <h1>Abonnements</h1>
+            <div class="breadcrumb-d">
+                <a href="{{ path('app_home') }}">Accueil</a> → Gestion Abonnements
+            </div>
+        </div>
+        <div class="page-actions">
+            <a href="{{ path('admin_stats') }}" class="btn-ghost-d">
+                <i class="fa fa-bar-chart"></i> Statistiques
+            </a>
+            <a href="{{ path('admin_paiement_index') }}" class="btn-outline-d">
+                <i class="fa fa-credit-card"></i> Paiements clients
+            </a>
+            <a href="{{ path('admin_abonnement_catalogue') }}" class="btn-primary-d">
+                <i class="fa fa-plus"></i> Nouvel abonnement
+            </a>
+        </div>
+    </div>
+
+    {# ── Stats avec widget Prédictions ML ── #}
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(26,111,196,0.1);color:#1a6fc4;"><i class="fa fa-box-open"></i></div>
+            <div><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total packs</div></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;"><i class="fa fa-check-circle"></i></div>
+            <div><div class="stat-value">{{ stats.actifs }}</div><div class="stat-label">Packs actifs</div></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon" style="background:rgba(26,111,196,0.12);color:#1a6fc4;"><i class="fa fa-star"></i></div>
+            <div><div class="stat-value">{{ stats.premium }}</div><div class="stat-label">Packs Premium</div></div>
+        </div>
+        
+        {# 🔥 WIDGET PRÉDICTIONS ML (4ème carte) 🔥 #}
+        <div class="stat-box predictions-widget" id="predictionsWidget" onclick="window.location.href='{{ path('admin_ml_dashboard') }}'">
+            <div class="stat-icon">
+                <i class="fa fa-brain"></i>
+            </div>
+            <div style="flex: 1;">
+                <div class="stat-value" id="topPredictionValue">—</div>
+                <div class="stat-label">N°1 prédit 2027</div>
+                <div class="prediction-trend" id="predictionTrend">
+                    <i class="fa fa-spinner fa-spin"></i> Chargement...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Toolbar AJAX ── #}
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" id="search-input" placeholder="Rechercher un abonnement...">
+        </div>
+        <select class="filter-select" id="filter-tier">
+            <option value="">Tous les niveaux</option>
+            <option value="Normal">Normal</option>
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+            <option value="Platinum">Platinum</option>
+        </select>
+        <select class="filter-select" id="filter-statut">
+            <option value="">Tous les statuts</option>
+            <option value="actif">Actifs</option>
+            <option value="inactif">Inactifs</option>
+        </select>
+        <select class="filter-select" id="filter-cat">
+            <option value="">Toutes catégories</option>
+            <option value="streaming">Streaming</option>
+            <option value="musique">Musique</option>
+            <option value="productivite">Productivité</option>
+            <option value="gaming">Gaming</option>
+            <option value="education">Éducation</option>
+            <option value="securite">Sécurité</option>
+        </select>
+    </div>
+
+    {# ── Table ── #}
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title">Liste des packs</span>
+            <span class="table-count" id="count-label">{{ abonnements|length }} pack{{ abonnements|length > 1 ? 's' : '' }}</span>
+        </div>
+
+        {% if abonnements is empty %}
+        <div class="empty-state">
+            <h3>Aucun abonnement créé</h3>
+            <p>Parcourez le catalogue et ajoutez vos premiers packs.</p>
+            <a href="{{ path('admin_abonnement_catalogue') }}" class="btn-primary-d">
+                <i class="fa fa-plus"></i> Parcourir le catalogue
+            </a>
+        </div>
+        {% else %}
+        <table id="abo-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Service</th>
+                    <th>Prix</th>
+                    <th>Fréquence</th>
+                    <th>Catégorie</th>
+                    <th>Niveau</th>
+                    <th>Statut</th>
+                    <th>Date ajout</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="abo-tbody">
+            {% for abo in abonnements %}
+            <tr>
+                <td style="color:#b0bec5;font-size:12px;font-weight:600;">#{{ abo.id }}</td>
+                <td>
+                    <div class="service-cell">
+                        {% if abo.logoDomain %}
+                        <div class="logo-wrap">
+                            <img
+                                src="https://logo.clearbit.com/{{ abo.logoDomain }}"
+                                alt="{{ abo.nom }}"
+                                onerror="this.src='https://www.google.com/s2/favicons?domain={{ abo.logoDomain }}&sz=128'; this.style.width='28px'; this.style.height='28px'; this.onerror=function(){ this.style.display='none'; document.getElementById('fallback-{{ abo.id }}').style.display='flex'; };"
+                            />
+                            <div id="fallback-{{ abo.id }}" class="logo-fallback-initials" style="display:none;">
+                                {{ abo.nom|slice(0,2)|upper }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="logo-fallback-initials">{{ abo.nom|slice(0,2)|upper }}</div>
+                        {% endif %}
+                        <div>
+                            <div class="service-name">{{ abo.nom }}</div>
+                            <div class="service-desc">{{ abo.categorie|capitalize }}</div>
+                            <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+                                {% if abo.badge %}<span class="promo-pill">{{ abo.badge }}</span>{% endif %}
+                                {% if abo.misEnAvant %}<span class="promo-pill featured">Mise en avant</span>{% endif %}
+                                {% for promo in abo.promotionsActives %}<span class="promo-pill">{{ promo.label }}</span>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    {% if abo.prixMarche %}<div class="prix-crossed">{{ abo.prixMarche|number_format(2) }} DT</div>{% endif %}
+                    <div class="prix-cell">{{ abo.prixEffectif|number_format(2) }} DT</div>
+                    <div class="freq-sub">/ {{ abo.frequence }}</div>
+                    {% if abo.economiePercent %}<div class="price-note">Économisez {{ abo.economiePercent }}%</div>{% endif %}
+                </td>
+                <td><span class="badge badge-{{ abo.frequence == 'mensuel' ? 'Normal' : (abo.frequence == 'annuel' ? 'Gold' : 'Silver') }}">{{ abo.frequence|capitalize }}</span></td>
+                <td><span class="badge badge-{{ abo.categorie }}">{{ abo.categorie|capitalize }}</span></td>
+                <td><span class="badge badge-{{ abo.tier }}">{{ abo.tier }}</span></td>
+                <td>
+                    <label class="toggle-switch">
+                        <input type="checkbox" {% if abo.actif %}checked{% endif %} onchange="toggleActif({{ abo.id }}, this)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </td>
+                <td style="color:#8a9bb5;font-size:12px;">{{ abo.createdAt|date('d/m/Y') }}</td>
+                <td>
+                    <div class="actions-cell">
+                        <a href="{{ path('admin_abonnement_edit', {id: abo.id}) }}" class="btn-action btn-edit" title="Modifier">
+                            <i class="fa fa-pencil"></i>
+                        </a>
+                        <form method="post" action="{{ path('admin_abonnement_delete', {id: abo.id}) }}"
+                              onsubmit="return confirm('Supprimer {{ abo.nom }} ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ abo.id) }}">
+                            <button type="submit" class="btn-action btn-delete" title="Supprimer">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+const AJAX_URL = "{{ path('admin_abonnement_search_ajax') }}";
+let timer = null;
+
+document.getElementById('search-input').addEventListener('input', triggerSearch);
+document.getElementById('filter-tier').addEventListener('change', triggerSearch);
+document.getElementById('filter-statut').addEventListener('change', triggerSearch);
+document.getElementById('filter-cat').addEventListener('change', triggerSearch);
+
+function triggerSearch() {
+    clearTimeout(timer);
+    timer = setTimeout(doSearch, 250);
+}
+
+function doSearch() {
+    const q      = document.getElementById('search-input').value;
+    const tier   = document.getElementById('filter-tier').value;
+    const statut = document.getElementById('filter-statut').value;
+    const cat    = document.getElementById('filter-cat').value;
+
+    if (!q && !tier && !statut && !cat) {
+        location.reload();
+        return;
+    }
+
+    const params = new URLSearchParams({ q, tier, statut, cat });
+    fetch(AJAX_URL + '?' + params)
+        .then(r => r.json())
+        .then(data => renderRows(data))
+        .catch(err => console.error('Erreur recherche:', err));
+}
+
+function renderRows(abos) {
+    const tbody      = document.getElementById('abo-tbody');
+    const countLabel = document.getElementById('count-label');
+    const q          = document.getElementById('search-input').value;
+
+    countLabel.textContent = abos.length + ' pack' + (abos.length > 1 ? 's' : '');
+    tbody.innerHTML = '';
+
+    if (abos.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align:center;padding:48px;color:#8a9bb5;">
+                    <i class="fa fa-search" style="font-size:32px;display:block;margin-bottom:12px;"></i>
+                    Aucun abonnement trouvé
+                </td>
+            </tr>`;
+        return;
+    }
+
+    abos.forEach((abo, index) => {
+        let nomHtml = escHtml(abo.nom);
+        if (q.trim()) {
+            const regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            nomHtml = escHtml(abo.nom).replace(regex, '<mark>$1</mark>');
+        }
+
+        const fallbackId = 'ajax-fallback-' + abo.id;
+        const initiales  = abo.nom.slice(0, 2).toUpperCase();
+        const logoHtml   = abo.logoDomain
+            ? `<div class="logo-wrap">
+                 <img
+                   src="https://logo.clearbit.com/${escHtml(abo.logoDomain)}"
+                   alt="${escHtml(abo.nom)}"
+                   onerror="this.src='https://www.google.com/s2/favicons?domain=${escHtml(abo.logoDomain)}&sz=128'; this.style.width='28px'; this.style.height='28px'; this.onerror=function(){ this.style.display='none'; document.getElementById('${fallbackId}').style.display='flex'; };"
+                 />
+                 <div id="${fallbackId}" class="logo-fallback-initials" style="display:none;">${initiales}</div>
+               </div>`
+            : `<div class="logo-fallback-initials">${initiales}</div>`;
+
+        const tierClass = { Normal:'badge-Normal', Silver:'badge-Silver', Gold:'badge-Gold', Platinum:'badge-Platinum' };
+        const freqClass = abo.frequence === 'mensuel' ? 'badge-Normal' : abo.frequence === 'annuel' ? 'badge-Gold' : 'badge-Silver';
+        const catClass  = 'badge-' + (abo.categorie || '');
+
+        const prixCroise = abo.prixMarche
+            ? `<div class="prix-crossed">${parseFloat(abo.prixMarche).toFixed(2)} DT</div>` : '';
+        const economie = abo.economiePercent
+            ? `<div class="price-note">Économisez ${abo.economiePercent}%</div>` : '';
+
+        const badgePill = abo.badge    ? `<span class="promo-pill">${escHtml(abo.badge)}</span>` : '';
+        const avantPill = abo.misEnAvant ? `<span class="promo-pill featured">Mise en avant</span>` : '';
+
+        const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+
+        tbody.innerHTML += `
+        <tr>
+            <td style="color:#b0bec5;font-size:12px;font-weight:600;">#${abo.id}</td>
+            <td>
+                <div class="service-cell">
+                    ${logoHtml}
+                    <div>
+                        <div class="service-name">${nomHtml}</div>
+                        <div class="service-desc">${cap(abo.categorie)}</div>
+                        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+                            ${badgePill}${avantPill}
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                ${prixCroise}
+                <div class="prix-cell">${parseFloat(abo.prixEffectif).toFixed(2)} DT</div>
+                <div class="freq-sub">/ ${abo.frequence}</div>
+                ${economie}
+            </td>
+            <td><span class="badge ${freqClass}">${cap(abo.frequence)}</span></td>
+            <td><span class="badge ${catClass}">${cap(abo.categorie)}</span></td>
+            <td><span class="badge ${tierClass[abo.tier] || ''}">${abo.tier}</span></td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${abo.actif ? 'checked' : ''}
+                           onchange="toggleActif(${abo.id}, this)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </td>
+            <td style="color:#8a9bb5;font-size:12px;">${abo.createdAt}</td>
+            <td>
+                <div class="actions-cell">
+                    <a href="/admin/abonnement/${abo.id}/edit" class="btn-action btn-edit" title="Modifier">
+                        <i class="fa fa-pencil"></i>
+                    </a>
+                    <form method="post" action="/admin/abonnement/${abo.id}/delete"
+                          onsubmit="return confirm('Supprimer ${escHtml(abo.nom)} ?')">
+                        <input type="hidden" name="_token" value="">
+                        <button type="submit" class="btn-action btn-delete" title="Supprimer">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>`;
+    });
+}
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleActif(id, checkbox) {
+    fetch(`/admin/abonnement/${id}/toggle`, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => console.log(data.message))
+    .catch(() => { checkbox.checked = !checkbox.checked; });
+}
+
+// 🔥 SCRIPT POUR CHARGER LES PRÉDICTIONS ML 🔥
+async function loadPredictions() {
+    const predictionValue = document.getElementById('topPredictionValue');
+    const predictionTrend = document.getElementById('predictionTrend');
+    
+    try {
+        const response = await fetch('http://localhost:5000/api/ml/top?n=1');
+        const data = await response.json();
+        
+        if (data.success && data.top && data.top.length > 0) {
+            const top = data.top[0];
+            predictionValue.innerHTML = top.nom;
+            predictionTrend.innerHTML = `<i class="fa fa-chart-line"></i> ${top.ventes_totales} ventes prévues · ${top.categorie}`;
+        } else {
+            predictionValue.innerHTML = '—';
+            predictionTrend.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Modèle non entraîné';
+        }
+    } catch (error) {
+        console.error('Erreur chargement prédictions:', error);
+        predictionValue.innerHTML = '—';
+        predictionTrend.innerHTML = '<i class="fa fa-plug"></i> API ML indisponible';
+    }
+}
+
+// Charger au chargement de la page
+document.addEventListener('DOMContentLoaded', loadPredictions);
+// Rafraîchir toutes les 2 minutes
+setInterval(loadPredictions, 120000);
+</script>
+{% endblock %}

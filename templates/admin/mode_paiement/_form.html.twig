@@ -1,0 +1,21 @@
+{{ form_start(form) }}
+
+<div class="fg-p">
+    <label>Mode de paiement</label>
+    {{ form_widget(form.label, {
+        attr: { class: 'fc-p', placeholder: 'Ex: Carte bancaire, Virement, Espèces…' }
+    }) }}
+    {{ form_errors(form.label) }}
+</div>
+
+<div class="form-actions-p">
+    <a href="{{ path('admin_mode_paiement_index') }}" class="btn-cancel-p">
+        <i class="ri-arrow-left-line"></i> Annuler
+    </a>
+    <button type="submit" class="btn-premium">
+        <i class="ri-save-line"></i>
+        {{ button_label|default('Enregistrer') }}
+    </button>
+</div>
+
+{{ form_end(form) }}

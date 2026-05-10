@@ -1,0 +1,1441 @@
+{# templates/admin/ml/dashboard.html.twig #}
+
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}AI Subscription Predictions — Dinari Intelligence{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg: #f0eff9;
+    --surface: #ffffff;
+    --surface2: #eae8f5;
+    --border: rgba(107,89,232,0.12);
+    --border-hover: rgba(107,89,232,0.4);
+    --accent: #6b59e8;
+    --accent-light: #ede9fe;
+    --accent2: #22c55e;
+    --accent3: #e84040;
+    --accent4: #f59e0b;
+    --accent5: #06b6d4;
+    --text: #1a1625;
+    --muted: #7c7a9a;
+    --radius: 20px;
+    --radius-sm: 12px;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --shadow: 0 4px 24px rgba(107,89,232,0.10);
+    --shadow-lg: 0 12px 48px rgba(107,89,232,0.18);
+}
+
+html, body { width: 100%; min-height: 100vh; font-family: var(--font-display); background: var(--bg); color: var(--text); }
+.container, .container-fluid, .container-xl, .container-xxl,
+main > .row, .main-wrapper, .content-wrapper { max-width: none !important; width: 100% !important; }
+
+.admin-main-content {
+    margin-left: 280px;
+    padding: 3rem 4rem;
+    min-height: 100vh;
+    width: calc(100% - 280px);
+    max-width: none !important;
+    background:
+        radial-gradient(ellipse 800px 600px at 0% 0%, rgba(107,89,232,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 600px 400px at 100% 100%, rgba(34,197,94,0.04) 0%, transparent 60%),
+        var(--bg);
+}
+@media (max-width: 1024px) { .admin-main-content { margin-left: 0; padding: 2rem; width: 100%; } }
+@media (max-width: 768px)  { .admin-main-content { padding: 1.25rem; } }
+
+/* ── HEADER ── */
+.page-header {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 2rem; margin-bottom: 3.5rem;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 2.25rem 2.75rem;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.page-header::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--accent), #a78bfa, #22c55e);
+    border-radius: 4px 0 0 4px;
+}
+.page-header::after {
+    content: ''; position: absolute; right: -80px; top: -80px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(107,89,232,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.page-title { font-size: 2.4rem; font-weight: 800; letter-spacing: -.04em; color: var(--text); display: flex; align-items: center; gap: .7rem; margin-bottom: .45rem; }
+.page-title-icon { width: 48px; height: 48px; background: var(--accent-light); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+.page-meta { display: flex; align-items: center; gap: 1.25rem; font-family: var(--font-mono); font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.live-dot { display: inline-flex; align-items: center; gap: 7px; }
+.live-dot::before { content: ''; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e88; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(.8);} }
+
+.header-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.btn-primary { display: inline-flex; align-items: center; gap: .5rem; background: linear-gradient(135deg, var(--accent), #8b72f5); color: white; border: none; border-radius: var(--radius-sm); padding: 14px 28px; font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .25s; box-shadow: 0 4px 20px rgba(107,89,232,.35); white-space: nowrap; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(107,89,232,.5); }
+.btn-primary:disabled { opacity:.6; pointer-events:none; }
+
+/* Devise badge */
+.devise-badge { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #b45309; font-family: var(--font-mono); font-size: 11px; font-weight: 800; padding: 5px 14px; border-radius: 20px; letter-spacing: .06em; }
+
+/* ── TABS ── */
+.tabs-nav { display: flex; gap: 8px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 8px; margin-bottom: 3rem; width: fit-content; box-shadow: var(--shadow); }
+.tab-btn { display: inline-flex; align-items: center; gap: .65rem; padding: 14px 32px; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--muted); font-family: var(--font-display); font-size: 14px; font-weight: 700; cursor: pointer; transition: all .25s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active { background: linear-gradient(135deg, var(--accent), #8b72f5); color: white; box-shadow: 0 4px 20px rgba(107,89,232,.4); }
+.tab-count { background: rgba(255,255,255,.25); font-size: 11px; font-family: var(--font-mono); padding: 3px 10px; border-radius: 20px; }
+.tab-btn:not(.active) .tab-count { background: var(--surface2); color: var(--muted); }
+
+.tab-panel { display: none; animation: fadeUp .35s ease forwards; }
+.tab-panel.active { display: block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+
+/* Animation pour l'apparition des cartes */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.flip-card {
+    animation: fadeInScale 0.4s ease forwards;
+    opacity: 0;
+}
+
+/* Style supplémentaire pour le flip */
+.flip-card .flip-card-inner {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* ── STAT GRID ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.75rem; margin-bottom: 2.5rem; }
+@media(max-width:1400px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px) {.stat-grid{grid-template-columns:1fr;}}
+
+.stat-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); transition: all .3s; position: relative; overflow: hidden; }
+.stat-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+.stat-card::after { content: ''; position: absolute; right: -30px; bottom: -30px; width: 120px; height: 120px; border-radius: 50%; opacity: .06; pointer-events: none; }
+.stat-card.purple-card::after { background: var(--accent); }
+.stat-card.indigo-card::after { background: #6366f1; }
+.stat-card.green-card::after  { background: var(--accent2); }
+.stat-card.teal-card::after   { background: var(--accent5); }
+
+.stat-card-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.stat-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon.purple { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+.stat-icon.indigo  { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); }
+.stat-icon.green   { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+.stat-icon.teal    { background: linear-gradient(135deg, #cffafe, #a5f3fc); }
+
+.stat-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: .08em; }
+.badge-live     { background: #dcfce7; color: #16a34a; }
+.badge-hist     { background: var(--accent-light); color: var(--accent); }
+.badge-trending { background: #fef3c7; color: #b45309; }
+.badge-best     { background: #cffafe; color: #0891b2; }
+
+.stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .6rem; font-weight: 600; }
+.stat-value { font-size: 3.2rem; font-weight: 800; letter-spacing: -.05em; line-height: 1; }
+.stat-value.large-text { font-size: 1.7rem; letter-spacing: -.02em; line-height: 1.2; }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: .65rem; }
+
+/* ── VELOCITY ── */
+.velocity-panel { background: linear-gradient(135deg, #1a1625 0%, #2d1f4e 100%); border-radius: var(--radius); padding: 2.5rem; margin-bottom: 2.5rem; position: relative; overflow: hidden; box-shadow: 0 16px 56px rgba(107,89,232,.25); }
+.velocity-panel::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(107,89,232,.3) 0%, transparent 70%); }
+.velocity-panel::after  { content: ''; position: absolute; bottom: -40px; left: 200px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(34,197,94,.15) 0%, transparent 70%); }
+.velocity-title { font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: .5rem; }
+.velocity-sub   { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 2rem; }
+.velocity-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; position: relative; z-index: 1; }
+@media(max-width:900px){.velocity-stats{grid-template-columns:repeat(2,1fr);}}
+.v-stat-val { font-size: 2.5rem; font-weight: 800; font-family: var(--font-mono); line-height: 1; }
+.v-stat-lbl { font-size: 11px; color: rgba(255,255,255,.5); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .1em; margin-top: .4rem; }
+.v-divider  { width: 1px; background: rgba(255,255,255,.1); align-self: stretch; }
+
+/* ── CHARTS ── */
+.charts-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 1.75rem; margin-bottom: 2.5rem; }
+@media(max-width:1200px){.charts-grid{grid-template-columns:1fr;}}
+.card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); transition: all .25s; }
+.card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-lg); }
+.chart-card { padding: 2.25rem; }
+.chart-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .5rem; flex-wrap: wrap; gap: .75rem; }
+.chart-title { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.chart-sub   { font-size: 12px; color: var(--muted); margin-bottom: 1.75rem; }
+.chart-legend { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.legend-item  { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.legend-dot   { width: 10px; height: 10px; border-radius: 50%; }
+.legend-dashed-line { width: 22px; border-top: 3px dashed; }
+
+/* ── SPOTLIGHT ── */
+.spotlight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; margin-bottom: 2.5rem; }
+@media(max-width:1100px){.spotlight-grid{grid-template-columns:1fr;}}
+.spotlight-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); transition: all .3s; position: relative; overflow: hidden; }
+.spotlight-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--border-hover); }
+.spotlight-card.gold   { border-color: rgba(245,158,11,.35); }
+.spotlight-card.gold::before   { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#fde68a,#f59e0b); }
+.spotlight-card.silver { border-color: rgba(148,163,184,.4); }
+.spotlight-card.silver::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#94a3b8,#e2e8f0,#94a3b8); }
+.spotlight-card.bronze { border-color: rgba(180,130,80,.3); }
+.spotlight-card.bronze::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#b4844e,#f5d5a8,#b4844e); }
+.spotlight-rank { font-family: var(--font-mono); font-size: 11px; font-weight: 800; padding: 5px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 1.25rem; }
+.rank-gold   { background: #fef3c7; color: #b45309; }
+.rank-silver { background: #f1f5f9; color: #475569; }
+.rank-bronze { background: #fdf4eb; color: #b4844e; }
+.spotlight-name { font-size: 1.5rem; font-weight: 800; color: var(--text); margin-bottom: .4rem; }
+.spotlight-cat  { font-size: 12px; color: var(--muted); margin-bottom: 1.5rem; }
+.spotlight-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.metric-box   { background: var(--bg); border-radius: 12px; padding: 1rem; }
+.metric-label { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .35rem; }
+.metric-val   { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 800; }
+
+/* ── TABLE ── */
+.rankings-card { overflow: hidden; }
+.rankings-header { display: flex; justify-content: space-between; align-items: center; padding: 1.75rem 2.25rem; border-bottom: 1.5px solid var(--border); flex-wrap: wrap; gap: 1rem; }
+.rankings-title  { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.refresh-btn { display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 12px; color: var(--accent); background: var(--accent-light); border: 1.5px solid rgba(107,89,232,.25); border-radius: 10px; padding: 8px 16px; cursor: pointer; transition: all .2s; font-weight: 700; }
+.refresh-btn:hover { background: var(--accent); color: white; }
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+thead tr { background: var(--surface2); }
+th { padding: 1.1rem 2rem; font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; text-align: left; white-space: nowrap; font-weight: 700; }
+tbody tr { border-bottom: 1.5px solid var(--border); transition: background .15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f7f5ff; }
+td { padding: 1.2rem 2rem; font-size: 14px; }
+.td-name  { display: flex; align-items: center; gap: 1rem; }
+.sub-icon { width: 40px; height: 40px; background: var(--accent-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0; }
+.sub-name { font-weight: 700; color: var(--text); font-size: 14px; }
+.td-cat   { color: var(--muted); font-size: 13px; }
+.tier-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-family: var(--font-mono); font-size: 11px; background: var(--accent-light); color: var(--accent); font-weight: 700; }
+.tier-badge.platinum { background: linear-gradient(135deg,#ede9fe,#ddd6fe); color: #7c3aed; }
+.tier-badge.gold     { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #b45309; }
+.tier-badge.silver   { background: linear-gradient(135deg,#f1f5f9,#e2e8f0); color: #475569; }
+.tier-badge.bronze   { background: linear-gradient(135deg,#fdf4eb,#f5d5a8); color: #b4844e; }
+/* Prix en DT */
+.td-price  { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.td-ventes { font-family: var(--font-mono); font-weight: 800; color: #16a34a; font-size: 15px; }
+.conf-bar-wrap { display: flex; align-items: center; gap: 1rem; }
+.conf-bar-bg   { flex: 1; height: 7px; background: var(--surface2); border-radius: 4px; overflow: hidden; min-width: 90px; }
+.conf-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), #a78bfa); transition: width 2s cubic-bezier(.4,0,.2,1); }
+.conf-pct  { font-family: var(--font-mono); font-size: 12px; color: var(--accent); min-width: 38px; font-weight: 800; }
+.rank-num  { font-family: var(--font-mono); font-size: 14px; color: var(--muted); min-width: 28px; font-weight: 700; }
+.rank-num.top1 { color: #f59e0b; font-weight: 900; font-size: 16px; }
+.rank-num.top2 { color: #94a3b8; font-weight: 900; }
+.rank-num.top3 { color: #b4844e; font-weight: 900; }
+
+/* ── PAGINATION ── */
+.pagination-wrap { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 2rem; border-top: 1.5px solid var(--border); flex-wrap: wrap; gap: .75rem; }
+.pagination-info { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.pagination-controls { display: flex; gap: 5px; align-items: center; }
+.page-btn { width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--font-mono); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.page-btn:hover  { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.page-btn:disabled { opacity:.35; pointer-events:none; }
+.page-size-select { font-family: var(--font-mono); font-size: 12px; color: var(--muted); background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+
+/* ── SECTION ANALYSE ── */
+.section-divider { border: none; border-top: 1.5px solid var(--border); margin: 3.5rem 0; }
+.section-heading { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .6rem; flex-wrap: wrap; gap: 1rem; }
+.section-title  { font-size: 1.75rem; font-weight: 800; color: var(--text); letter-spacing: -0.03em; }
+.section-sub    { font-size: 14px; color: var(--muted); margin-bottom: 2rem; }
+.alert-badge    { display: inline-flex; align-items: center; padding: 7px 18px; border-radius: 20px; font-family: var(--font-mono); font-size: 12px; font-weight: 800; }
+.badge-red      { background: #fee2e2; color: #dc2626; }
+.badge-blue     { background: var(--accent-light); color: var(--accent); }
+.filter-chips   { display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap; }
+.chip           { padding: 7px 18px; border-radius: 20px; font-family: var(--font-mono); font-size: 11px; font-weight: 800; }
+.chip-red       { background: #fee2e2; color: #dc2626; }
+.chip-amber     { background: #fef3c7; color: var(--accent4); }
+
+/* ── UNDER CARDS ── */
+.under-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.25rem; margin-bottom: 3.5rem; }
+.under-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all .3s; border: 1.5px solid var(--border); }
+.under-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.under-card.crit-card { border-color: rgba(220,38,38,.2); }
+.under-card.att-card  { border-color: rgba(245,158,11,.2); }
+.uc-stripe      { height: 3px; width: 100%; }
+.uc-stripe.crit { background: linear-gradient(90deg, #dc2626, #f87171); }
+.uc-stripe.att  { background: linear-gradient(90deg, #f59e0b, #fde68a); }
+.uc-body        { padding: 1.25rem 1.5rem 1.5rem; }
+.uc-header      { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.uc-left        { display: flex; align-items: center; gap: .75rem; flex: 1; min-width: 0; }
+.uc-avatar      { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.uc-avatar.crit { background: #fee2e2; }
+.uc-avatar.att  { background: #fef3c7; }
+.uc-name        { font-size: 14px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uc-meta        { font-size: 10px; color: var(--muted); margin-top: 3px; font-family: var(--font-mono); }
+.uc-right       { flex-shrink: 0; text-align: right; }
+.uc-price       { font-family: var(--font-mono); font-size: 1rem; font-weight: 800; }
+.uc-price.crit  { color: #dc2626; }
+.uc-price.att   { color: #d97706; }
+.uc-status-badge{ display: inline-block; padding: 2px 9px; border-radius: 20px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; margin-top: 4px; }
+.sb-crit { background: #fee2e2; color: #dc2626; }
+.sb-att  { background: #fef3c7; color: #b45309; }
+ 
+/* Métriques 3 colonnes */
+.uc-metrics      { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 1rem; }
+.uc-metric-box   { background: var(--surface2); border-radius: 10px; padding: .65rem .75rem; }
+.uc-metric-lbl   { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .3rem; }
+.uc-metric-val   { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.uc-metric-val.green { color: #16a34a; }
+.uc-metric-val.red   { color: #dc2626; }
+.uc-metric-val.muted { color: var(--muted); }
+ 
+/* Gauge */
+.uc-progress-wrap    { margin-bottom: 1rem; }
+.uc-progress-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: .45rem; }
+.uc-progress-label   { font-family: var(--font-mono); font-size: 10px; color: var(--muted); font-weight: 600; }
+.uc-progress-pct     { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; }
+.uc-progress-pct.crit{ color: #dc2626; }
+.uc-progress-pct.att { color: #d97706; }
+.uc-progress-track   { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.uc-progress-fill    { height: 100%; border-radius: 4px; transition: width 1.5s cubic-bezier(.4,0,.2,1); }
+.uc-progress-fill.crit { background: linear-gradient(90deg, #dc2626, #f87171); }
+.uc-progress-fill.att  { background: linear-gradient(90deg, #f59e0b, #fde68a); }
+ 
+/* Sparkline inline */
+.uc-sparkline-wrap { margin-bottom: .85rem; }
+.uc-sparkline-lbl  { font-family: var(--font-mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+ 
+/* Insight ML */
+.uc-insight { display: flex; align-items: flex-start; gap: .5rem; background: var(--surface2); border-radius: 10px; padding: .7rem .85rem; margin-bottom: 1rem; font-size: 12px; color: var(--muted); line-height: 1.5; border-left: 3px solid var(--accent); }
+.uc-insight-icon { flex-shrink: 0; margin-top: 1px; font-size: 14px; }
+ 
+/* Promo block redesigné */
+.uc-promo-block { border: 1.5px solid rgba(245,158,11,.25); border-radius: 12px; padding: .85rem 1rem; margin-bottom: 1rem; background: rgba(254,243,199,.35); }
+.uc-promo-header { display: flex; align-items: center; gap: .4rem; margin-bottom: .6rem; }
+.uc-promo-title  { font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: .06em; }
+.uc-promo-grid   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: .5rem; }
+.uc-promo-item   { text-align: center; background: rgba(255,255,255,.6); border-radius: 8px; padding: .4rem .3rem; }
+.uc-promo-item-lbl { font-family: var(--font-mono); font-size: 8px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+.uc-promo-item-val { font-family: var(--font-mono); font-size: 12px; font-weight: 800; color: var(--text); }
+.uc-promo-period { font-family: var(--font-mono); font-size: 10px; color: #b45309; }
+ 
+.uc-footer  { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.btn-analyse { display: inline-flex; align-items: center; gap: .4rem; background: var(--accent-light); color: var(--accent); border: 1.5px solid rgba(107,89,232,.25); border-radius: 10px; padding: 7px 16px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; }
+.btn-analyse:hover { background: var(--accent); color: white; }
+.btn-simulate { display: inline-flex; align-items: center; gap: .4rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 10px; padding: 7px 16px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; }
+.btn-simulate:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
+ 
+/* Style pour la simulation promo */
+.simulate-panel { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; padding: .85rem; margin: .75rem 0; border-left: 3px solid #f59e0b; }
+.simulate-buttons { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.simulate-buttons button { background: rgba(255,255,255,.8); border: 1px solid #fde68a; padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: var(--font-mono); }
+.simulate-buttons button:hover { background: #f59e0b; color: white; border-color: #f59e0b; }
+.simulate-result { font-size: 11px; margin-top: 8px; padding: 8px 10px; background: rgba(255,255,255,.7); border-radius: 8px; line-height: 1.6; }
+.simulate-result strong { color: #b45309; }
+.simulate-result .gain-positive { color: #16a34a; font-weight: 800; }
+.simulate-result .gain-negative { color: #dc2626; font-weight: 800; }
+ 
+/* ── PROMO GRID ── */
+.promo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
+@media(max-width:1200px){ .promo-grid { grid-template-columns: repeat(3, 1fr); } }
+@media(max-width:800px)  { .promo-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width:500px)  { .promo-grid { grid-template-columns: 1fr; } }
+ 
+/* Flip cards */
+.flip-card { perspective: 900px; height: 200px; }
+@keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.flip-card { animation: fadeInScale 0.4s ease forwards; opacity: 0; }
+.flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform .55s cubic-bezier(.4,0,.2,1); transform-style: preserve-3d; }
+.flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+ 
+.flip-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); padding: 1.1rem; display: flex; flex-direction: column; }
+ 
+/* FRONT */
+.flip-front { background: var(--surface); border: 1.5px solid var(--border); }
+.flip-front.top-month { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+.flip-month-name { font-family: var(--font-mono); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .4rem; }
+.flip-score-big  { font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; line-height: 1; }
+.flip-score-sub  { font-size: 10px; color: var(--muted); margin-bottom: .5rem; }
+.flip-bar-track  { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: .4rem; }
+.flip-bar-fill   { height: 100%; border-radius: 3px; width: 0%; transition: width 1.2s ease; }
+.flip-conv-lbl   { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.flip-top-badge  { display: inline-flex; align-items: center; gap: 4px; background: #fef3c7; color: #b45309; font-family: var(--font-mono); font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-top: auto; width: fit-content; }
+.flip-hint       { font-size: 10px; color: var(--muted); margin-top: auto; text-align: center; opacity: .7; }
+ 
+/* BACK */
+.flip-back { background: linear-gradient(135deg, var(--accent), #8b72f5); border: none; transform: rotateY(180deg); color: white; }
+.flip-back-month { font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: .1em; color: rgba(255,255,255,.6); margin-bottom: .2rem; }
+.flip-back-score { font-family: var(--font-mono); font-size: 2rem; font-weight: 800; line-height: 1; }
+.flip-back-label { font-size: 10px; color: rgba(255,255,255,.6); margin-bottom: .5rem; }
+.flip-back-conv  { display: inline-block; background: rgba(255,255,255,.2); border-radius: 20px; padding: 2px 10px; font-family: var(--font-mono); font-size: 10px; color: #fff; margin-bottom: .6rem; }
+.flip-back-text  { font-size: 11px; color: rgba(255,255,255,.9); line-height: 1.5; flex: 1; }
+ 
+.score-legend { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: .75rem; margin-bottom: 1rem; }
+.score-legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.score-legend-dot  { width: 9px; height: 9px; border-radius: 50%; }
+ 
+.score-expl {
+    background: #f5f3ff;
+    border: 1px solid rgba(107,89,232,.15);
+    border-left: 4px solid var(--accent);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    margin-top: 1rem;
+}
+.score-expl-title { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: .25rem; }
+.score-expl p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+ 
+
+/* ── INSIGHTS ── */
+.insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3.5rem; }
+@media(max-width:1000px){.insights-grid{grid-template-columns:1fr;}}
+.insight-card  { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); transition: all .25s; }
+.insight-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.insight-icon-row { display: flex; align-items: center; gap: .85rem; margin-bottom: 1.25rem; }
+.insight-icon  { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.insight-label { font-size: 13px; font-weight: 800; color: var(--text); }
+.insight-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.insight-body  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.insight-metric{ font-family: var(--font-mono); font-size: 2rem; font-weight: 800; margin-top: .75rem; }
+
+/* ── SPARKLINES ── */
+.sparkline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2.5rem; }
+@media(max-width:1200px){.sparkline-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px) {.sparkline-grid{grid-template-columns:1fr;}}
+.spark-card    { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.75rem 2rem; box-shadow: var(--shadow); transition: all .25s; }
+.spark-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.spark-top     { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .75rem; }
+.spark-title   { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.spark-change  { font-family: var(--font-mono); font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; }
+.change-up     { background: #dcfce7; color: #16a34a; }
+.change-down   { background: #fee2e2; color: #dc2626; }
+.change-flat   { background: var(--surface2); color: var(--muted); }
+.spark-val     { font-size: 2.1rem; font-weight: 800; letter-spacing: -.04em; margin-bottom: .5rem; }
+.spark-sub     { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 9999; padding: .9rem 1.5rem; border-radius: 14px; font-size: 13px; font-weight: 600; box-shadow: 0 12px 40px rgba(0,0,0,.2); display: none; max-width: 400px; transition: opacity .3s, transform .3s; font-family: var(--font-display); }
+.toast-success { background: #16a34a; color: white; }
+.toast-error   { background: #dc2626; color: white; }
+.toast-info    { background: var(--accent); color: white; }
+
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(107,89,232,.2); border-radius: 3px; }
+canvas { max-height: 100%; width: 100% !important; }
+@keyframes spin { to{ transform:rotate(360deg); } }
+.empty-state { text-align: center; padding: 5rem 2rem; }
+.empty-state p { color: var(--muted); margin-bottom: 1.25rem; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-main-content">
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <div class="page-title-icon">
+                    <span class="material-symbols-outlined" style="color:var(--accent);font-size:26px;">auto_awesome</span>
+                </div>
+                AI Subscription Predictions
+            </h1>
+            <div class="page-meta">
+                <span class="live-dot">Live Inference Active</span>
+                <span style="color:var(--border);">|</span>
+                <span>Mise à jour : {{ "now"|date('H:i:s') }}</span>
+                <span style="color:var(--border);">|</span>
+                <span id="model-status-badge" style="font-weight:800;">● Vérification…</span>
+                <span style="color:var(--border);">|</span>
+                <span class="devise-badge">💵 Devise : DT</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary" id="train-btn" onclick="trainModel()">
+                <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
+                Entraîner le modèle
+            </button>
+        </div>
+    </div>
+
+    <!-- ── TABS ── -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('predictions', this)">
+            <span class="material-symbols-outlined" style="font-size:16px;">bar_chart</span>
+            Prédictions 2026
+            <span class="tab-count" id="tab-count-pred">–</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('analysis', this)">
+            <span class="material-symbols-outlined" style="font-size:16px;">analytics</span>
+            Analyse avancée
+            <span class="tab-count">ML</span>
+        </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!--  TAB 1 — PRÉDICTIONS 2026                     -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="tab-predictions" class="tab-panel active">
+
+        <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:2rem;">
+            <h2 style="font-size:1.75rem;font-weight:800;color:var(--text);letter-spacing:-0.03em;">📊 Prédictions 2026</h2>
+            <span style="background:var(--accent-light);color:var(--accent);font-family:var(--font-mono);font-size:11px;font-weight:800;padding:5px 14px;border-radius:20px;letter-spacing:.06em;">RandomForest</span>
+            <span class="devise-badge">Prix en DT</span>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="stat-grid">
+            <div class="stat-card purple-card">
+                <div class="stat-card-label-row">
+                    <div class="stat-icon purple"><span class="material-symbols-outlined" style="color:var(--accent);font-size:24px;">analytics</span></div>
+                    <span class="stat-badge badge-live">BDD Live</span>
+                </div>
+                <div class="stat-label">Abonnements BDD</div>
+                <div class="stat-value count-up" id="s-abonnements" data-target="0" style="color:var(--accent);">–</div>
+                <div class="stat-sub">Actifs en base de données</div>
+            </div>
+            <div class="stat-card indigo-card">
+                <div class="stat-card-label-row">
+                    <div class="stat-icon indigo"><span class="material-symbols-outlined" style="color:#6366f1;font-size:24px;">database</span></div>
+                    <span class="stat-badge badge-hist">Historique</span>
+                </div>
+                <div class="stat-label">Ventes réelles BDD</div>
+                <div class="stat-value count-up" id="s-ventes" data-target="0" style="color:var(--text);">–</div>
+                <div class="stat-sub">Données réelles d'entraînement</div>
+            </div>
+            <div class="stat-card green-card" style="border-color:rgba(34,197,94,.25);">
+                <div class="stat-card-label-row">
+                    <div class="stat-icon green"><span class="material-symbols-outlined" style="color:#16a34a;font-size:24px;">emoji_events</span></div>
+                    <span class="stat-badge badge-trending">N°1</span>
+                </div>
+                <div class="stat-label">Meilleur prédit</div>
+                <div class="stat-value large-text" id="s-top-name" style="color:var(--text);font-weight:800;">–</div>
+                <div class="stat-sub" id="s-top-sub">chargement…</div>
+            </div>
+            <div class="stat-card teal-card">
+                <div class="stat-card-label-row">
+                    <div class="stat-icon teal"><span class="material-symbols-outlined" style="color:#0891b2;font-size:24px;">category</span></div>
+                    <span class="stat-badge badge-best">Best</span>
+                </div>
+                <div class="stat-label">Meilleure catégorie</div>
+                <div class="stat-value large-text" id="best-cat" style="color:var(--text);font-weight:800;">–</div>
+                <div class="stat-sub">Par volume total prédit</div>
+            </div>
+        </div>
+
+        <!-- Velocity Panel -->
+        <div class="velocity-panel">
+            <div style="position:relative;z-index:1;">
+                <div class="velocity-title">⚡ Pulse du modèle ML — RandomForest</div>
+                <div class="velocity-sub">Métriques depuis l'entraînement sur données BDD réelles</div>
+                <div class="velocity-stats">
+                    <div class="v-stat"><div class="v-stat-val" style="color:#a78bfa;" id="v-r2">–</div><div class="v-stat-lbl">Score R²</div></div>
+                    <div class="v-divider"></div>
+                    <div class="v-stat"><div class="v-stat-val" style="color:#34d399;" id="v-mae">–</div><div class="v-stat-lbl">MAE (ventes)</div></div>
+                    <div class="v-divider"></div>
+                    <div class="v-stat"><div class="v-stat-val" style="color:#f59e0b;" id="v-feat">–</div><div class="v-stat-lbl">Features actives</div></div>
+                    <div class="v-divider"></div>
+                    <div class="v-stat"><div class="v-stat-val" style="color:#f87171;" id="v-trees">200</div><div class="v-stat-lbl">Arbres RF</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sparklines -->
+        <div class="sparkline-grid">
+            <div class="spark-card">
+                <div class="spark-top"><span class="spark-title">Revenue prédit (DT)</span><span class="spark-change change-up" id="spk-rev-change">+–%</span></div>
+                <div class="spark-val" style="color:var(--accent);" id="spark-rev">– DT</div>
+                <div class="spark-sub">Chiffre annuel estimé 2026</div>
+                <canvas id="sparkRev" height="40" style="margin-top:.75rem;"></canvas>
+            </div>
+            <div class="spark-card">
+                <div class="spark-top"><span class="spark-title">Catégories actives</span><span class="spark-change change-flat" id="spark-cats">–</span></div>
+                <div class="spark-val" style="color:var(--accent5);" id="spark-cat-val">0</div>
+                <div class="spark-sub">Segments BDD analysés</div>
+                <canvas id="sparkCats" height="40" style="margin-top:.75rem;"></canvas>
+            </div>
+            <div class="spark-card">
+                <div class="spark-top"><span class="spark-title">Prix moyen BDD</span><span class="spark-change change-flat">DT</span></div>
+                <div class="spark-val" style="color:#f59e0b;" id="spark-prix">– DT</div>
+                <div class="spark-sub">Prix unitaire moyen (BDD réel)</div>
+                <canvas id="sparkPrix" height="40" style="margin-top:.75rem;"></canvas>
+            </div>
+            <div class="spark-card">
+                <div class="spark-top"><span class="spark-title">Confiance moyenne</span><span class="spark-change change-up">ML</span></div>
+                <div class="spark-val" style="color:#22c55e;" id="spark-conf">0%</div>
+                <div class="spark-sub">Score de confiance RF</div>
+                <canvas id="sparkConf" height="40" style="margin-top:.75rem;"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="card chart-card">
+                <div class="chart-top">
+                    <div>
+                        <div class="chart-title">Trajectoire Ventes BDD → 2026</div>
+                        <div class="chart-sub">Ventes réelles BDD vs prédictions RandomForest</div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div>Réel BDD</div>
+                        <div class="legend-item"><div class="legend-dashed-line" style="border-color:#22c55e;"></div>Prédit RF 2026</div>
+                    </div>
+                </div>
+                <div style="height:340px;position:relative;"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="card chart-card">
+                <div class="chart-title">Répartition par catégorie</div>
+                <div class="chart-sub">Ventes prédites par catégorie BDD</div>
+                <div style="height:310px;position:relative;margin-top:.5rem;"><canvas id="categoryChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Spotlight Top 3 -->
+        <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.75rem;margin-top:.5rem;">
+            <h3 style="font-size:1.35rem;font-weight:800;color:var(--text);">🥇 Top 3 Abonnements — données BDD</h3>
+            <span class="devise-badge">Prix DT</span>
+        </div>
+        <div class="spotlight-grid" id="spotlight-grid"></div>
+
+        <!-- Table -->
+        <div class="card rankings-card">
+            <div class="rankings-header">
+                <div>
+                    <span class="rankings-title">🏆 Classement complet — RandomForest</span>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px;font-family:var(--font-mono);">Données réelles BDD · Prix en DT</div>
+                </div>
+                <button class="refresh-btn" onclick="trainModel()">
+                    <span class="material-symbols-outlined" style="font-size:14px;">refresh</span>Refresh BDD
+                </button>
+            </div>
+            <div class="table-wrapper">
+                <table id="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Abonnement</th><th>Catégorie</th><th>Tier</th>
+                            <th>Prix (DT)</th><th>Ventes prédites</th><th>Confiance ML</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankings-tbody">
+                        <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);font-family:var(--font-mono);">Chargement depuis la BDD…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-wrap">
+                <div class="pagination-info" id="pagination-info"></div>
+                <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">Lignes :</span>
+                        <select class="page-size-select" id="page-size-select" onchange="changePageSize(this.value)">
+                            <option value="5">5</option><option value="10" selected>10</option>
+                            <option value="20">20</option><option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="pagination-controls" id="pagination-controls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!--  TAB 2 — ANALYSE AVANCÉE                      -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="tab-analysis" class="tab-panel">
+
+        <!-- SECTION 1 : SOUS-PERFORMANTS AVEC SIMULATION PROMO -->
+        <div class="section-heading">
+            <div>
+                <div class="section-title">⚠ Abonnements sous-performants</div>
+                <div class="section-sub">Ventes BDD en dessous du potentiel ML · Prix en DT</div>
+            </div>
+            <span class="alert-badge badge-red" id="under-count-badge">– alertes</span>
+        </div>
+        <div class="filter-chips">
+            <span class="chip chip-red">critique &lt;35%</span>
+            <span class="chip chip-amber">attention 35–65%</span>
+        </div>
+        <div class="under-grid" id="underperforming-list">
+            <div style="padding:1.5rem;color:var(--muted);font-family:var(--font-mono);font-size:12px;">Chargement depuis BDD…</div>
+        </div>
+
+        <hr class="section-divider"/>
+
+        <!-- SECTION 2 : PROMO TIMING -->
+        <div class="section-heading">
+            <div>
+                <div class="section-title">📅 Quand poster les promotions ?</div>
+                <div class="section-sub">Score d'impact par mois — basé sur saisonnalité + historique BDD</div>
+            </div>
+            <span class="alert-badge badge-blue" id="promo-source-badge">ML scoring</span>
+        </div>
+        <div id="promo-grid" class="promo-grid">
+            <div style="grid-column:1/-1;padding:1rem;color:var(--muted);font-family:var(--font-mono);font-size:12px;">Calcul ML en cours…</div>
+        </div>
+        <div class="score-expl">
+            <div>
+                <div class="score-expl-title">
+                    <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">info</span>
+                    Comment ce score est calculé
+                </div>
+                <p>Le modèle <strong>GradientBoosting</strong> est entraîné sur l'historique réel des ventes mensuelles de votre base de données. Il combine l'encodage cyclique du mois (sin/cos), les caractéristiques des abonnements BDD, et les taux de conversion calculés depuis vos paiements réels. Aucune valeur n'est hardcodée — tout vient de votre BDD.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-top:2.5rem;margin-top:3rem;border-top:1.5px solid var(--border);font-family:var(--font-mono);font-size:11px;color:var(--muted);flex-wrap:wrap;">
+        <span>Dinari Intelligence — RandomForest + GradientBoosting · Devise : DT · Symfony 6.4</span>
+        <span>© 2025 Dinari. All Rights Reserved.</span>
+    </footer>
+</div>
+
+<div id="toast"></div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ══════════════════════════════════════════════════════
+//  DINARI ML DASHBOARD
+//  - Devise : DT (Dinar Tunisien)
+//  - Données : 100% depuis API Flask → BDD
+//  - ML : RandomForest (ventes) + GradientBoosting (promo)
+// ══════════════════════════════════════════════════════
+const FLASK_API = 'http://localhost:5000/api/ml';
+const DEVISE    = 'DT';
+
+let predictions   = [];
+let MAX_VENTES    = 1;
+let statsData     = {};
+let metaData      = {};
+let trendChart    = null;
+let categoryChart = null;
+let currentPage   = 1;
+let pageSize      = 10;
+let analysisLoaded = false;
+
+// ─── HELPERS ─────────────────────────────────────────
+async function apiFetch(endpoint) {
+    const r = await fetch(FLASK_API + endpoint);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+}
+
+function fmtPrix(val) {
+    const n = parseFloat(val);
+    if (isNaN(n)) return '– DT';
+    return n.toFixed(3) + ' ' + DEVISE;
+}
+
+function fmtPrixShort(val) {
+    const n = parseFloat(val);
+    if (isNaN(n)) return '– DT';
+    return n.toFixed(2) + ' ' + DEVISE;
+}
+
+// ─── TAB ─────────────────────────────────────────────
+function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+    if (id === 'analysis' && !analysisLoaded) {
+        loadUnderperforming();
+        loadPromoTiming();
+        analysisLoaded = true;
+    }
+}
+
+// ─── TOAST ───────────────────────────────────────────
+function showToast(msg, type = 'info', duration = 4000) {
+    const t = document.getElementById('toast');
+    t.className = 'toast-' + type;
+    t.innerHTML = msg;
+    t.style.display = 'block'; t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.style.display = 'none', 300); }, duration);
+}
+
+// ─── COUNT-UP ────────────────────────────────────────
+function countUp(el, target, duration = 1600, fmt = null) {
+    if (!el || isNaN(target)) return;
+    let start = null;
+    (function step(ts) {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / duration, 1);
+        const e = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt ? fmt(e * target) : Math.floor(e * target);
+        if (p < 1) requestAnimationFrame(step);
+    })(performance.now());
+}
+
+// ─── VELOCITY ────────────────────────────────────────
+function setVelocity(r2, mae, nFeat, nTrees) {
+    const r2El   = document.getElementById('v-r2');
+    const maeEl  = document.getElementById('v-mae');
+    const featEl = document.getElementById('v-feat');
+    const trEl   = document.getElementById('v-trees');
+    if (r2El)   countUp(r2El,   parseFloat(r2)||0, 1600, v => v.toFixed(2));
+    if (maeEl)  countUp(maeEl,  parseFloat(mae)||0, 1600, v => v.toFixed(2));
+    if (featEl) countUp(featEl, parseInt(nFeat)||0, 1200);
+    if (trEl)   countUp(trEl,   parseInt(nTrees)||200, 1200);
+}
+
+// ─── STAT CARDS ──────────────────────────────────────
+function fillStatCards() {
+    const abEl  = document.getElementById('s-abonnements');
+    const vtEl  = document.getElementById('s-ventes');
+    if (abEl) countUp(abEl, statsData.abonnements_actifs||0, 1200);
+    if (vtEl) countUp(vtEl, statsData.total_ventes||0, 1400);
+
+    if (predictions.length) {
+        const top = predictions[0];
+        const nameEl = document.getElementById('s-top-name');
+        const subEl  = document.getElementById('s-top-sub');
+        if (nameEl) nameEl.textContent = top.nom;
+        if (subEl)  subEl.textContent  = top.ventes_totales + ' ventes prévues · ' + fmtPrixShort(top.prix);
+    }
+}
+
+// ─── PROGRESS BARS ───────────────────────────────────
+function animateBarsAndConf() {
+    document.querySelectorAll('.progress-fill').forEach(el => {
+        el.style.width = '0%';
+        setTimeout(() => { el.style.transition = 'width 2s cubic-bezier(.4,0,.2,1)'; el.style.width = el.dataset.width + '%'; }, 80);
+    });
+    document.querySelectorAll('.confidence-value').forEach(el => {
+        countUp(el, parseInt(el.dataset.value)||0, 2000, v => Math.floor(v) + '%');
+    });
+}
+
+// ─── SPARKLINES ──────────────────────────────────────
+function buildSparkline(id, data, color) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: { labels: data.map((_,i)=>i), datasets:[{ data, borderColor:color, borderWidth:2, fill:true, tension:0.4, pointRadius:0, backgroundColor:color+'18' }] },
+        options: { responsive:true, animation:{duration:1200}, plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}} }
+    });
+}
+
+function buildSparklines() {
+    const totalRev = predictions.reduce((s,p) => s + parseFloat(p.prix) * p.ventes_totales, 0);
+    const totalReel = predictions.reduce((s,p) => s + parseFloat(p.prix) * (p.ventes_reelles||0), 0);
+
+    const revEl = document.getElementById('spark-rev');
+    if (revEl) countUp(revEl, totalRev, 1600, v => Math.floor(v).toLocaleString('fr') + ' ' + DEVISE);
+
+    const changeEl = document.getElementById('spk-rev-change');
+    if (changeEl && totalReel > 0) {
+        const pct = Math.round((totalRev - totalReel) / totalReel * 100);
+        changeEl.textContent = (pct >= 0 ? '+' : '') + pct + '%';
+        changeEl.className = 'spark-change ' + (pct >= 0 ? 'change-up' : 'change-down');
+    }
+
+    const cats = [...new Set(predictions.map(p => p.categorie))];
+    const catEl  = document.getElementById('spark-cat-val');
+    const catChg = document.getElementById('spark-cats');
+    if (catEl)  catEl.textContent  = cats.length;
+    if (catChg) catChg.textContent = cats.length + ' segments';
+
+    const prixMoyen = statsData.prix_moyen || (predictions.reduce((s,p) => s+parseFloat(p.prix),0) / Math.max(predictions.length,1));
+    const prixEl = document.getElementById('spark-prix');
+    if (prixEl) countUp(prixEl, prixMoyen, 1400, v => v.toFixed(3) + ' ' + DEVISE);
+
+    const avgConf = Math.round(predictions.reduce((s,p) => s + (p.confidence||0), 0) / Math.max(predictions.length,1));
+    const confEl = document.getElementById('spark-conf');
+    if (confEl) countUp(confEl, avgConf, 1600, v => Math.floor(v) + '%');
+
+    const months = [1.3,1.0,1.1,0.95,0.9,1.1,1.2,1.15,1.1,1.0,1.35,1.5];
+    const base   = predictions.reduce((s,p) => s+p.ventes_totales,0) / 12;
+    buildSparkline('sparkRev',  months.map(m => Math.round(base*m*prixMoyen)), 'rgba(107,89,232,1)');
+    buildSparkline('sparkCats', cats.map((_,i)=>i+3), '#06b6d4');
+    buildSparkline('sparkPrix', predictions.slice(0,12).map(p=>parseFloat(p.prix)), '#f59e0b');
+    buildSparkline('sparkConf', months.map(m=>Math.min(99,Math.round(55+m*20))), '#22c55e');
+}
+
+// ─── SPOTLIGHT TOP 3 ─────────────────────────────────
+function buildSpotlight() {
+    const c = document.getElementById('spotlight-grid');
+    if (!c || !predictions.length) return;
+    c.innerHTML = '';
+    const cls   = ['gold','silver','bronze'];
+    const ranks = ['🥇 1er','🥈 2ème','🥉 3ème'];
+    const rankC = ['rank-gold','rank-silver','rank-bronze'];
+
+    predictions.slice(0,3).forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'spotlight-card ' + cls[i];
+        div.innerHTML =
+            '<span class="spotlight-rank ' + rankC[i] + '">' + ranks[i] + '</span>' +
+            '<div class="spotlight-name">' + p.nom + '</div>' +
+            '<div class="spotlight-cat">' + p.categorie + ' · <strong>' + p.tier + '</strong></div>' +
+            '<div class="spotlight-metrics">' +
+              '<div class="metric-box"><div class="metric-label">Ventes prédites</div><div class="metric-val" style="color:var(--accent);">' + p.ventes_totales + '</div></div>' +
+              '<div class="metric-box"><div class="metric-label">Ventes réelles</div><div class="metric-val" style="color:#22c55e;">' + (p.ventes_reelles||0) + '</div></div>' +
+              '<div class="metric-box"><div class="metric-label">Prix BDD</div><div class="metric-val" style="color:var(--text);">' + fmtPrixShort(p.prix) + '</div></div>' +
+              '<div class="metric-box"><div class="metric-label">Confiance ML</div><div class="metric-val" style="color:#f59e0b;">' + (p.confidence||0) + '%</div></div>' +
+            '</div>';
+        c.appendChild(div);
+    });
+}
+
+
+
+// ─── TABLE PAGINATION ────────────────────────────────
+function renderTable() {
+    const tbody = document.getElementById('rankings-tbody');
+    const info  = document.getElementById('pagination-info');
+    const ctrls = document.getElementById('pagination-controls');
+    if (!tbody) return;
+
+    const total   = predictions.length;
+    const pages   = Math.max(1, Math.ceil(total / pageSize));
+    if (currentPage > pages) currentPage = pages;
+    const s     = (currentPage - 1) * pageSize;
+    const slice = predictions.slice(s, s + pageSize);
+
+    if (info) info.textContent = 'Affichage ' + (s+1) + '–' + Math.min(s+pageSize, total) + ' sur ' + total;
+    document.getElementById('tab-count-pred').textContent = total;
+
+    tbody.innerHTML = '';
+    slice.forEach((p, idx) => {
+        const g    = s + idx + 1;
+        const conf = p.confidence || Math.min(99, Math.round(30 + p.ventes_totales/MAX_VENTES*69));
+        const sym  = g===1?'🥇':g===2?'🥈':g===3?'🥉':g;
+        const rCls = g===1?'top1':g===2?'top2':g===3?'top3':'';
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><span class="rank-num ' + rCls + '">' + sym + '</span></td>' +
+            '<td><div class="td-name"><div class="sub-icon"><span class="material-symbols-outlined" style="font-size:16px;">subscriptions</span></div><span class="sub-name">' + p.nom + '</span></div></td>' +
+            '<td class="td-cat">' + p.categorie + '</td>' +
+            '<td><span class="tier-badge ' + (p.tier||'').toLowerCase() + '">' + p.tier + '</span></td>' +
+            '<td class="td-price">' + fmtPrixShort(p.prix) + '</td>' +
+            '<td class="td-ventes">' + p.ventes_totales + '</td>' +
+            '<td><div class="conf-bar-wrap"><div class="conf-bar-bg"><div class="conf-bar-fill progress-fill" style="width:0%;" data-width="' + conf + '"></div></div><span class="conf-pct confidence-value" data-value="' + conf + '">0%</span></div></td>';
+        tbody.appendChild(tr);
+    });
+    setTimeout(animateBarsAndConf, 60);
+
+    if (ctrls) {
+        ctrls.innerHTML = '';
+        const prev = document.createElement('button');
+        prev.className = 'page-btn'; prev.innerHTML = '‹'; prev.disabled = currentPage === 1;
+        prev.onclick = () => { currentPage--; renderTable(); };
+        ctrls.appendChild(prev);
+        buildPageRange(currentPage, pages).forEach(item => {
+            if (item === '...') {
+                const s2 = document.createElement('span');
+                s2.textContent = '…';
+                s2.style.cssText = 'font-family:var(--font-mono);font-size:12px;color:var(--muted);padding:0 4px;';
+                ctrls.appendChild(s2);
+            } else {
+                const b = document.createElement('button');
+                b.className = 'page-btn' + (item === currentPage ? ' active' : '');
+                b.textContent = item;
+                b.onclick = () => { currentPage = item; renderTable(); };
+                ctrls.appendChild(b);
+            }
+        });
+        const next = document.createElement('button');
+        next.className = 'page-btn'; next.innerHTML = '›'; next.disabled = currentPage === pages;
+        next.onclick = () => { currentPage++; renderTable(); };
+        ctrls.appendChild(next);
+    }
+}
+
+function buildPageRange(cur, total) {
+    if (total <= 7) return Array.from({length:total},(_,i)=>i+1);
+    if (cur <= 4)   { const p=[]; for(let i=1;i<=Math.min(5,total);i++) p.push(i); if(total>5){p.push('...');p.push(total);} return p; }
+    if (cur >= total-3) { const p=[1,'...']; for(let i=total-4;i<=total;i++) p.push(i); return p; }
+    return [1,'...',cur-1,cur,cur+1,'...',total];
+}
+function changePageSize(val) { pageSize = parseInt(val); currentPage = 1; renderTable(); }
+
+// ─── CHARTS ──────────────────────────────────────────
+async function buildCharts() {
+    if (!predictions.length) return;
+    if (trendChart)    { trendChart.destroy();    trendChart    = null; }
+    if (categoryChart) { categoryChart.destroy(); categoryChart = null; }
+
+    const months    = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    const totalAn   = predictions.reduce((s,p) => s+p.ventes_totales, 0);
+    const totalReel = predictions.reduce((s,p) => s+(p.ventes_reelles||0), 0);
+    const sais      = [1.3,1.0,1.1,0.95,0.9,1.1,1.2,1.15,1.1,1.0,1.35,1.5];
+
+    let historical = sais.map(s => Math.round((totalReel/12)*s));
+
+    try {
+        const mb = await apiFetch('/monthly-breakdown');
+        if (mb.success && mb.monthly && mb.monthly.length === 12) {
+            const histVals = mb.monthly.map(m => m.ventes_hist || 0);
+            if (histVals.reduce((s,v)=>s+v,0) > 0) historical = histVals;
+        }
+    } catch(e) {}
+
+    const predicted = sais.map(s => Math.round((totalAn/12)*s));
+
+    const ctxTrend = document.getElementById('trendChart');
+    if (ctxTrend) {
+        trendChart = new Chart(ctxTrend.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    { label:'Réel BDD', data: historical, borderColor:'#6b59e8', backgroundColor:'rgba(107,89,232,0.09)', borderWidth:2.5, fill:true, tension:0.4, pointRadius:4, pointHoverRadius:7, pointBackgroundColor:'#6b59e8', pointBorderColor:'#fff', pointBorderWidth:2 },
+                    { label:'Prédit RF 2026', data: predicted.map(()=>0), borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.07)', borderWidth:2.5, borderDash:[7,5], fill:true, tension:0.4, pointRadius:4, pointHoverRadius:7, pointBackgroundColor:'#22c55e', pointBorderColor:'#fff', pointBorderWidth:2 }
+                ]
+            },
+            options: {
+                responsive:true, maintainAspectRatio:false, animation:false,
+                plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#fff', titleColor:'#1a1625', bodyColor:'#7c7a9a', borderColor:'rgba(107,89,232,.2)', borderWidth:1, padding:12, callbacks:{ label: c => c.dataset.label+' : '+c.parsed.y+' ventes' } } },
+                scales:{ x:{ ticks:{color:'#7c7a9a',font:{size:11,family:'DM Mono'}}, grid:{color:'rgba(107,89,232,.06)'} }, y:{ ticks:{color:'#7c7a9a',font:{size:11,family:'DM Mono'}}, grid:{color:'rgba(107,89,232,.06)'}, beginAtZero:true } }
+            }
+        });
+        let s2=null;
+        (function anim(ts){if(!s2)s2=ts;const p=Math.min((ts-s2)/2500,1);const e=1-Math.pow(1-p,3);trendChart.data.datasets[1].data=predicted.map(v=>Math.floor(v*e));trendChart.update({duration:0});if(p<1)requestAnimationFrame(anim);})(performance.now());
+    }
+
+    const byCat   = {};
+    predictions.forEach(p => { const c=p.categorie||'Autre'; byCat[c]=(byCat[c]||0)+p.ventes_totales; });
+    const cats    = Object.keys(byCat);
+    const catData = cats.map(c=>byCat[c]);
+    const total2  = catData.reduce((s,v)=>s+v,0);
+    const colors  = ['#6b59e8','#22c55e','#f59e0b','#e84040','#06b6d4','#a855f7','#ec4899','#14b8a6'];
+
+    let bestCat = cats[0];
+    cats.forEach(c => { if(byCat[c]>byCat[bestCat]) bestCat=c; });
+    const bestEl = document.getElementById('best-cat');
+    if (bestEl && bestCat) bestEl.textContent = bestCat;
+
+    const ctxCat = document.getElementById('categoryChart');
+    if (ctxCat && cats.length) {
+        categoryChart = new Chart(ctxCat.getContext('2d'), {
+            type:'doughnut',
+            data:{ labels:cats, datasets:[{ data:catData.map(()=>0), backgroundColor:colors.slice(0,cats.length), borderWidth:3, borderColor:'#fff', hoverOffset:12, borderRadius:6, spacing:3 }] },
+            options:{ responsive:true, maintainAspectRatio:false, cutout:'60%', animation:false, plugins:{ legend:{ position:'bottom', labels:{ color:'#7c7a9a', font:{size:11,family:'DM Mono'}, usePointStyle:true, boxWidth:9, padding:12 } }, tooltip:{ backgroundColor:'#fff', titleColor:'#1a1625', bodyColor:'#7c7a9a', borderColor:'rgba(107,89,232,.2)', borderWidth:1, padding:12, callbacks:{ label: c => c.label+' : '+c.parsed+' ventes ('+Math.round(c.parsed/total2*100)+'%)' } } } }
+        });
+        let s3=null;
+        (function animD(ts){if(!s3)s3=ts;const p=Math.min((ts-s3)/2000,1);const e=1-Math.pow(1-p,3);categoryChart.data.datasets[0].data=catData.map(v=>Math.floor(v*e));categoryChart.update({duration:0});if(p<1)requestAnimationFrame(animD);})(performance.now());
+    }
+}
+
+// ─── SIMULATION DE PROMO ──────────────────────────────
+async function simulatePromo(abonnementId, discount, element) {
+    const parent = element.closest('.under-card') || element.closest('.uc-body');
+    let existingPanel = parent.querySelector('.simulate-panel');
+    if (existingPanel) existingPanel.remove();
+    
+    const loadingPanel = document.createElement('div');
+    loadingPanel.className = 'simulate-panel';
+    loadingPanel.innerHTML = '<div style="text-align:center;padding:10px;">⏳ Calcul de la simulation...</div>';
+    parent.appendChild(loadingPanel);
+    
+    try {
+        // 🔥 NOUVELLE URL (CORRECTE) - Appel direct à Flask sur le port 5000
+        const response = await fetch('http://localhost:5000/api/ml/simulate-promo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                abonnement_id: abonnementId,
+                discount: discount
+            })
+        });
+        const data = await response.json();
+        loadingPanel.remove();
+        
+        if (data.success) {
+            const sim = data.simulation;
+            const gainClass = sim.gain_ventes >= 0 ? 'gain-positive' : 'gain-negative';
+            const gainCaClass = sim.gain_ca >= 0 ? 'gain-positive' : 'gain-negative';
+            
+            let resultHtml = `
+                <div class="simulate-panel">
+                    <div style="font-weight:800; margin-bottom:8px;">📊 SIMULATION PROMO</div>
+                    <div class="simulate-buttons">
+                        <button onclick="event.stopPropagation(); simulatePromo(${abonnementId}, 10, this)">-10%</button>
+                        <button onclick="event.stopPropagation(); simulatePromo(${abonnementId}, 20, this)">-20%</button>
+                        <button onclick="event.stopPropagation(); simulatePromo(${abonnementId}, 30, this)">-30%</button>
+                        <button onclick="event.stopPropagation(); simulatePromo(${abonnementId}, 50, this)">-50%</button>
+                    </div>
+                    <div class="simulate-result">
+                        <strong>💰 Réduction de ${sim.discount_percent}%</strong><br>
+                        📉 Prix: ${sim.prix_original.toFixed(2)} DT → <strong style="color:#059669;">${sim.prix_promo.toFixed(2)} DT</strong><br>
+                        📈 Ventes: ${sim.ventes_originales} → <strong style="color:#059669;">${sim.ventes_simulees}</strong> <span class="${gainClass}">(+${sim.gain_ventes})</span><br>
+                        💰 CA: ${sim.ca_original.toFixed(2)} DT → <strong style="color:#059669;">${sim.ca_simule.toFixed(2)} DT</strong> <span class="${gainCaClass}">(${sim.gain_ca >= 0 ? '+' : ''}${sim.gain_ca.toFixed(2)} DT)</span><br>
+                        📊 Taux conversion estimé: ${sim.taux_conversion_estime}%<br>
+                        💡 ${sim.recommandation}
+                    </div>
+                </div>
+            `;
+            parent.insertAdjacentHTML('beforeend', resultHtml);
+            
+            const newPanel = parent.querySelector('.simulate-panel:last-child');
+            if (newPanel) {
+                newPanel.style.opacity = '0';
+                newPanel.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    newPanel.style.transition = 'all 0.3s ease';
+                    newPanel.style.opacity = '1';
+                    newPanel.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        } else {
+            showToast('Erreur simulation: ' + (data.error || 'Erreur inconnue'), 'error');
+        }
+    } catch(e) {
+        console.error('Erreur simulation:', e);
+        loadingPanel.remove();
+        showToast('Erreur: Serveur ML inaccessible (port 5000)', 'error');
+    }
+}
+
+function buildInlineSparkline(data, color) {
+    const w = 100, h = 32;
+    const mx = Math.max(...data), mn = Math.min(...data), rng = mx - mn || 1;
+    const pts = data.map((v, i) => {
+        const x = i / (data.length - 1) * w;
+        const y = h - (v - mn) / rng * (h - 4) - 2;
+        return x + ',' + y;
+    }).join(' ');
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="width:100%;height:32px;display:block;">' +
+           '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+           '</svg>';
+}
+// ─── UNDERPERFORMING AVEC RECOMMANDATIONS PROMO ET SIMULATION ──────────
+async function loadUnderperforming() {
+    const cont = document.getElementById('underperforming-list');
+    if (!cont) return;
+    cont.innerHTML = '<div style="padding:1.5rem;color:var(--muted);font-family:var(--font-mono);font-size:12px;">⏳ Chargement depuis BDD…</div>';
+ 
+    try {
+        const d = await apiFetch('/underperforming-with-promo?seuil=65');
+        if (!d.success) throw new Error(d.error);
+ 
+        const badge = document.getElementById('under-count-badge');
+        if (badge) badge.textContent = d.total + ' alertes';
+ 
+        cont.innerHTML = '';
+        if (!d.underperforming.length) {
+            cont.innerHTML = '<div style="padding:2rem;color:#16a34a;font-family:var(--font-mono);font-size:13px;background:#dcfce7;border-radius:14px;">✓ Tous les abonnements atteignent le seuil ML. Aucune alerte.</div>';
+            return;
+        }
+ 
+        d.underperforming.forEach(item => {
+            const isCrit = item.status === 'critique';
+            const pct    = Math.round(item.pct_atteint);
+            const promo  = item.promo_recommendation || {};
+            const cls    = isCrit ? 'crit' : 'att';
+ 
+            // Sparkline data (réel → prédit en 6 points)
+            const sparkData = [item.ventes_reelles];
+            for (let i = 1; i <= 5; i++) {
+                sparkData.push(Math.round(item.ventes_reelles + (item.ventes_predites - item.ventes_reelles) / 6 * i));
+            }
+            const sparkSvg = buildInlineSparkline(sparkData, isCrit ? '#dc2626' : '#d97706');
+ 
+            // Insight texte
+            const insight = promo.message_alerte || (isCrit
+                ? `Sous-performance critique : seulement ${pct}% du potentiel ML atteint`
+                : `Potentiel inexploité : ${pct}% atteint, marge de progression de ${100 - pct}%`);
+ 
+            // Promo block
+            const reduction  = promo.reduction_pct || (isCrit ? 40 : 25);
+            const prixPromo  = promo.prix_promo   || (item.prix * (1 - reduction / 100));
+            const objVentes  = promo.objectif_ventes || Math.max(1, Math.round(item.ventes_predites * 0.3));
+            const gainEst    = promo.gain_estime   || Math.round(item.ecart * prixPromo);
+            const periode    = promo.periode_recommandee || (d.best_months && d.best_months[0] ? d.best_months[0].nom_mois : 'Juin');
+ 
+            const card = document.createElement('div');
+            card.className = 'under-card ' + (isCrit ? 'crit-card' : 'att-card');
+            card.innerHTML =
+                '<div class="uc-stripe ' + cls + '"></div>' +
+                '<div class="uc-body">' +
+                  '<div class="uc-header">' +
+                    '<div class="uc-left">' +
+                      '<div class="uc-avatar ' + cls + '">' + (isCrit ? '📉' : '⚠️') + '</div>' +
+                      '<div>' +
+                        '<div class="uc-name">' + item.nom + '</div>' +
+                        '<div class="uc-meta">' + item.categorie + ' · ' + item.tier + ' · ' + item.frequence + '</div>' +
+                      '</div>' +
+                    '</div>' +
+                    '<div class="uc-right">' +
+                      '<div class="uc-price ' + cls + '">' + fmtPrixShort(item.prix) + '</div>' +
+                      '<span class="uc-status-badge sb-' + cls + '">' + item.status + '</span>' +
+                    '</div>' +
+                  '</div>' +
+ 
+                  '<div class="uc-metrics">' +
+                    '<div class="uc-metric-box"><div class="uc-metric-lbl">Ventes réelles</div><div class="uc-metric-val green">' + item.ventes_reelles + '</div></div>' +
+                    '<div class="uc-metric-box"><div class="uc-metric-lbl">Prédit ML</div><div class="uc-metric-val muted">' + item.ventes_predites + '</div></div>' +
+                    '<div class="uc-metric-box"><div class="uc-metric-lbl">Écart</div><div class="uc-metric-val red">−' + item.ecart + '</div></div>' +
+                  '</div>' +
+ 
+                  '<div class="uc-progress-wrap">' +
+                    '<div class="uc-progress-header">' +
+                      '<span class="uc-progress-label">Taux d\'atteinte du potentiel ML</span>' +
+                      '<span class="uc-progress-pct ' + cls + '">' + pct + '%</span>' +
+                    '</div>' +
+                    '<div class="uc-progress-track">' +
+                      '<div class="uc-progress-fill ' + cls + '" data-width="' + pct + '" style="width:0%;"></div>' +
+                    '</div>' +
+                  '</div>' +
+ 
+                  '<div class="uc-sparkline-wrap">' +
+                    '<div class="uc-sparkline-lbl">Trajectoire réelle → prédiction ML</div>' +
+                    sparkSvg +
+                  '</div>' +
+ 
+                  '<div class="uc-insight">' +
+                    '<span class="uc-insight-icon">💡</span>' +
+                    insight +
+                  '</div>' +
+ 
+                  '<div class="uc-promo-block">' +
+                    '<div class="uc-promo-header">' +
+                      '<span style="font-size:14px;">🏷️</span>' +
+                      '<span class="uc-promo-title">Recommandation promo ML</span>' +
+                    '</div>' +
+                    '<div class="uc-promo-grid">' +
+                      '<div class="uc-promo-item"><div class="uc-promo-item-lbl">Réduction</div><div class="uc-promo-item-val">-' + reduction + '%</div></div>' +
+                      '<div class="uc-promo-item"><div class="uc-promo-item-lbl">Prix promo</div><div class="uc-promo-item-val">' + parseFloat(prixPromo).toFixed(2) + ' DT</div></div>' +
+                      '<div class="uc-promo-item"><div class="uc-promo-item-lbl">Objectif</div><div class="uc-promo-item-val">' + objVentes + '</div></div>' +
+                      '<div class="uc-promo-item"><div class="uc-promo-item-lbl">Gain estimé</div><div class="uc-promo-item-val">' + parseFloat(gainEst).toFixed(2) + '</div></div>' +
+                    '</div>' +
+                    '<div class="uc-promo-period">📅 Période recommandée : ' + periode + '</div>' +
+                  '</div>' +
+ 
+                  '<div class="uc-footer">' +
+                    '<button class="btn-simulate" onclick="event.stopPropagation(); simulatePromo(' + item.id + ', 20, this)">' +
+                      '<span class="material-symbols-outlined" style="font-size:13px;">timeline</span>Simuler promo' +
+                    '</button>' +
+                  '</div>' +
+                '</div>';
+            cont.appendChild(card);
+        });
+ 
+        setTimeout(() => {
+            document.querySelectorAll('#underperforming-list .uc-progress-fill').forEach(b => {
+                b.style.transition = 'width 1.4s cubic-bezier(.4,0,.2,1)';
+                b.style.width = b.dataset.width + '%';
+            });
+        }, 100);
+ 
+    } catch(e) {
+        console.error('Erreur chargement underperforming:', e);
+        cont.innerHTML = '<div style="padding:1.5rem;color:#dc2626;font-family:var(--font-mono);font-size:12px;background:#fee2e2;border-radius:14px;">✗ ' + e.message + '</div>';
+    }
+}
+ 
+
+// ─── PROMO TIMING ────────────────────────────────────
+async function loadPromoTiming() {
+    const grid = document.getElementById('promo-grid');
+    if (!grid) return;
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:1rem;color:var(--muted);font-family:var(--font-mono);font-size:12px;">⏳ Calcul GradientBoosting depuis BDD…</div>';
+
+    try {
+        const d = await apiFetch('/promo-timing');
+        if (!d.success) throw new Error(d.error);
+
+        const srcBadge = document.getElementById('promo-source-badge');
+        if (srcBadge) {
+            srcBadge.textContent = d.source === 'ml' ? 'GBR ML scoring' : 'BDD fallback';
+            srcBadge.className = 'alert-badge ' + (d.source === 'ml' ? 'badge-blue' : 'badge-hist');
+        }
+
+        const maxScore = Math.max(...d.timing.map(m => m.score), 1);
+
+        function scoreColor(s) {
+            return s >= 80 ? '#16a34a' : s >= 60 ? '#f59e0b' : s >= 40 ? '#e84040' : '#94a3b8';
+        }
+
+        grid.innerHTML = '';
+
+        d.timing.forEach((month, index) => {
+            const isTop  = month.score === maxScore && month.score >= 80;
+            const col    = scoreColor(month.score);
+            const barW   = Math.round(month.score / maxScore * 100);
+            const expl   = month.explication || month.conseil || (month.nom_mois + ' - Score: ' + month.score + '/100');
+            const delay  = index * 0.05;
+
+            const wrap = document.createElement('div');
+            wrap.className = 'flip-card';
+            wrap.style.animationDelay = delay + 's';
+
+            wrap.innerHTML =
+                '<div class="flip-card-inner">' +
+
+                  '<div class="flip-face flip-front' + (isTop ? ' top-month' : '') + '">' +
+                    '<div class="flip-month-name">' + month.nom_mois + (isTop ? ' ★' : '') + '</div>' +
+                    '<div class="flip-score-big" style="color:' + col + ';">' + month.score + '</div>' +
+                    '<div class="flip-score-sub">/ 100</div>' +
+                    '<div class="flip-bar-track">' +
+                      '<div class="flip-bar-fill" data-w="' + barW + '" style="width:0%;background:' + col + ';"></div>' +
+                    '</div>' +
+                    '<div class="flip-conv-lbl">Conv : ' + Math.round(month.taux_conv * 100) + '%</div>' +
+                    (isTop
+                      ? '<span class="flip-top-badge">Meilleur mois</span>'
+                      : '<div class="flip-hint">Survolez pour le détail</div>') +
+                  '</div>' +
+
+                  '<div class="flip-face flip-back">' +
+                    '<div class="flip-back-month">' + month.nom_mois.toUpperCase() + '</div>' +
+                    '<div class="flip-back-score">' + month.score + '</div>' +
+                    '<div class="flip-back-label">Score d\'impact ML</div>' +
+                    '<span class="flip-back-conv">' + Math.round(month.taux_conv * 100) + '% conversion</span>' +
+                    '<div class="flip-back-text">' + expl + '</div>' +
+                  '</div>' +
+
+                '</div>';
+
+            grid.appendChild(wrap);
+        });
+
+        const legend = document.createElement('div');
+        legend.className = 'score-legend';
+        legend.innerHTML =
+            '<div class="score-legend-item"><div class="score-legend-dot" style="background:#16a34a;"></div>Excellent ≥80</div>' +
+            '<div class="score-legend-item"><div class="score-legend-dot" style="background:#f59e0b;"></div>Bon 60–79</div>' +
+            '<div class="score-legend-item"><div class="score-legend-dot" style="background:#e84040;"></div>Faible 40–59</div>' +
+            '<div class="score-legend-item"><div class="score-legend-dot" style="background:#94a3b8;"></div>Bas &lt;40</div>';
+        grid.after(legend);
+
+        setTimeout(() => {
+            document.querySelectorAll('#promo-grid .flip-bar-fill').forEach(el => {
+                el.style.width = el.dataset.w + '%';
+            });
+        }, 350);
+
+    } catch(e) {
+        console.error('Erreur promo timing:', e);
+        grid.innerHTML = '<div style="grid-column:1/-1;padding:1rem;color:#dc2626;font-family:var(--font-mono);font-size:12px;background:#fee2e2;border-radius:14px;">✗ ' + e.message + '</div>';
+    }
+}
+
+// ─── TRAIN ───────────────────────────────────────────
+async function trainModel() {
+    const btn = document.getElementById('train-btn');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;animation:spin 1s linear infinite;display:inline-block;">progress_activity</span> Entraînement…';
+    showToast('⏳ Entraînement RandomForest + GradientBoosting depuis BDD…', 'info', 60000);
+
+    try {
+        const resp = await fetch('{{ path("admin_ml_train") }}', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const d = await resp.json();
+        if (d.success) {
+            localStorage.setItem('dinari_r2',    d.r2   || 0);
+            localStorage.setItem('dinari_mae',   d.mae  || 0);
+            localStorage.setItem('dinari_nfeat', d.n_features || 7);
+            localStorage.setItem('dinari_ntrees',d.n_trees    || 200);
+
+            if (d.feature_importances) {
+                const top = Object.entries(d.feature_importances)[0];
+                if (top) {
+                    localStorage.setItem('dinari_top_feat',     top[0].replace('_enc','').replace('_normalise','').replace('_norm',''));
+                    localStorage.setItem('dinari_top_feat_pct', Math.round(top[1]*100));
+                }
+            }
+            showToast('✓ Modèles entraînés (BDD) — R²=' + parseFloat(d.r2).toFixed(3) + ' · MAE=' + parseFloat(d.mae).toFixed(2) + (d.promo_model_trained ? ' · Promo ML ✓' : ''), 'success', 5000);
+            setTimeout(() => location.reload(), 4000);
+        } else {
+            showToast('✗ ' + (d.error || 'Erreur inconnue'), 'error', 5000);
+        }
+    } catch(e) {
+        showToast('✗ Serveur ML inaccessible — démarrez app.py sur :5000', 'error', 5000);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span> Entraîner le modèle';
+    }
+}
+
+// ─── INIT ────────────────────────────────────────────
+async function initDashboard() {
+    showToast('⏳ Connexion à l\'API ML…', 'info', 4000);
+    try {
+        const health = await apiFetch('/health');
+        const statusEl = document.getElementById('model-status-badge');
+        if (statusEl) {
+            statusEl.textContent = health.model_ready ? '● Modèle prêt' : '● Modèle non entraîné';
+            statusEl.style.color = health.model_ready ? '#16a34a' : '#dc2626';
+        }
+
+        const statsResp = await apiFetch('/stats');
+        if (statsResp.success) statsData = statsResp;
+
+        if (health.model_ready) {
+            const predResp = await apiFetch('/predict');
+            if (predResp.success && predResp.predictions && predResp.predictions.length) {
+                predictions = predResp.predictions;
+                MAX_VENTES  = predictions[0].ventes_totales || 1;
+                metaData    = predResp.meta || {};
+
+                setVelocity(
+                    localStorage.getItem('dinari_r2')    || 0,
+                    localStorage.getItem('dinari_mae')   || 0,
+                    localStorage.getItem('dinari_nfeat') || 7,
+                    localStorage.getItem('dinari_ntrees')|| 200
+                );
+
+                const growEl = document.getElementById('insight-growth');
+                if (growEl && metaData.croissance_pct !== undefined) {
+                    growEl.textContent = (metaData.croissance_pct >= 0 ? '+' : '') + metaData.croissance_pct + '%';
+                    growEl.style.color = metaData.croissance_pct >= 0 ? '#16a34a' : '#dc2626';
+                }
+                const featEl2 = document.getElementById('insight-feature');
+                const tfName  = localStorage.getItem('dinari_top_feat')     || metaData.top_feature || 'prix';
+                const tfPct   = localStorage.getItem('dinari_top_feat_pct') || metaData.top_feature_pct || '–';
+                if (featEl2) featEl2.textContent = tfName + ' ' + tfPct + '%';
+
+                fillStatCards();
+                await buildCharts();
+                buildSparklines();
+                buildSpotlight();
+                renderTable();
+                showToast('✓ ' + predictions.length + ' abonnements BDD chargés · Devise : DT', 'success', 3000);
+            } else {
+                showNotTrainedBanner();
+            }
+        } else {
+            fillStatCards();
+            showNotTrainedBanner();
+            showToast('⚠ Cliquez "Entraîner le modèle" pour générer les prédictions', 'error', 6000);
+        }
+
+    } catch(e) {
+        console.error(e);
+        showToast('✗ Flask API inaccessible (port 5000) — démarrez app.py', 'error', 8000);
+        const statusEl = document.getElementById('model-status-badge');
+        if (statusEl) { statusEl.textContent = '● API hors ligne'; statusEl.style.color = '#dc2626'; }
+    }
+}
+
+function showNotTrainedBanner() {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:linear-gradient(135deg,#1a1625,#2d1f4e);border-radius:20px;padding:3rem;text-align:center;margin-bottom:2rem;';
+    banner.innerHTML =
+        '<div style="font-size:3rem;margin-bottom:1rem;">🤖</div>' +
+        '<div style="font-size:1.5rem;font-weight:800;color:white;margin-bottom:.5rem;">Modèle non entraîné</div>' +
+        '<div style="color:rgba(255,255,255,.5);font-family:var(--font-mono);font-size:13px;margin-bottom:2rem;">Lance l\'entraînement pour charger les données BDD et générer les prédictions ML</div>' +
+        '<button class="btn-primary" onclick="trainModel()" style="margin:0 auto;"><span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>Entraîner maintenant</button>';
+    const tbody = document.querySelector('#rankings-tbody');
+    if (tbody) tbody.closest('.card').before(banner);
+}
+
+document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
+{% endblock %}

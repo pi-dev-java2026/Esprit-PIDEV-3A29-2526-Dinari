@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roue de la chance — Dinari</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(135deg,#0d1b2a 0%,#112240 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#fff;border-radius:24px;padding:36px 28px;max-width:420px;width:100%;text-align:center}
+    .logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#0d1b2a;margin-bottom:4px}
+    .logo span{color:#00b4c6}
+    h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#0d1b2a;margin:16px 0 8px}
+    .sub{font-size:14px;color:#64748b;line-height:1.6;margin-bottom:24px}
+    .wheel-wrap{position:relative;width:280px;height:280px;margin:0 auto 24px}
+    .pointer{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:34px;z-index:2}
+    canvas{border-radius:50%;box-shadow:0 8px 32px rgba(0,0,0,.2);display:block}
+    .spin-btn{width:100%;padding:16px;background:#8cc63f;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .3s;margin-bottom:12px}
+    .spin-btn:hover:not(:disabled){background:#7ab534;transform:translateY(-2px)}
+    .spin-btn:disabled{opacity:.6;cursor:not-allowed}
+    .result{padding:20px;background:#f0fdf4;border:2px solid #8cc63f;border-radius:14px;display:none;margin-bottom:16px}
+    .result .label{font-size:13px;color:#64748b;margin-bottom:6px}
+    .result .code{font-size:28px;font-weight:900;color:#0d1b2a;letter-spacing:.12em;margin:8px 0}
+    .result .desc{font-size:13px;color:#64748b;margin-bottom:12px}
+    .copy-btn{padding:10px 24px;background:#0d1b2a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+    .lose{padding:16px;background:#fff3cd;border:2px solid #ffc107;border-radius:14px;display:none;margin-bottom:16px;color:#856404;font-size:14px;font-weight:600}
+    .note{font-size:11px;color:#94a3b8}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Din<span>ari</span></div>
+  <h1>Roue de la chance !</h1>
+  <p class="sub">Tournez la roue pour tenter de gagner un code promo exclusif sur vos abonnements.</p>
+  <div class="wheel-wrap">
+    <div class="pointer">v</div>
+    <canvas id="wheel" width="280" height="280"></canvas>
+  </div>
+  <div class="lose" id="lose-box">Pas de chance ! <br><span style="font-size:12px;font-weight:400">Retournez la roue !</span></div>
+  <div class="result" id="result-box">
+    <p class="label">Felicitations ! Votre code promo :</p>
+    <div class="code" id="promo-code"></div>
+    <div class="desc" id="promo-desc"></div>
+    <button class="copy-btn" onclick="copyCode()">Copier le code</button>
+  </div>
+  <button class="spin-btn" id="spin-btn" onclick="spinWheel()">Tourner la roue !</button>
+  <div class="note">Un seul gain autorise par session</div>
+</div>
+<script>
+const prizes=[
+  {label:'10% OFF',code:'DINARI10',desc:'10% de reduction sur votre premier abonnement',color:'#00b4c6'},
+  {label:'Perdu',code:null,desc:'',color:'#e2eaf0'},
+  {label:'20% OFF',code:'DINARI20',desc:'20% de reduction valable 48h',color:'#8cc63f'},
+  {label:'Perdu',code:null,desc:'',color:'#dde4ea'},
+  {label:'1 Mois Offert',code:'DINARI1M',desc:'1 mois offert sur le service de votre choix',color:'#007f8c'},
+  {label:'Perdu',code:null,desc:'',color:'#e2eaf0'},
+  {label:'15% OFF',code:'DINARI15',desc:'15% de reduction immediate',color:'#0d1b2a'},
+  {label:'Perdu',code:null,desc:'',color:'#dde4ea'},
+];
+let currentAngle=0,spinning=false;
+function drawWheel(angle){
+  const canvas=document.getElementById('wheel');
+  const ctx=canvas.getContext('2d');
+  const cx=140,cy=140,r=130,arc=2*Math.PI/prizes.length;
+  ctx.clearRect(0,0,280,280);
+  prizes.forEach((p,i)=>{
+    const s=angle+i*arc;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,s+arc);ctx.closePath();
+    ctx.fillStyle=p.color;ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(s+arc/2);ctx.textAlign='right';
+    ctx.fillStyle=['#0d1b2a','#007f8c','#00b4c6','#8cc63f'].includes(p.color)?'#fff':'#0d1b2a';
+    ctx.font='bold 12px sans-serif';
+    ctx.fillText(p.label,r-10,5);
+    ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(cx,cy,20,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();
+  ctx.strokeStyle='#e2eaf0';ctx.lineWidth=2;ctx.stroke();
+}
+drawWheel(0);
+function spinWheel(){
+  if(spinning)return;
+  if(sessionStorage.getItem('dinari_won')){alert('Vous avez deja gagne un code promo !');return;}
+  spinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  document.getElementById('result-box').style.display='none';
+  document.getElementById('lose-box').style.display='none';
+  const winnable=prizes.map((p,i)=>p.code?i:-1).filter(i=>i>=0);
+  const winIndex=Math.random()<0.65?winnable[Math.floor(Math.random()*winnable.length)]:Math.floor(Math.random()*prizes.length);
+  const arc=2*Math.PI/prizes.length;
+  const target=-(winIndex*arc+arc/2)+Math.PI/2;
+  const total=target-currentAngle+Math.PI*2*8;
+  const dur=5000,t0=performance.now(),a0=currentAngle;
+  function ease(t){return 1-Math.pow(1-t,4);}
+  requestAnimationFrame(function run(now){
+    const t=Math.min((now-t0)/dur,1);
+    currentAngle=a0+total*ease(t);
+    drawWheel(currentAngle);
+    if(t<1){requestAnimationFrame(run);return;}
+    spinning=false;
+    const prize=prizes[winIndex];
+    if(prize.code){
+      sessionStorage.setItem('dinari_won',prize.code);
+      document.getElementById('promo-code').textContent=prize.code;
+      document.getElementById('promo-desc').textContent=prize.desc;
+      document.getElementById('result-box').style.display='block';
+      document.getElementById('spin-btn').textContent='Code gagne !';
+    }else{
+      document.getElementById('lose-box').style.display='block';
+      document.getElementById('spin-btn').disabled=false;
+      document.getElementById('spin-btn').textContent='Reessayer !';
+    }
+  });
+}
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('promo-code').textContent)
+    .then(()=>{const b=document.querySelector('.copy-btn');b.textContent='Copie !';setTimeout(()=>b.textContent='Copier le code',2000);});
+}
+if(sessionStorage.getItem('dinari_won')){
+  document.getElementById('promo-code').textContent=sessionStorage.getItem('dinari_won');
+  document.getElementById('result-box').style.display='block';
+  document.getElementById('spin-btn').textContent='Code deja gagne';
+  document.getElementById('spin-btn').disabled=true;
+}
+</script>
+</body>
+</html>

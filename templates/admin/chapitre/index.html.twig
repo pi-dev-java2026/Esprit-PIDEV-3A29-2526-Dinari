@@ -1,0 +1,77 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Chapitres — {{ cours.nomCours }} — Admin{% endblock %}
+{% block page_title %}Chapitres{% endblock %}
+{% block section_title %}{{ cours.nomCours }}{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <div>
+        <h1>Chapitres — {{ cours.nomCours }}</h1>
+        <div class="breadcrumb-d">
+            <a href="{{ path('admin_dashboard') }}">Dashboard</a> ›
+            <a href="{{ path('admin_cours_index') }}">Cours</a> ›
+            Chapitres
+        </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+        <a href="{{ path('admin_cours_index') }}" class="btn-dinari btn-secondary-d">
+            <i class="ri-arrow-left-line"></i> Retour aux cours
+        </a>
+        <a href="{{ path('admin_chapitre_new', {coursId: cours.id}) }}" class="btn-dinari btn-primary-d">
+            <i class="ri-add-line"></i> Nouveau chapitre
+        </a>
+    </div>
+</div>
+
+<div class="card-dinari">
+    <div class="card-header-dinari">
+        <span class="card-title">{{ chapitres|length }} chapitre{{ chapitres|length != 1 ? 's' : '' }}</span>
+    </div>
+    {% if chapitres is empty %}
+        <p style="color:var(--muted);text-align:center;padding:32px;">
+            Aucun chapitre. <a href="{{ path('admin_chapitre_new', {coursId: cours.id}) }}" style="color:var(--blue);">Ajouter le premier</a>
+        </p>
+    {% else %}
+        <table class="table-dinari">
+            <thead>
+                <tr>
+                    <th>Ordre</th>
+                    <th>Titre</th>
+                    <th>Contenu (aperçu)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for ch in chapitres %}
+                <tr>
+                    <td>
+                        <span class="badge-dinari badge-info">{{ ch.position }}</span>
+                    </td>
+                    <td><strong>{{ ch.titre }}</strong></td>
+                    <td style="max-width:300px;color:var(--muted);font-size:13px;">
+                        {{ ch.contenu|default('—')|slice(0,80) }}{% if ch.contenu|length > 80 %}…{% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="{{ path('admin_chapitre_edit', {coursId: cours.id, id: ch.id}) }}"
+                               class="btn-dinari btn-warning-d btn-sm-d">
+                                <i class="ri-edit-line"></i>
+                            </a>
+                            <form method="POST"
+                                  action="{{ path('admin_chapitre_delete', {coursId: cours.id, id: ch.id}) }}"
+                                  onsubmit="return confirm('Supprimer ce chapitre ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_ch_' ~ ch.id) }}">
+                                <button type="submit" class="btn-dinari btn-danger-d btn-sm-d">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

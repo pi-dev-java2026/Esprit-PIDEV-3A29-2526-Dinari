@@ -1,0 +1,274 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Admin — Assistant NLP{% endblock %}
+{% block page_title %}Assistant de Réponse Automatique (NLP){% endblock %}
+
+{% block stylesheets %}
+<style>
+    .ml-container {
+        max-width: 900px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+    
+    @media (max-width: 991px) {
+        .ml-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .ml-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        grid-column: 1 / -1;
+    }
+    
+    .ml-header h1 {
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--blue), var(--indigo));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+    }
+    
+    .ml-header p {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .ml-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Decorative glass orbs */
+    .ml-card.input-card::before {
+        content: ''; position: absolute; top: -50px; left: -50px;
+        width: 150px; height: 150px; background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+    }
+    
+    .ml-card.result-card::before {
+        content: ''; position: absolute; bottom: -50px; right: -50px;
+        width: 150px; height: 150px; background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%); border-radius: 50%; pointer-events: none;
+    }
+
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+
+    .custom-input, .custom-textarea {
+        width: 100%;
+        appearance: none;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--text);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        transition: all 0.3s ease;
+    }
+
+    .custom-textarea { resize: vertical; min-height: 120px; }
+
+    .custom-input:focus, .custom-textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+
+    .ml-btn-submit {
+        width: 100%; padding: 16px; border-radius: 12px;
+        background: linear-gradient(135deg, var(--blue), var(--indigo));
+        color: white; font-weight: 700; font-size: 15px; border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        box-shadow: 0 6px 20px rgba(37,99,235,0.3); transition: all 0.3s ease;
+    }
+
+    .ml-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(37,99,235,0.4); }
+    .ml-btn-submit.loading i { animation: spin 1s linear infinite; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Result styling */
+    .empty-state { text-align: center; color: var(--muted2); padding: 40px 20px; }
+    .empty-state i { font-size: 48px; margin-bottom: 12px; opacity: 0.5; display: block; }
+
+    .result-widget { display: none; animation: slideIn 0.4s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    .category-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
+    .badge-paiement { background: rgba(59,130,246,0.1); color: #2563EB; border: 1px solid rgba(59,130,246,0.2); }
+    .badge-technique { background: rgba(139,92,246,0.1); color: #7C3AED; border: 1px solid rgba(139,92,246,0.2); }
+    .badge-livraison { background: rgba(245,158,11,0.1); color: #D97706; border: 1px solid rgba(245,158,11,0.2); }
+    .badge-service { background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.2); }
+
+    .confidence-meter { margin-bottom: 24px; }
+    .confidence-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+    .confidence-bar-bg { height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden; }
+    .confidence-fill { height: 100%; background: linear-gradient(90deg, #10B981, #34D399); border-radius: 4px; width: 0%; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .generated-response { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 18px; font-size: 14px; line-height: 1.6; color: var(--text); position: relative; margin-bottom: 20px; }
+    .generated-response::before { content: '\201C'; position: absolute; top: -10px; left: 10px; font-size: 40px; color: rgba(37,99,235,0.2); font-family: serif; line-height: 1; }
+
+    .action-row { display: flex; gap: 10px; }
+    .btn-copy { flex: 1; border: 1.5px solid var(--border); background: #fff; border-radius: 10px; padding: 10px; font-weight: 700; font-size: 13px; color: var(--text); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-copy:hover { border-color: var(--blue); color: var(--blue); background: #f0fdf4; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ml-header">
+    <h1>Assistant Réponse NLP (IA)</h1>
+    <p>Saisissez la réclamation du client. L'intelligence artificielle analysera le texte pour détecter le sujet et formuler une réponse adaptée.</p>
+</div>
+
+<div class="ml-container">
+    <!-- FORM SIDE -->
+    <div class="ml-card input-card">
+        <form id="nlp-form">
+            <div class="form-group">
+                <label>Titre de la réclamation</label>
+                <input type="text" id="nlp-title" class="custom-input" placeholder="Ex: Problème de réception de commande..." required>
+            </div>
+            <div class="form-group">
+                <label>Description du client</label>
+                <textarea id="nlp-desc" class="custom-textarea" placeholder="Ex: Bonjour, je n'ai toujours pas reçu mon colis après 5 jours..." required></textarea>
+            </div>
+            
+            <button type="submit" class="ml-btn-submit" id="nlp-submit">
+                <i class="ri-brain-line"></i> Analyser & Générer
+            </button>
+        </form>
+    </div>
+
+    <!-- RESULT SIDE -->
+    <div class="ml-card result-card">
+        <div class="empty-state" id="empty-state">
+            <i class="ri-chat-voice-line"></i>
+            <div>La réponse suggérée apparaîtra ici après l'analyse de l'IA.</div>
+        </div>
+
+        <div class="result-widget" id="result-widget">
+            <div id="category-badge" class="category-badge badge-paiement">
+                <i class="ri-price-tag-3-line"></i> <span id="cat-text">Catégorie</span>
+            </div>
+
+            <div class="confidence-meter">
+                <div class="confidence-header">
+                    <span>Confiance de l'IA (Précision)</span>
+                    <span id="confidence-text">--%</span>
+                </div>
+                <div class="confidence-bar-bg">
+                    <div class="confidence-fill" id="confidence-fill"></div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label><i class="ri-magic-line" style="color:var(--accent);"></i> Réponse générée :</label>
+                <div class="generated-response" id="generated-response">
+                    --
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn-copy" onclick="copyResponse()">
+                    <i class="ri-file-copy-line"></i> Copier la réponse
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function copyResponse() {
+    const text = document.getElementById('generated-response').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Réponse copiée dans le presse-papiers !");
+    });
+}
+
+document.getElementById('nlp-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('nlp-submit');
+    const iconState = btn.querySelector('i');
+    const title = document.getElementById('nlp-title').value;
+    const desc = document.getElementById('nlp-desc').value;
+
+    if(!title || !desc) return;
+
+    btn.classList.add('loading');
+    iconState.className = "ri-loader-4-line";
+
+    fetch('/test-ml-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, description: desc })
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.classList.remove('loading');
+        iconState.className = "ri-brain-line";
+        
+        if(data.success) {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('result-widget').style.display = 'block';
+
+            // Category UI
+            const catBadge = document.getElementById('category-badge');
+            let badgeClass = 'badge-paiement';
+            let iconText = 'ri-price-tag-3-line';
+            
+            switch(data.category) {
+                case 'Technique': badgeClass = 'badge-technique'; iconText = 'ri-macbook-line'; break;
+                case 'Livraison': badgeClass = 'badge-livraison'; iconText = 'ri-truck-line'; break;
+                case 'Service':   badgeClass = 'badge-service';   iconText = 'ri-customer-service-2-line'; break;
+                case 'Paiement':  badgeClass = 'badge-paiement';  iconText = 'ri-bank-card-line'; break;
+            }
+
+            catBadge.className = `category-badge ${badgeClass}`;
+            catBadge.innerHTML = `<i class="${iconText}"></i> <span>Classé: ${data.category}</span>`;
+
+            // Confidence UI
+            const confPercent = Math.round(data.confidence_score * 100);
+            document.getElementById('confidence-text').innerText = `${confPercent}%`;
+            
+            // Allow CSS transition to fire by resetting then setting
+            document.getElementById('confidence-fill').style.width = '0%';
+            setTimeout(() => {
+                document.getElementById('confidence-fill').style.width = `${confPercent}%`;
+                
+                // Color change based on confidence
+                let gradient = 'linear-gradient(90deg, #10B981, #34D399)'; // Green
+                if (confPercent < 50) gradient = 'linear-gradient(90deg, #EF4444, #F87171)'; // Red
+                else if (confPercent < 80) gradient = 'linear-gradient(90deg, #F59E0B, #FBBF24)'; // Yellow
+                
+                document.getElementById('confidence-fill').style.background = gradient;
+            }, 50);
+
+            // Response Text
+            document.getElementById('generated-response').innerText = data.suggested_reply;
+
+        } else {
+            alert("Erreur de l'API IA : " + (data.error || "Inconnu"));
+        }
+    })
+    .catch(error => {
+        btn.classList.remove('loading');
+        iconState.className = "ri-brain-line";
+        alert("Impossible de joindre le serveur Flask. Assurez-vous qu'il tourne sur le port 5000.");
+        console.error(error);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% use 'form_div_layout.html.twig' %}
+
+{# Override only the errors block — render each error as a styled inline message #}
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        {% for error in errors %}
+            <div class="field-error">
+                <i class="ri-error-warning-line"></i> {{ error.message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

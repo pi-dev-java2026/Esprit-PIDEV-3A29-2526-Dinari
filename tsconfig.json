@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": false,
+        "noEmit": true,
+        "strict": false,
+        "target": "ES2017",
+        "module": "ES2020",
+        "moduleResolution": "bundler",
+        "paths": {
+            "@symfony/stimulus-bundle": ["./vendor/symfony/stimulus-bundle/assets/dist/loader.js"],
+            "@symfony/ux-chartjs": ["./vendor/symfony/ux-chartjs/assets/dist/controller.js"],
+            "chart.js": ["./assets/vendor/chart.js/chart.js.index.js"]
+        }
+    },
+    "include": [
+        "assets/**/*"
+    ],
+    "exclude": [
+        "vendor",
+        "var",
+        "public",
+        "node_modules"
+    ]
+}
